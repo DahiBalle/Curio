@@ -1,0 +1,25 @@
+# --- Core framework ---
+Django                    # LTS release
+djangorestframework
+djangorestframework-simplejwt   # token auth for /api/auth/login
+django-cors-headers             # allow the React frontend to call the API
+
+# --- Database ---
+psycopg2-binary           # PostgreSQL adapter
+pgvector                   # VectorField + similarity search for Django ORM
+
+# --- Config ---
+python-dotenv               # load .env for secrets/DB credentials
+
+# --- ML layer ---
+numpy
+scikit-learn             # logistic regression baseline ranking model
+xgboost                     # gradient boosted ranking model (Step 7 upgrade)
+sentence-transformers       # pretrained post/persona embeddings
+joblib                     # save/load trained ranking models
+
+# --- Session embeddings / background jobs ---
+#redis==8.0.1                       # session embedding store (Section 7)
+#django-redis==7.0.0                # use Redis as Django's cache backend
+#celery==5.6.3                      # scheduled retraining job (Step 7), uses Redis as broker
+
