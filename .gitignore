@@ -49,10 +49,6 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Translations
-*.mo
-*.pot
-
 # Django stuff
 local_settings.py
 db.sqlite3
@@ -75,7 +71,7 @@ docs/_build/
 profile_default/
 ipython_config.py
 
-# virtualenv
+# virtualenv / virtual environments
 venv/
 env/
 ENV/
@@ -107,18 +103,56 @@ cython_debug/
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 db.json
 
-# IDEs/Editors
-.vscode/
+# IDEs / Editors
 .idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.vscode/*
+!.vscode/extensions.json
+*.sublime-project
+*.sublime-workspace
 
 # Environments & secrets
 .env
+.env.*
+!.env.example
 *.env
+
+# Machine Learning / Data Science artifacts
+*.pkl
+*.joblib
+*.pb
+*.onnx
+*.h5
+
+# Frontend (Node / React / Vite)
+node_modules/
+jspm_packages/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+dist/
+dist-ssr/
+out/
+.next/
+.nuxt/
+.eslintcache
+.stylelintcache
+.parcel-cache
+.cache/
+.vite/
+*.local
