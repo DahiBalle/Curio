@@ -1,0 +1,283 @@
+import { useState } from 'react';
+import { 
+  isValidEmail,
+  hasPasswordNumber, 
+  hasPasswordSymbol, 
+  hasPasswordCapital, 
+  hasPasswordSmall 
+} from '../../../utils/validators';
+import './PasswordForm.css';
+
+export function EmailForm({ onContinue }) {
+  const [email, setEmail] = useState('');
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [touched, setTouched] = useState(false);
+
+  const emailValid = isValidEmail(email);
+  const showError = touched && email.length > 0 && !emailValid;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setTouched(true);
+    if (emailValid && onContinue) {
+      onContinue(email);
+    }
+  };
+
+  return (
+    <div className={`tablet-panel ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
+
+      {/* Header: Back Button & Mode Switch */}
+      <div className="panel-header-row">
+        <button className="back-btn" aria-label="Go back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          className={`theme-toggle-switch ${isDarkMode ? 'dark' : 'light'}`}
+          onClick={() => setIsDarkMode(prev => !prev)}
+          aria-label="Toggle theme"
+        >
+          <div className="toggle-icons">
+            <svg className="toggle-svg sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg className="toggle-svg moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </div>
+          <div className="toggle-knob"></div>
+        </button>
+      </div>
+
+      {/* Title */}
+      <h2 className="panel-title">
+        What's your email address?
+      </h2>
+
+      {/* Form */}
+      <form className="email-form-body" onSubmit={handleSubmit}>
+        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError ? 'error' : ''}`}>
+          <label className="input-label" htmlFor="email-field">Email</label>
+          <div className="input-wrapper">
+            <input
+              id="email-field"
+              type="email"
+              className="password-input"
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setTouched(true); }}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => { setIsFocused(false); setTouched(true); }}
+              autoFocus
+            />
+            {email.length > 0 && (
+              <button
+                type="button"
+                className="toggle-visibility-btn"
+                onClick={() => setEmail('')}
+                aria-label="Clear email"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {showError && (
+          <p className="email-error-text">Please enter a valid email address</p>
+        )}
+
+        {emailValid && (
+          <div className="email-valid-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" fill="#48BB78" />
+              <path d="M9 12l2 2 4-4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span>Looks good!</span>
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="continue-btn"
+          disabled={!emailValid}
+        >
+          Continue
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Compute criteria checks using validators
+  const checks = {
+    length: password.length >= 8,
+    casing: hasPasswordCapital(password) && hasPasswordSmall(password),
+    number: hasPasswordNumber(password),
+    special: hasPasswordSymbol(password),
+  };
+
+  const isAllMet = checks.length && checks.casing && checks.number && checks.special;
+
+  const toggleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isAllMet) {
+      alert("Success! Password created successfully.");
+    }
+  };
+
+  return (
+    <div className={`tablet-panel ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
+      
+      {/* Tablet Panel Header: Back Button & Mode Switch */}
+      <div className="panel-header-row">
+        <button className="back-btn" aria-label="Go back">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+
+        {/* Mode Switch Toggle Button */}
+        <button
+          type="button"
+          className={`theme-toggle-switch ${isDarkMode ? 'dark' : 'light'}`}
+          onClick={() => setIsDarkMode(prev => !prev)}
+          aria-label="Toggle theme"
+        >
+          <div className="toggle-icons">
+            {/* Sun Icon */}
+            <svg className="toggle-svg sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            {/* Moon Icon */}
+            <svg className="toggle-svg moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </div>
+          <div className="toggle-knob"></div>
+        </button>
+      </div>
+
+      {/* Screen Title */}
+      <h2 className="panel-title">
+        Create your password for <span className="panel-email">{email}</span>
+      </h2>
+
+      {/* Tablet Content Layout */}
+      <form className="panel-content" onSubmit={handleSubmit}>
+        
+        {/* Left Column: Form Inputs & Continue Button */}
+        <div className="panel-col-left">
+          <div className={`input-container ${isFocused ? 'focused' : ''}`}>
+            <label className="input-label" htmlFor="password-field">Password</label>
+            <div className="input-wrapper">
+              <input
+                id="password-field"
+                type={showPassword ? 'text' : 'password'}
+                className="password-input"
+                placeholder="Create a password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                autoFocus
+              />
+              <button
+                type="button"
+                className="toggle-visibility-btn"
+                onClick={toggleShowPassword}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="continue-btn"
+            disabled={!isAllMet}
+          >
+            Continue
+          </button>
+        </div>
+
+        {/* Right Column: Validation Requirements */}
+        <div className="panel-col-right">
+          <div className="requirements-list">
+            <RequirementRow text="Minimum 8 characters" isMet={checks.length} />
+            <RequirementRow text="One uppercase & lowercase letter" isMet={checks.casing} />
+            <RequirementRow text="One number" isMet={checks.number} />
+            <RequirementRow text="One special character" isMet={checks.special} />
+          </div>
+        </div>
+
+      </form>
+    </div>
+  );
+}
+
+function RequirementRow({ text, isMet }) {
+  return (
+    <div className={`requirement-row ${isMet ? 'met' : ''}`}>
+      {isMet ? (
+        <svg className="requirement-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#48BB78" />
+          <path d="M9 12l2 2 4-4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <svg className="requirement-icon" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="#CBD5E0" strokeWidth="2.5" fill="none" />
+          <path d="M9 9l6 6M15 9l-6 6" stroke="#CBD5E0" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )}
+      <span>{text}</span>
+    </div>
+  );
+}
