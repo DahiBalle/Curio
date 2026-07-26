@@ -9,5 +9,15 @@ export function hasPasswordNumber(password) {
   return /[0-9]/.test(password);
 }
 export function hasPasswordSymbol(password) {
-  return /[^A-Za-z0-9\s]/.test(password);
+  return /[^A-Za-z0-9]/.test(password);
 }
+export function hasPasswordWhiteSpace(password) {
+  return /[\s]/.test(password);
+}
+export function hasPasswordCapital(password) {
+  return /[A-Z]/.test(password);
+}
+export function hasPasswordSmall(password) {
+  return /[a-z]/.test(password);
+}
+
