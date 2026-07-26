@@ -1,0 +1,1 @@
+// Array pure utility functions
