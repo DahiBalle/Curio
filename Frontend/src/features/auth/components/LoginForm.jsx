@@ -1,26 +1,36 @@
 import { useState } from 'react';
-import { 
+import {
   isValidEmail,
-  hasPasswordNumber, 
-  hasPasswordSymbol, 
-  hasPasswordCapital, 
-  hasPasswordSmall 
+  hasPasswordNumber,
+  hasPasswordSymbol,
+  hasPasswordCapital,
+  hasPasswordSmall,
+  hasNoWhiteSpace,
 } from '../../../utils/validators';
 import './PasswordForm.css';
 
-export function EmailForm({ onContinue }) {
+export function EmailForm({
+  onContinue,
+  isDarkMode: propIsDarkMode,
+  onToggleTheme,
+  stepLabel = "Step 1/2"
+}) {
   const [email, setEmail] = useState('');
   const [isFocused, setIsFocused] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [localIsDarkMode, setLocalIsDarkMode] = useState(false);
   const [touched, setTouched] = useState(false);
 
-  const emailValid = isValidEmail(email);
-  const showError = touched && email.length > 0 && !emailValid;
+  const isDarkMode = propIsDarkMode !== undefined ? propIsDarkMode : localIsDarkMode;
+  const toggleTheme = onToggleTheme || (() => setLocalIsDarkMode(prev => !prev));
+
+  const hasSpace = !hasNoWhiteSpace(email);
+  const emailValid = isValidEmail(email) && !hasSpace;
+  const showError = touched && email.length > 0 && !isValidEmail(email) && !hasSpace;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setTouched(true);
-    if (emailValid && onContinue) {
+    if (emailValid && !hasSpace && onContinue) {
       onContinue(email);
     }
   };
@@ -28,19 +38,16 @@ export function EmailForm({ onContinue }) {
   return (
     <div className={`tablet-panel ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
 
-      {/* Header: Back Button & Mode Switch */}
+      {/* Header: Step Label & Mode Switch */}
       <div className="panel-header-row">
-        <button className="back-btn" aria-label="Go back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </button>
+        <div className="header-left-group">
+          <span className="step-label">{stepLabel}</span>
+        </div>
 
         <button
           type="button"
           className={`theme-toggle-switch ${isDarkMode ? 'dark' : 'light'}`}
-          onClick={() => setIsDarkMode(prev => !prev)}
+          onClick={toggleTheme}
           aria-label="Toggle theme"
         >
           <div className="toggle-icons">
@@ -70,7 +77,7 @@ export function EmailForm({ onContinue }) {
 
       {/* Form */}
       <form className="email-form-body" onSubmit={handleSubmit}>
-        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError ? 'error' : ''}`}>
+        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError || hasSpace ? 'error' : ''}`}>
           <label className="input-label" htmlFor="email-field">Email</label>
           <div className="input-wrapper">
             <input
@@ -100,7 +107,11 @@ export function EmailForm({ onContinue }) {
           </div>
         </div>
 
-        {showError && (
+        {hasSpace && (
+          <p className="email-error-text">*email cannot contain spaces</p>
+        )}
+
+        {showError && !hasSpace && (
           <p className="email-error-text">Please enter a valid email address</p>
         )}
 
@@ -117,7 +128,7 @@ export function EmailForm({ onContinue }) {
         <button
           type="submit"
           className="continue-btn"
-          disabled={!emailValid}
+          disabled={!emailValid || hasSpace}
         >
           Continue
         </button>
@@ -126,11 +137,22 @@ export function EmailForm({ onContinue }) {
   );
 }
 
-export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
+export function PasswordForm({
+  email = "alexsmith.mobbin@gmail.com",
+  isDarkMode: propIsDarkMode,
+  onToggleTheme,
+  stepLabel = "Step 2/2",
+  onBack
+}) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [localIsDarkMode, setLocalIsDarkMode] = useState(false);
+
+  const isDarkMode = propIsDarkMode !== undefined ? propIsDarkMode : localIsDarkMode;
+  const toggleTheme = onToggleTheme || (() => setLocalIsDarkMode(prev => !prev));
+
+  const hasSpace = !hasNoWhiteSpace(password);
 
   // Compute criteria checks using validators
   const checks = {
@@ -138,9 +160,10 @@ export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
     casing: hasPasswordCapital(password) && hasPasswordSmall(password),
     number: hasPasswordNumber(password),
     special: hasPasswordSymbol(password),
+    noWhiteSpace: hasNoWhiteSpace(password),
   };
 
-  const isAllMet = checks.length && checks.casing && checks.number && checks.special;
+  const isAllMet = checks.length && checks.casing && checks.number && checks.special && checks.noWhiteSpace;
 
   const toggleShowPassword = () => {
     setShowPassword((prev) => !prev);
@@ -155,21 +178,26 @@ export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
 
   return (
     <div className={`tablet-panel ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
-      
-      {/* Tablet Panel Header: Back Button & Mode Switch */}
+
+      {/* Tablet Panel Header: Back Button & Step Label & Mode Switch */}
       <div className="panel-header-row">
-        <button className="back-btn" aria-label="Go back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </button>
+        <div className="header-left-group">
+          {onBack && (
+            <button className="back-btn" onClick={onBack} aria-label="Go back">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+          )}
+          <span className="step-label">{stepLabel}</span>
+        </div>
 
         {/* Mode Switch Toggle Button */}
         <button
           type="button"
           className={`theme-toggle-switch ${isDarkMode ? 'dark' : 'light'}`}
-          onClick={() => setIsDarkMode(prev => !prev)}
+          onClick={toggleTheme}
           aria-label="Toggle theme"
         >
           <div className="toggle-icons">
@@ -201,10 +229,10 @@ export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
 
       {/* Tablet Content Layout */}
       <form className="panel-content" onSubmit={handleSubmit}>
-        
+
         {/* Left Column: Form Inputs & Continue Button */}
         <div className="panel-col-left">
-          <div className={`input-container ${isFocused ? 'focused' : ''}`}>
+          <div className={`input-container ${isFocused ? 'focused' : ''} ${hasSpace ? 'error' : ''}`}>
             <label className="input-label" htmlFor="password-field">Password</label>
             <div className="input-wrapper">
               <input
@@ -217,6 +245,7 @@ export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 autoFocus
+                maxLength={16}
               />
               <button
                 type="button"
@@ -238,6 +267,10 @@ export function PasswordForm({ email = "alexsmith.mobbin@gmail.com" }) {
               </button>
             </div>
           </div>
+
+          {hasSpace && (
+            <p className="password-error-text">*password cannot contain spaces</p>
+          )}
 
           <button
             type="submit"
