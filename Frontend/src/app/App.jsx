@@ -1,11 +1,9 @@
-import { SignupPage } from '../features/auth';
+import { ProfilePage } from '../features/profile';
 import './App.css';
 
 function App() {
   return (
-    <div className="demo-page-wrapper">
-      <SignupPage />
-    </div>
+    <ProfilePage />
   );
 }
 

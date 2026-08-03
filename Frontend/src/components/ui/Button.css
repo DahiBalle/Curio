@@ -1,0 +1,64 @@
+.ui-button {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+    line-height: 18px;
+    text-decoration: none;
+}
+
+.ui-button:hover {
+    opacity: 0.85;
+}
+
+.ui-button:active {
+    opacity: 0.7;
+}
+
+/* Primary style (like Instagram's Follow button) */
+.ui-button--primary {
+    background-color: #0095f6;
+    color: #fff;
+}
+
+.ui-button--primary:hover {
+    background-color: #1877f2;
+}
+
+/* Secondary style (like Instagram's Message/Edit Profile button) */
+.ui-button--secondary {
+    background-color: #efefef;
+    color: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ui-button--secondary {
+        background-color: #363636;
+        color: #f5f5f5;
+    }
+
+    .ui-button--secondary:hover {
+        background-color: #262626;
+    }
+}
+
+/* IconButton style */
+.ui-button--icon {
+    background-color: #efefef;
+    color: #000;
+    padding: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .ui-button--icon {
+        background-color: #363636;
+        color: #f5f5f5;
+    }
+}

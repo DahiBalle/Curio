@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { isValidEmail, hasNoWhiteSpace } from '../../../utils/validators';
+import { authApi } from '../api/authApi';
 import './PasswordForm.css';
 
-export function EmailForm({ 
-  onContinue, 
-  isDarkMode: propIsDarkMode, 
-  onToggleTheme, 
-  stepLabel = "Step 1/3" 
+export function EmailForm({
+  onContinue,
+  isDarkMode: propIsDarkMode,
+  onToggleTheme,
+  stepLabel = "Step 1/3"
 }) {
   const [email, setEmail] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const [localIsDarkMode, setLocalIsDarkMode] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [accountExists, setAccountExists] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
 
   const isDarkMode = propIsDarkMode !== undefined ? propIsDarkMode : localIsDarkMode;
   const toggleTheme = onToggleTheme || (() => setLocalIsDarkMode(prev => !prev));
@@ -20,12 +23,28 @@ export function EmailForm({
   const emailValid = isValidEmail(email) && !hasSpace;
   const showError = touched && email.length > 0 && !isValidEmail(email) && !hasSpace;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setTouched(true);
-    if (emailValid && !hasSpace && onContinue) {
-      onContinue(email);
+    if (!emailValid || hasSpace) return;
+
+    setAccountExists(false);
+
+    try {
+      setIsChecking(true);
+      const { exists } = await authApi.checkEmailExists(email);
+      if (exists) {
+        setAccountExists(true);
+        return;
+      }
+    } catch (err) {
+      // If the check fails, let the user proceed
+      console.error('Email check failed:', err);
+    } finally {
+      setIsChecking(false);
     }
+
+    if (onContinue) onContinue(email);
   };
 
   return (
@@ -70,7 +89,7 @@ export function EmailForm({
 
       {/* Form */}
       <form className="email-form-body" onSubmit={handleSubmit}>
-        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError || hasSpace ? 'error' : ''}`}>
+        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError || hasSpace || accountExists ? 'error' : ''}`}>
           <label className="input-label" htmlFor="email-field">Email</label>
           <div className="input-wrapper">
             <input
@@ -79,7 +98,11 @@ export function EmailForm({
               className="password-input"
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => { setEmail(e.target.value); setTouched(true); }}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setTouched(true);
+                setAccountExists(false);
+              }}
               onFocus={() => setIsFocused(true)}
               onBlur={() => { setIsFocused(false); setTouched(true); }}
               autoFocus
@@ -108,7 +131,11 @@ export function EmailForm({
           <p className="email-error-text">Please enter a valid email address</p>
         )}
 
-        {emailValid && (
+        {accountExists && (
+          <p className="email-error-text">Account already exists</p>
+        )}
+
+        {emailValid && !accountExists && (
           <div className="email-valid-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" fill="#48BB78" />
@@ -121,9 +148,9 @@ export function EmailForm({
         <button
           type="submit"
           className="continue-btn"
-          disabled={!emailValid || hasSpace}
+          disabled={!emailValid || hasSpace || isChecking}
         >
-          Continue
+          {isChecking ? 'Checking…' : 'Continue'}
         </button>
       </form>
     </div>
