@@ -1,4 +1,6 @@
 // Public surface entry point for auth feature
 export { useLogin } from './hooks/useLogin';
-export { EmailForm, PasswordForm } from './components/LoginForm';
-export { LoginPage } from './pages/LoginPage';
+export { EmailForm } from './components/EmailForm';
+export { PasswordForm } from './components/PasswordForm';
+export { ConfirmPasswordForm } from './components/ConfirmPasswordForm';
+export { SignupPage } from './pages/SignupPage';

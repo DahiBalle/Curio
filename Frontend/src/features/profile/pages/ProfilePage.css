@@ -1,0 +1,36 @@
+.profile-page {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding-top: 30px;
+}
+
+.profile-page-content {
+  width: 100%;
+  max-width: 935px; /* Instagram's desktop max width for content */
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.profile-page-loading,
+.profile-page-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.profile-tab-content {
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .profile-page {
+    padding-top: 10px;
+  }
+  .profile-page-content {
+    padding: 0;
+  }
+}
