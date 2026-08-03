@@ -5,6 +5,8 @@ export const useProfile = (username) => {
   const [profile, setProfile] = useState(null);
   const [personas, setPersonas] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [activePersona, setActivePersona] = useState(null);
+  const [interestFloor, setInterestFloor] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -15,16 +17,20 @@ export const useProfile = (username) => {
       setLoading(true);
       setError(null);
       try {
-        const [profileData, personasData, postsData] = await Promise.all([
+        const [profileData, personasData, postsData, activePersonaData, interestFloorData] = await Promise.all([
           profileApi.getProfile(username),
           profileApi.getPersonas(username),
-          profileApi.getPosts(username)
+          profileApi.getPosts(username),
+          profileApi.getActivePersona(username),
+          profileApi.getInterestFloor(1) // default persona id
         ]);
 
         if (isMounted) {
           setProfile(profileData);
           setPersonas(personasData);
           setPosts(postsData);
+          setActivePersona(activePersonaData);
+          setInterestFloor(interestFloorData);
         }
       } catch (err) {
         if (isMounted) {
@@ -48,6 +54,8 @@ export const useProfile = (username) => {
     profile,
     personas,
     posts,
+    activePersona,
+    interestFloor,
     loading,
     error
   };

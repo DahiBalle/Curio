@@ -1,10 +1,15 @@
 import { ProfilePage } from '../features/profile';
+import { Navbar } from '../components/layout/Navbar';
 import './App.css';
 
 function App() {
   return (
-    <ProfilePage />
+    <>
+      <Navbar />
+      <ProfilePage />
+    </>
   );
 }
 
 export default App;
+
