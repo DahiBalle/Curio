@@ -28,9 +28,6 @@ export const ProfilePage = () => {
 
   return (
     <div className="profile-page-layout">
-      {/* Left aside — empty placeholder for future nav sidebar */}
-      <aside className="profile-page-left-aside"></aside>
-
       {/* Center — main content */}
       <main className="profile-page-main">
         <ProfileHeader profile={profile} />
