@@ -5,10 +5,11 @@ import { ProfileHeader } from '../components/ProfileHeader';
 import { PersonaList } from '../components/PersonaList';
 import { ProfileFeed } from '../components/ProfileFeed';
 import { Tabs } from '../../../components/ui/Tabs';
+import { PersonaCard, InterestFloor } from '../../persona';
 
 export const ProfilePage = () => {
   // Hardcoded 'redbull' for demo purposes
-  const { profile, personas, posts, loading, error } = useProfile('redbull');
+  const { profile, personas, posts, activePersona, interestFloor, loading, error } = useProfile('redbull');
   const [activeTab, setActiveTab] = useState(0);
 
   if (loading) {
@@ -26,19 +27,31 @@ export const ProfilePage = () => {
   ];
 
   return (
-    <main className="profile-page">
-      <div className="profile-page-content">
+    <div className="profile-page-layout">
+      {/* Left aside — empty placeholder for future nav sidebar */}
+      <aside className="profile-page-left-aside"></aside>
+
+      {/* Center — main content */}
+      <main className="profile-page-main">
         <ProfileHeader profile={profile} />
         <PersonaList personas={personas} />
-        
+
         <Tabs tabs={tabs} defaultTab={0} onTabChange={setActiveTab} />
-        
+
         <div className="profile-tab-content">
           {activeTab === 0 && <ProfileFeed posts={posts} />}
           {activeTab === 1 && <ProfileFeed posts={posts.filter(p => p.type === 'video')} />}
           {activeTab === 2 && <ProfileFeed posts={[]} />}
         </div>
-      </div>
-    </main>
+      </main>
+
+      {/* Right aside — Active Persona + Interest Floor */}
+      <aside className="profile-page-right-aside">
+        <div className="profile-page-sidebar-sticky">
+          <PersonaCard persona={activePersona} />
+          <InterestFloor labels={interestFloor} />
+        </div>
+      </aside>
+    </div>
   );
 };

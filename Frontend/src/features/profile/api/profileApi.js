@@ -70,6 +70,23 @@ const mockPosts = [
   }
 ];
 
+const mockActivePersona = {
+  id: 1,
+  name: "Zero Excuses",
+  avatarUrl: "https://picsum.photos/id/10/200/200",
+  bio: "\"For all it was worth, it was worth all the while\" -Greenday",
+  postsCount: "4,767"
+};
+
+const mockInterestFloor = [
+  { id: 1, name: "r/ahmedabad", avatarUrl: "https://picsum.photos/id/30/32/32" },
+  { id: 2, name: "r/announcements", avatarUrl: "https://picsum.photos/id/31/32/32" },
+  { id: 3, name: "r/MemePiece", avatarUrl: "https://picsum.photos/id/32/32/32" },
+  { id: 4, name: "r/okbuddyliterature", avatarUrl: "https://picsum.photos/id/33/32/32" },
+  { id: 5, name: "r/PeterExplains", avatarUrl: "https://picsum.photos/id/34/32/32" },
+  { id: 6, name: "r/ShinChan", avatarUrl: "https://picsum.photos/id/35/32/32" },
+];
+
 export const profileApi = {
   getProfile: (username) => {
     return new Promise((resolve) => {
@@ -84,6 +101,16 @@ export const profileApi = {
   getPosts: (username, page = 1) => {
     return new Promise((resolve) => {
       setTimeout(() => resolve(mockPosts), 700);
+    });
+  },
+  getActivePersona: (username) => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(mockActivePersona), 400);
+    });
+  },
+  getInterestFloor: (personaId) => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(mockInterestFloor), 450);
     });
   }
 };
