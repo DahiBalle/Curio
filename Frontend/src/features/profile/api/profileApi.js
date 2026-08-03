@@ -27,11 +27,48 @@ const mockPersonas = [
   { id: 7, title: "Motorsports", imageUrl: "https://picsum.photos/id/16/200/200" },
 ];
 
-const mockPosts = Array.from({ length: 15 }).map((_, i) => ({
-  id: `post-${i}`,
-  imageUrl: `https://picsum.photos/id/${i + 100}/400/400`,
-  type: i % 3 === 0 ? 'video' : 'image', // some videos
-}));
+const mockPosts = [
+  {
+    id: "post-1",
+    subreddit: "r/ahmedabad",
+    authorAvatar: "https://picsum.photos/id/102/32/32",
+    timeAgo: "2 days ago",
+    title: "My recent creations",
+    description: "Here are some of the recent crocheted figures I made. What do you guys think? I spent a lot of time on these batmans.",
+    imageUrl: "https://picsum.photos/id/103/600/600",
+    upvotes: "109",
+    commentsCount: "48",
+    label: null,
+    type: "image"
+  },
+  {
+    id: "post-2",
+    subreddit: "r/Advice",
+    author: "u/Alarmed-Cookie-2849",
+    authorAvatar: "https://picsum.photos/id/104/32/32",
+    timeAgo: "13 hr. ago",
+    title: "I cannot afford my own therapy",
+    description: "I've been dealing with a lot of very stressful life events and don't really have a support system at the moment. I am living paycheck to paycheck and financially really can't afford therapy right now, but I feel like emotionally I can't afford not to go to therapy. I am really struggling. For months I have been searching for someone who takes my insurance and I am running into dead end after dead end. I have found a few who have taken my insurance but are not taking any new clients, or whose openings are during my 9-5. If I had the extra money, I would pay the $150-200 self-pay fees because I understand insurance companies make it very difficult for...",
+    imageUrl: null,
+    upvotes: "116",
+    commentsCount: "63",
+    label: "Rant - Advice wanted",
+    type: "text"
+  },
+  {
+    id: "post-3",
+    subreddit: "r/crochet",
+    authorAvatar: "https://picsum.photos/id/105/32/32",
+    timeAgo: "5 hr. ago",
+    title: "Another batch of orders done!",
+    description: "Finished these just in time for the weekend market.",
+    imageUrl: "https://picsum.photos/id/106/600/400",
+    upvotes: "432",
+    commentsCount: "12",
+    label: "Finished Object",
+    type: "image"
+  }
+];
 
 export const profileApi = {
   getProfile: (username) => {
