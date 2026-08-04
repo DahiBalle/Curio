@@ -14,7 +14,8 @@ const mockProfileData = {
   threadsUsername: "redbull",
   followedBy: ["ljkuconfession", "ash_dykes"],
   followedByCount: 4,
-  avatarUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/RedBullEnergyDrink.svg/1200px-RedBullEnergyDrink.svg.png"
+  avatarUrl: "https://avatars.githubusercontent.com/u/9919?v=4",
+  bannerUrl: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200&auto=format&fit=crop"
 };
 
 const mockPersonas = [

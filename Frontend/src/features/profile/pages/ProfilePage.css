@@ -1,36 +1,36 @@
 /* ============================================
-   ProfilePage — Three-column layout
-   Left aside (future nav) | Main content | Right sidebar
+   ProfilePage — Two-column layout
+   Main content | Right sidebar
    ============================================ */
 
 .profile-page-layout {
-  display: grid;
-  grid-template-columns: 64px 1fr 312px;
-  gap: 24px;
-  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 16px;
+  padding: 32px 16px;
   box-sizing: border-box;
-}
-
-/* Left aside — empty now, reserved for future left nav */
-.profile-page-left-aside {
-  /* Intentionally empty — will hold nav sidebar in the future */
 }
 
 /* Center — main content area */
 .profile-page-main {
-  min-width: 0; /* Prevent grid blowout */
+  flex: 1;
+  width: 100%;
+  max-width: 950px; /* Constrain main content width */
+  min-width: 0;
 }
 
 /* Right aside — persona + interest floor */
 .profile-page-right-aside {
-  min-width: 0;
+  width: 312px;
+  min-width: 312px;
 }
 
 .profile-page-sidebar-sticky {
   position: sticky;
-  top: 64px; /* below the navbar (48px height + 16px breathing room) */
+  top: 32px; /* Breathing room from top */
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -57,11 +57,10 @@
 /* Hide right sidebar on smaller screens */
 @media (max-width: 960px) {
   .profile-page-layout {
-    grid-template-columns: 1fr;
+    gap: 0;
     padding: 16px 8px;
   }
 
-  .profile-page-left-aside,
   .profile-page-right-aside {
     display: none;
   }
@@ -71,6 +70,5 @@
 @media (max-width: 480px) {
   .profile-page-layout {
     padding: 8px 0;
-    gap: 0;
   }
 }

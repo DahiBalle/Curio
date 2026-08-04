@@ -1,61 +1,44 @@
 import { useState } from 'react';
 import { isValidEmail, hasNoWhiteSpace } from '../../../utils/validators';
-import { authApi } from '../api/authApi';
 import './PasswordForm.css';
 
-export function EmailForm({
-  onContinue,
+export function LoginForm({
+  onLoginComplete,
   isDarkMode: propIsDarkMode,
-  onToggleTheme,
-  stepLabel = "Step 1/3"
+  onToggleTheme
 }) {
   const [email, setEmail] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [localIsDarkMode, setLocalIsDarkMode] = useState(false);
-  const [touched, setTouched] = useState(false);
-  const [accountExists, setAccountExists] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
 
   const isDarkMode = propIsDarkMode !== undefined ? propIsDarkMode : localIsDarkMode;
   const toggleTheme = onToggleTheme || (() => setLocalIsDarkMode(prev => !prev));
 
   const hasSpace = !hasNoWhiteSpace(email);
   const emailValid = isValidEmail(email) && !hasSpace;
-  const showError = touched && email.length > 0 && !isValidEmail(email) && !hasSpace;
+  const showError = emailTouched && email.length > 0 && !isValidEmail(email) && !hasSpace;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched(true);
-    if (!emailValid || hasSpace) return;
+    setEmailTouched(true);
+    if (!emailValid || hasSpace || !password) return;
 
-    setAccountExists(false);
-
-    try {
-      setIsChecking(true);
-      const { exists } = await authApi.checkEmailExists(email);
-      if (exists) {
-        setAccountExists(true);
-        return;
-      }
-    } catch (err) {
-      // If the check fails, let the user proceed
-      console.error('Email check failed:', err);
-    } finally {
-      setIsChecking(false);
+    if (onLoginComplete) {
+      onLoginComplete({ email });
+    } else {
+      alert(`Success! Logged in as ${email}.`);
     }
-
-    if (onContinue) onContinue(email);
   };
 
   return (
     <div className={`tablet-panel ${isDarkMode ? 'dark-theme' : 'light-theme'}`}>
 
-      {/* Header: Step Label & Mode Switch */}
-      <div className="panel-header-row">
-        <div className="header-left-group">
-          <span className="step-label">{stepLabel}</span>
-        </div>
-
+      {/* Header: Mode Switch */}
+      <div className="panel-header-row" style={{ justifyContent: 'flex-end' }}>
         <button
           type="button"
           className={`theme-toggle-switch ${isDarkMode ? 'dark' : 'light'}`}
@@ -84,27 +67,26 @@ export function EmailForm({
 
       {/* Title */}
       <h2 className="panel-title">
-        What's your email address?
+        Welcome back
       </h2>
 
       {/* Form */}
       <form className="email-form-body" onSubmit={handleSubmit}>
-        <div className={`input-container ${isFocused ? 'focused' : ''} ${showError || hasSpace || accountExists ? 'error' : ''}`}>
-          <label className="input-label" htmlFor="email-field">Email</label>
+        <div className={`input-container ${isFocusedEmail ? 'focused' : ''} ${showError || hasSpace ? 'error' : ''}`}>
+          <label className="input-label" htmlFor="login-email">Email</label>
           <div className="input-wrapper">
             <input
-              id="email-field"
+              id="login-email"
               type="email"
               className="password-input"
               placeholder="name@example.com"
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                setTouched(true);
-                setAccountExists(false);
+                setEmailTouched(true);
               }}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => { setIsFocused(false); setTouched(true); }}
+              onFocus={() => setIsFocusedEmail(true)}
+              onBlur={() => { setIsFocusedEmail(false); setEmailTouched(true); }}
               autoFocus
             />
             {email.length > 0 && (
@@ -131,11 +113,7 @@ export function EmailForm({
           <p className="email-error-text">Please enter a valid email address</p>
         )}
 
-        {accountExists && (
-          <p className="email-error-text">Account already exists</p>
-        )}
-
-        {emailValid && !accountExists && (
+        {emailValid && (
           <div className="email-valid-badge">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="10" fill="#48BB78" />
@@ -145,16 +123,50 @@ export function EmailForm({
           </div>
         )}
 
+        <div className={`input-container ${isFocusedPassword ? 'focused' : ''}`}>
+          <label className="input-label" htmlFor="login-password">Password</label>
+          <div className="input-wrapper">
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              className="password-input"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setIsFocusedPassword(true)}
+              onBlur={() => setIsFocusedPassword(false)}
+            />
+            <button
+              type="button"
+              className="toggle-visibility-btn"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
         <button
           type="submit"
           className="continue-btn"
-          disabled={!emailValid || hasSpace || isChecking}
+          disabled={!emailValid || hasSpace || !password}
         >
-          {isChecking ? 'Checking…' : 'Continue'}
+          Log in
         </button>
 
         <div className="auth-switch-prompt">
-          Already have an account? <a href="/login" className="auth-switch-link">Log in</a>
+          Don't have an account? <a href="/signup" className="auth-switch-link">Sign up</a>
         </div>
       </form>
     </div>
