@@ -30,7 +30,15 @@ export function SignupPage({ onSignupComplete }) {
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
   return (
-    <>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: isDarkMode ? '#1a202c' : '#f7fafc',
+      transition: 'background-color 0.3s ease'
+    }}>
       {step === 'email' && (
         <EmailForm
           onContinue={handleEmailContinue}
@@ -62,6 +70,6 @@ export function SignupPage({ onSignupComplete }) {
           stepLabel="Step 3/3"
         />
       )}
-    </>
+    </div>
   );
 }

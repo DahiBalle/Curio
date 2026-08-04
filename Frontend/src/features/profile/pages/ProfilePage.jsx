@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ProfilePage.css';
 import { useProfile } from '../hooks/useProfile';
+import { usePersona } from '../../../context/PersonaContext';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PersonaList } from '../components/PersonaList';
 import { ProfileFeed } from '../components/ProfileFeed';
@@ -9,7 +10,8 @@ import { PersonaCard, InterestFloor } from '../../persona';
 
 export const ProfilePage = () => {
   // Hardcoded 'redbull' for demo purposes
-  const { profile, personas, posts, activePersona, interestFloor, loading, error } = useProfile('redbull');
+  const { profile, personas, posts, loading, error } = useProfile('redbull');
+  const { activePersona, interestFloor } = usePersona();
   const [activeTab, setActiveTab] = useState(0);
 
   if (loading) {

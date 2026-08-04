@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink, Link } from 'react-router-dom';
 import './Sidebar.css';
 import { Avatar } from '../ui/Avatar';
 
@@ -10,13 +11,13 @@ export const Sidebar = ({ onSearchClick }) => {
       </div>
 
       <nav className="sidebar__nav">
-        <a href="#" className="sidebar__nav-item">
+        <NavLink to="/" className={({ isActive }) => `sidebar__nav-item ${isActive ? 'active' : ''}`} end>
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
             <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
           <span className="sidebar__label">Home</span>
-        </a>
+        </NavLink>
 
         <button className="sidebar__nav-item sidebar__btn" onClick={onSearchClick}>
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -50,21 +51,21 @@ export const Sidebar = ({ onSearchClick }) => {
           <span className="sidebar__label">Create</span>
         </a>
 
-        <a href="#" className="sidebar__nav-item">
+        <NavLink to="/profile" className={({ isActive }) => `sidebar__nav-item ${isActive ? 'active' : ''}`}>
           <Avatar src="https://picsum.photos/id/64/32/32" alt="Profile" size="small" />
           <span className="sidebar__label">Profile</span>
-        </a>
+        </NavLink>
       </nav>
 
       <div className="sidebar__footer">
-        <a href="#" className="sidebar__nav-item">
+        <Link to="/login" className="sidebar__nav-item">
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           <span className="sidebar__label">Logout</span>
-        </a>
+        </Link>
       </div>
     </aside>
   );
