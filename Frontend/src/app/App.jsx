@@ -4,6 +4,7 @@ import { ProfilePage } from '../features/profile';
 import { Sidebar } from '../components/layout/Sidebar';
 import { SearchOverlay } from '../components/layout/SearchOverlay';
 import { SignupPage, LoginPage } from '../features/auth';
+import { OnboardingPage } from '../features/onboarding';
 import { HomePage } from '../features/feed';
 import './App.css';
 
@@ -14,6 +15,7 @@ function App() {
     <Routes>
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
       
       {/* Routes that need the Sidebar layout */}
       <Route path="/*" element={
