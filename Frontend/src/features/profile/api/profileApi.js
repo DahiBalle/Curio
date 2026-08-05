@@ -1,3 +1,6 @@
+import client from '../../../services/client';
+
+/* 
 // Mock API implementation returning Promises to simulate network requests.
 // In the future, this would import the shared axios client from 'services/client.js'
 
@@ -88,39 +91,31 @@ const mockInterestFloor = [
   { id: 6, name: "r/ShinChan", avatarUrl: "https://picsum.photos/id/35/32/32" },
 ];
 
+*/
+
 export const profileApi = {
-  getProfile: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockProfileData), 500);
-    });
+  getProfile: async (username) => {
+    const { data } = await client.get('');
+    return data;
   },
-  getPersonas: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockPersonas), 600);
-    });
+  getPersonas: async (username) => {
+    const { data } = await client.get('');
+    return data;
   },
-  getPosts: (username, page = 1) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockPosts), 700);
-    });
+  getPosts: async (username, page = 1) => {
+    const { data } = await client.get('', { params: { page } });
+    return data;
   },
-  getActivePersona: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockActivePersona), 400);
-    });
+  getActivePersona: async (username) => {
+    const { data } = await client.get('');
+    return data;
   },
-  getInterestFloor: (personaId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockInterestFloor), 450);
-    });
+  getInterestFloor: async (personaId) => {
+    const { data } = await client.get('');
+    return data;
   },
-  updateProfile: (data) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Mock updating the local profile data
-        Object.assign(mockProfileData, data);
-        resolve({ success: true, profile: mockProfileData });
-      }, 800);
-    });
+  updateProfile: async (payload) => {
+    const { data } = await client.patch('', payload);
+    return data;
   }
 };

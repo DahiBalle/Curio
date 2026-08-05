@@ -1,5 +1,6 @@
-import axios from 'axios';
+import client from '../../../services/client';
 
+/*
 // --- MOCK DATA ---
 const generateMockFeed = (personaId) => {
   // Generate slightly different feeds based on personaId
@@ -38,25 +39,11 @@ const generateMockFeed = (personaId) => {
     }
   ];
 };
+*/
 
 export const feedApi = {
   getFeed: async (personaId) => {
-    // --- FUTURE API CALL ---
-    // try {
-    //   const response = await axios.get(`/api/v1/feed`, { params: { personaId } });
-    //   return response.data;
-    // } catch (error) {
-    //   console.error("Error fetching feed:", error);
-    //   throw error;
-    // }
-
-    // --- MOCK RETURN ---
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Fallback to a default persona if none provided
-        const id = personaId || 1;
-        resolve(generateMockFeed(id));
-      }, 500);
-    });
+    const { data } = await client.get('', { params: { personaId } });
+    return data;
   }
 };

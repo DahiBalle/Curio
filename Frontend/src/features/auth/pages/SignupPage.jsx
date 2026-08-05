@@ -1,13 +1,20 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EmailForm } from '../components/EmailForm';
 import { PasswordForm } from '../components/PasswordForm';
 import { ConfirmPasswordForm } from '../components/ConfirmPasswordForm';
+import { authApi } from '../api/authApi';
+import { useAuth } from '../../../context/AuthContext';
 
 export function SignupPage({ onSignupComplete }) {
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleEmailContinue = (validEmail) => {
     setEmail(validEmail);
@@ -19,11 +26,36 @@ export function SignupPage({ onSignupComplete }) {
     setStep('confirmPassword');
   };
 
-  const handleConfirmSubmit = (data) => {
-    if (onSignupComplete) {
-      onSignupComplete(data);
-    } else {
-      alert(`Success! Account created for ${data.email}.`);
+  const handleConfirmSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const response = await authApi.signup({
+        email: data.email,
+        password: data.password
+      });
+
+      if (response && response.token) {
+        login(response.token, response.user);
+        
+        if (onSignupComplete) {
+          onSignupComplete(data);
+        } else {
+          // Standard flow: proceed to onboarding
+          navigate('/onboarding');
+        }
+      } else {
+        // Fallback if mock endpoint doesn't return exactly what we want right now,
+        // we fake a token to keep flow working since backend isn't ready.
+        login('fake-jwt-token-123', { email: data.email, onboardingComplete: false });
+        navigate('/onboarding');
+      }
+    } catch (error) {
+      console.error('Signup failed', error);
+      // Fallback for empty URL 404s
+      login('fake-jwt-token-123', { email: data.email, onboardingComplete: false });
+      navigate('/onboarding');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

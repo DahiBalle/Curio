@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import confetti from 'canvas-confetti';
+import { useAuth } from '../../../context/AuthContext';
 import './ConfettiScreen.css';
 
 export function ConfettiScreen() {
   const [showOptions, setShowOptions] = useState(false);
-  const navigate = useNavigate();
+  const { completeOnboarding } = useAuth();
 
   useEffect(() => {
+    // Fire confetti on mount
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+
     // Show the options after 1.2s delay
     const timer = setTimeout(() => {
       setShowOptions(true);
@@ -16,6 +25,7 @@ export function ConfettiScreen() {
   }, []);
 
   const handleFinish = () => {
+    completeOnboarding();
     navigate('/');
   };
 

@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import client from '../../../services/client';
 
 export const useCreatePost = () => {
   const [images, setImages] = useState([]); // Array of { file, previewUrl }
@@ -59,8 +60,20 @@ export const useCreatePost = () => {
     setError(null);
 
     try {
-      // Mock API call to create post
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('description', body.trim());
+      formData.append('labelId', labels[0]); // Taking first label for now as per api docs
+      
+      images.forEach((img) => {
+        formData.append('media', img.file);
+      });
+
+      await client.post('', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
       // Success, navigate to home
       navigate('/');
