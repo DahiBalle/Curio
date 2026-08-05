@@ -1,13 +1,13 @@
-.profile-feed-container {
+.post-feed-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 100%;
+  width: 90%;
   margin: 0 auto;
   padding-bottom: 40px;
 }
 
-.profile-feed-empty {
+.post-feed-empty {
   text-align: center;
   padding: 40px;
   color: var(--text);

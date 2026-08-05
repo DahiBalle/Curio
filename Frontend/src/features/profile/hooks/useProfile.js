@@ -57,6 +57,7 @@ export const useProfile = (username) => {
     activePersona,
     interestFloor,
     loading,
-    error
+    error,
+    setProfile
   };
 };

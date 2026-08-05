@@ -1,21 +1,21 @@
 import React from 'react';
 import { useFeed } from '../hooks/useFeed';
-import { ProfileFeed } from '../../profile/components/ProfileFeed';
+import { PostFeed } from '../../post';
 import { usePersona } from '../../../context/PersonaContext';
 import { PersonaCard, InterestFloor } from '../../persona';
-import '../../profile/pages/ProfilePage.css';
+import '../../../app/layouts/TwoColumnLayout.css';
 
 export function HomePage() {
   const { posts, loading, error } = useFeed();
   const { activePersona, interestFloor } = usePersona();
 
   if (error) {
-    return <div className="profile-page-error">Failed to load feed.</div>;
+    return <div className="page-error">Failed to load feed.</div>;
   }
 
   return (
-    <div className="profile-page-layout">
-      <main className="profile-page-main">
+    <div className="layout-two-column">
+      <main className="layout-main">
         <header style={{ marginBottom: '24px', borderBottom: '1px solid #333', paddingBottom: '16px' }}>
           <h2 style={{ margin: '0 0 8px 0', fontSize: '24px', fontWeight: 'bold' }}>Home Feed</h2>
           {activePersona && (
@@ -28,14 +28,14 @@ export function HomePage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>Loading feed...</div>
         ) : (
-          <div className="profile-tab-content">
-            <ProfileFeed posts={posts} />
+          <div className="layout-content">
+            <PostFeed posts={posts} />
           </div>
         )}
       </main>
 
-      <aside className="profile-page-right-aside">
-        <div className="profile-page-sidebar-sticky">
+      <aside className="layout-aside">
+        <div className="layout-sidebar-sticky">
           <PersonaCard persona={activePersona} />
           <InterestFloor labels={interestFloor} />
         </div>

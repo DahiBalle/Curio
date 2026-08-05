@@ -1,0 +1,74 @@
+/* ============================================
+   TwoColumnLayout — Common Layout
+   Main content | Right sidebar
+   ============================================ */
+
+.layout-two-column {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  box-sizing: border-box;
+}
+
+/* Center — main content area */
+.layout-main {
+  flex: 1;
+  width: 100%;
+  max-width: 950px; /* Constrain main content width */
+  min-width: 0;
+}
+
+/* Right aside — persona + interest floor */
+.layout-aside {
+  width: 312px;
+  min-width: 312px;
+}
+
+.layout-sidebar-sticky {
+  position: sticky;
+  top: 32px; /* Breathing room from top */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Common tab content spacing */
+.layout-content {
+  margin-top: 4px;
+}
+
+/* Loading / Error states */
+.page-loading,
+.page-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  font-size: 18px;
+  color: #818384;
+}
+
+/* --- Responsive --- */
+
+/* Hide right sidebar on smaller screens */
+@media (max-width: 960px) {
+  .layout-two-column {
+    gap: 0;
+    padding: 16px 8px;
+  }
+
+  .layout-aside {
+    display: none;
+  }
+}
+
+/* On very small screens, also reduce main padding */
+@media (max-width: 480px) {
+  .layout-two-column {
+    padding: 8px 0;
+  }
+}
