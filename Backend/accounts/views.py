@@ -8,6 +8,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+
+from Backend.personas.models import Persona
 from .models import User, Profile, Follow
 from django.db.models import Q
 
@@ -79,26 +81,28 @@ def signup(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    # -------------------------
-    # Create User
-    # -------------------------
-
+     # Create User
     user = User.objects.create_user(
-        username=username,
-        email=email,
-        password=password,
-        first_name=first_name,
-        last_name=last_name
-    )
+    username=username,
+    email=email,
+    password=password,
+    first_name=first_name,
+    last_name=last_name
+)
 
-    # -------------------------
-    # Create Profile
-    # -------------------------
+# Create Default Persona
+    default_persona = Persona.objects.create(
+    user=user,
+    name=username,
+    is_default=True
+)
 
+# Create Profile
     Profile.objects.create(
-        user=user,
-        display_name=username
-    )
+    user=user,
+    display_name=username,
+    active_persona=default_persona
+)
 
     return Response(
         {
@@ -229,7 +233,11 @@ def login(request):
                 "display_name": profile.display_name,
                 "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
                 "is_verified": profile.is_verified,
-            }
+            },
+            "active_persona": {
+            "id": profile.active_persona.id if profile.active_persona else None,
+            "name": profile.active_persona.name if profile.active_persona else None,
+}
         },
         status=status.HTTP_200_OK
     )
@@ -248,6 +256,11 @@ def user_profile(request):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+
+            "active_persona": {
+                "id": profile.active_persona.id if profile.active_persona else None,
+                "name": profile.active_persona.name if profile.active_persona else None,
+            },
 
             "profile": {
                 "display_name": profile.display_name,
@@ -601,7 +614,10 @@ def followers_list(request, user_id):
                 if profile.profile_picture
                 else None
             ),
-
+            "active_persona": {
+                "id": profile.active_persona.id if profile.active_persona else None,
+                "name": profile.active_persona.name if profile.active_persona else None,
+            },
             "is_verified": profile.is_verified,
             "is_following": is_following,
         })
@@ -659,6 +675,10 @@ def following_list(request, user_id):
                     if profile.profile_picture
                     else None
                 ),
+                "active_persona": {
+                    "id": profile.active_persona.id if profile.active_persona else None,
+                    "name": profile.active_persona.name if profile.active_persona else None,
+                },
 
                 "is_verified": profile.is_verified,
 
