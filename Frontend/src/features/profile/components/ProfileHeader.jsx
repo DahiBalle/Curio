@@ -3,8 +3,28 @@ import './ProfileHeader.css';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
+import { UserListModal } from './UserListModal';
+import { EditProfileModal } from './EditProfileModal';
 
-export const ProfileHeader = ({ profile }) => {
+export const ProfileHeader = ({ profile, onProfileUpdate }) => {
+  const [isFollowingModalOpen, setIsFollowingModalOpen] = React.useState(false);
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = React.useState(false);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
+
+  // Mock data for the modals
+  const mockFollowing = [
+    { id: 1, name: 'Rahul Sharma', username: 'rahulsharma', avatarUrl: 'https://picsum.photos/seed/rahul/40', isVerified: true },
+    { id: 2, name: 'Chahna Acharya', username: 'chahna_acharya', avatarUrl: 'https://picsum.photos/seed/chahna/40', isVerified: false },
+    { id: 3, name: 'Patel', username: 'patel155', avatarUrl: 'https://picsum.photos/seed/patel/40', isVerified: false },
+    { id: 4, name: 'Ketani', username: 'ketani_74', avatarUrl: 'https://picsum.photos/seed/ketani/40', isVerified: true },
+  ];
+
+  const mockFollowers = [
+    { id: 5, name: 'Alice Smith', username: 'alicesmith', avatarUrl: 'https://picsum.photos/seed/alice/40', isVerified: false },
+    { id: 6, name: 'Bob Jones', username: 'bobjones', avatarUrl: 'https://picsum.photos/seed/bob/40', isVerified: true },
+    { id: 7, name: 'Charlie Brown', username: 'charlieb', avatarUrl: 'https://picsum.photos/seed/charlie/40', isVerified: false },
+  ];
+
   if (!profile) return null;
 
   return (
@@ -27,8 +47,15 @@ export const ProfileHeader = ({ profile }) => {
             <button className="profile-options-btn">
               <Icon name="options" size={24} />
             </button>
-            <Button variant="secondary">Message</Button>
-            <Button variant="primary">Follow</Button>
+            {/* Using a mock condition for isOwnProfile for now */}
+            {profile.username === "redbull" ? (
+              <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+            ) : (
+              <>
+                <Button variant="secondary">Message</Button>
+                <Button variant="primary">Follow</Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -41,13 +68,6 @@ export const ProfileHeader = ({ profile }) => {
 
           <div className="profile-bio-container">
             <div className="profile-bio-text">{profile.bio}</div>
-            <a href="#" className="profile-bio-link">
-              {profile.hashtag}
-            </a>
-            <a href="#" className="profile-external-link">
-              <Icon name="link" size={14} />
-              <span>{profile.link}</span>
-            </a>
             
             <div className="profile-threads-badge">
               <Icon name="threads" size={12} color="var(--text-h)" />
@@ -55,8 +75,8 @@ export const ProfileHeader = ({ profile }) => {
             </div>
             
             <ul className="profile-stats">
-              <li><strong>{profile.followingCount}</strong> following</li>
-              <li><strong>{profile.followersCount}</strong> followers</li>
+              <li onClick={() => setIsFollowingModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followingCount}</strong> following</li>
+              <li onClick={() => setIsFollowersModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followersCount}</strong> followers</li>
               <li><strong>{profile.postsCount}</strong> posts</li>
             </ul>
 
@@ -75,14 +95,45 @@ export const ProfileHeader = ({ profile }) => {
           </div>
           
           <div className="profile-actions-mobile">
-            <Button variant="primary" className="flex-1">Follow</Button>
-            <Button variant="secondary" className="flex-1">Message</Button>
+            {profile.username === "redbull" ? (
+              <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+            ) : (
+              <>
+                <Button variant="primary" className="flex-1">Follow</Button>
+                <Button variant="secondary" className="flex-1">Message</Button>
+              </>
+            )}
             <Button variant="secondary" className="profile-add-contact">
               <Icon name="addContact" size={16} />
             </Button>
           </div>
         </section>
       </div>
+
+      <UserListModal 
+        isOpen={isFollowingModalOpen}
+        onClose={() => setIsFollowingModalOpen(false)}
+        title="Following"
+        users={mockFollowing}
+        actionType="following"
+      />
+      
+      <UserListModal 
+        isOpen={isFollowersModalOpen}
+        onClose={() => setIsFollowersModalOpen(false)}
+        title="Followers"
+        users={mockFollowers}
+        actionType="remove"
+      />
+      
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        profile={profile}
+        onSaveSuccess={(updatedProfile) => {
+          if (onProfileUpdate) onProfileUpdate(updatedProfile);
+        }}
+      />
     </header>
   );
 };

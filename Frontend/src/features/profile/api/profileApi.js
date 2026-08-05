@@ -113,5 +113,14 @@ export const profileApi = {
     return new Promise((resolve) => {
       setTimeout(() => resolve(mockInterestFloor), 450);
     });
+  },
+  updateProfile: (data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // Mock updating the local profile data
+        Object.assign(mockProfileData, data);
+        resolve({ success: true, profile: mockProfileData });
+      }, 800);
+    });
   }
 };

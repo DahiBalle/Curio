@@ -2,8 +2,10 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import './Sidebar.css';
 import { Avatar } from '../ui/Avatar';
+import { useMessages } from '../../features/messages/hooks/useMessages';
 
 export const Sidebar = ({ onSearchClick }) => {
+  const { unreadCount } = useMessages();
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -27,12 +29,15 @@ export const Sidebar = ({ onSearchClick }) => {
           <span className="sidebar__label">Search</span>
         </button>
 
-        <a href="#" className="sidebar__nav-item">
-          <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
+        <NavLink to="/messages" className={({ isActive }) => `sidebar__nav-item ${isActive ? 'active' : ''}`}>
+          <div className="sidebar__icon-wrapper">
+            <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            {unreadCount > 0 && <span className="sidebar__badge">{unreadCount}</span>}
+          </div>
           <span className="sidebar__label">Messages</span>
-        </a>
+        </NavLink>
 
         <a href="#" className="sidebar__nav-item">
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

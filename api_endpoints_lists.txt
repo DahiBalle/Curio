@@ -1,0 +1,16 @@
+# Messages Feature API Endpoints
+
+GET /api/messages/threads 
+- Description: Fetch all chat threads for the logged-in user.
+
+GET /api/messages/requests
+- Description: Fetch message requests from non-followers.
+
+GET /api/messages/unread-count
+- Description: Fetch the total number of unread messages to display on the sidebar.
+
+POST /api/messages/requests/:id/accept
+- Description: Accept a message request.
+
+POST /api/messages/requests/:id/decline
+- Description: Decline a message request.

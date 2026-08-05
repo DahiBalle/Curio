@@ -5,6 +5,7 @@ import { Sidebar } from '../components/layout/Sidebar';
 import { SearchOverlay } from '../components/layout/SearchOverlay';
 import { SignupPage, LoginPage } from '../features/auth';
 import { OnboardingPage } from '../features/onboarding';
+import { MessagesPage } from '../features/messages';
 import { HomePage } from '../features/feed';
 import './App.css';
 
@@ -26,6 +27,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/messages" element={<MessagesPage />} />
             </Routes>
           </div>
 
