@@ -1,3 +1,6 @@
+import client from '../../../services/client';
+
+/*
 // Mock data and API structure for messages feature
 
 const mockThreads = [
@@ -52,43 +55,31 @@ const mockRequests = [
   }
 ];
 
+*/
+
 export const messagesApi = {
   getThreads: async () => {
-    // Real API call:
-    // const response = await fetch('/api/messages/threads');
-    // return response.json();
-
-    return new Promise(resolve => setTimeout(() => resolve(mockThreads), 500));
+    const { data } = await client.get('');
+    return data;
   },
   
   getRequests: async () => {
-    // Real API call:
-    // const response = await fetch('/api/messages/requests');
-    // return response.json();
-
-    return new Promise(resolve => setTimeout(() => resolve(mockRequests), 500));
+    const { data } = await client.get('');
+    return data;
   },
 
   getUnreadCount: async () => {
-    // Real API call:
-    // const response = await fetch('/api/messages/unread-count');
-    // return response.json();
-
-    return new Promise(resolve => setTimeout(() => {
-      const count = mockThreads.filter(t => t.isUnread).length;
-      resolve({ count });
-    }, 300));
+    const { data } = await client.get('');
+    return data;
   },
 
   acceptRequest: async (requestId) => {
-    // Real API call:
-    // await fetch(`/api/messages/requests/${requestId}/accept`, { method: 'POST' });
-    return new Promise(resolve => setTimeout(() => resolve({ success: true }), 300));
+    const { data } = await client.post('');
+    return data;
   },
 
   declineRequest: async (requestId) => {
-    // Real API call:
-    // await fetch(`/api/messages/requests/${requestId}/decline`, { method: 'POST' });
-    return new Promise(resolve => setTimeout(() => resolve({ success: true }), 300));
+    const { data } = await client.post('');
+    return data;
   }
 };

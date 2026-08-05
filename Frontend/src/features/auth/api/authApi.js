@@ -22,4 +22,22 @@ export const authApi = {
 
     return data; // expected shape: { exists: boolean }
   },
+
+  signup: async (payload) => {
+    // Expected response: { token: '...', user: { ... } }
+    const { data } = await client.post('', payload);
+    return data;
+  },
+
+  login: async (payload) => {
+    // Expected response: { token: '...', user: { ... } }
+    const { data } = await client.post('', payload);
+    return data;
+  },
+
+  getMe: async () => {
+    // Expected response: { username: '...', onboardingComplete: true }
+    const { data } = await client.get('');
+    return data;
+  }
 };
