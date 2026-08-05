@@ -59,6 +59,9 @@ class Profile(models.Model):
 
     website = models.URLField(blank=True)
 
+    avatar_url = models.URLField(blank=True, null=True)
+    banner_url = models.URLField(blank=True, null=True)
+
     date_of_birth = models.DateField(
         blank=True,
         null=True

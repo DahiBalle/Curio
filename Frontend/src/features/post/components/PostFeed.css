@@ -1,0 +1,14 @@
+.post-feed-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 90%;
+  margin: 0 auto;
+  padding-bottom: 40px;
+}
+
+.post-feed-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--text);
+}

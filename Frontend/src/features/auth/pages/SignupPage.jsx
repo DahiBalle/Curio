@@ -1,13 +1,20 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { EmailForm } from '../components/EmailForm';
 import { PasswordForm } from '../components/PasswordForm';
 import { ConfirmPasswordForm } from '../components/ConfirmPasswordForm';
+import { authApi } from '../api/authApi';
+import { useAuth } from '../../../context/AuthContext';
 
 export function SignupPage({ onSignupComplete }) {
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleEmailContinue = (validEmail) => {
     setEmail(validEmail);
@@ -19,18 +26,45 @@ export function SignupPage({ onSignupComplete }) {
     setStep('confirmPassword');
   };
 
-  const handleConfirmSubmit = (data) => {
-    if (onSignupComplete) {
-      onSignupComplete(data);
-    } else {
-      alert(`Success! Account created for ${data.email}.`);
+  const handleConfirmSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+      const response = await authApi.signup({
+        email: data.email,
+        password: data.password
+      });
+
+      if (response && response.token) {
+        login(response.token, response.user);
+        
+        if (onSignupComplete) {
+          onSignupComplete(data);
+        } else {
+          // Standard flow: proceed to onboarding
+          navigate('/onboarding');
+        }
+      }
+    } catch (error) {
+      console.error('Signup failed', error);
+      const message = error?.response?.data?.error || 'Signup failed. Please try again.';
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
   return (
-    <>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: isDarkMode ? '#1a202c' : '#f7fafc',
+      transition: 'background-color 0.3s ease'
+    }}>
       {step === 'email' && (
         <EmailForm
           onContinue={handleEmailContinue}
@@ -62,6 +96,6 @@ export function SignupPage({ onSignupComplete }) {
           stepLabel="Step 3/3"
         />
       )}
-    </>
+    </div>
   );
 }

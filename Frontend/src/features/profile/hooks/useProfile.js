@@ -1,6 +1,28 @@
 import { useState, useEffect } from 'react';
 import { profileApi } from '../api/profileApi';
 
+// Normalize the nested backend response to the flat shape the UI expects
+const normalizeProfile = (data) => {
+  if (!data) return null;
+  const p = data.profile || {};
+  return {
+    id: data.id,
+    username: data.username,
+    name: p.display_name || data.first_name || data.username,
+    bio: p.bio || '',
+    website: p.website || '',
+    avatarUrl: p.profile_picture || null,
+    bannerUrl: p.banner || null,
+    isVerified: p.is_verified || false,
+    isPrivate: p.is_private || false,
+    followersCount: p.followers ?? 0,
+    followingCount: p.following ?? 0,
+    postsCount: p.posts ?? 0,
+    joined: p.joined || null,
+    relationship: data.relationship || {},
+  };
+};
+
 export const useProfile = (username) => {
   const [profile, setProfile] = useState(null);
   const [personas, setPersonas] = useState([]);
@@ -11,6 +33,7 @@ export const useProfile = (username) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!username) return;
     let isMounted = true;
 
     const fetchAllData = async () => {
@@ -26,7 +49,7 @@ export const useProfile = (username) => {
         ]);
 
         if (isMounted) {
-          setProfile(profileData);
+          setProfile(normalizeProfile(profileData));
           setPersonas(personasData);
           setPosts(postsData);
           setActivePersona(activePersonaData);
@@ -57,6 +80,7 @@ export const useProfile = (username) => {
     activePersona,
     interestFloor,
     loading,
-    error
+    error,
+    setProfile
   };
 };

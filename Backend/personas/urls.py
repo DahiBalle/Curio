@@ -12,5 +12,7 @@ urlpatterns = [
     # Update & Delete
     path("<int:persona_id>/update/", views.update_persona, name="update-persona"),
     path("<int:persona_id>/delete/", views.delete_persona, name="delete-persona"),
-
+    
+    # Floor
+    path("<int:persona_id>/interest-floor/", views.interest_floor, name="interest-floor"),
 ]

@@ -1,0 +1,79 @@
+/* ============================================
+   SearchOverlay — Floating search bar
+   ============================================ */
+
+.search-overlay-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  padding-top: 8px; /* Position it where the navbar used to be */
+}
+
+.search-overlay {
+  width: 100%;
+  max-width: 750px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.search-overlay__inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1a2426;
+  border: 1px solid #d97706; /* Always glowing since it's focused */
+  border-radius: 999px;
+  padding: 0 4px 0 12px;
+  height: 36px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.search-overlay__icon {
+  flex-shrink: 0;
+  color: #818384;
+}
+
+.search-overlay__input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: #f5f5f5;
+  font-size: 14px;
+  font-family: inherit;
+  padding: 0;
+  min-width: 0;
+}
+
+.search-overlay__input::placeholder {
+  color: #6a7071;
+}
+
+.search-overlay__ask-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #1a3048;
+  color: #4a9eed;
+  border: none;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.search-overlay__ask-btn:hover {
+  background-color: #24405e;
+}

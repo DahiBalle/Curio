@@ -225,6 +225,189 @@ Response 200:
 }
 
 ================================================================================
+11. ONBOARDING & ACCOUNTS
+================================================================================
+URL:      GET /api/v1/accounts/check-username
+Desc:     Check if a username is available.
+Query:    ?username=string
+Auth:     Public or Authenticated
+
+Response 200:
+{
+  "available": true
+}
+
+URL:      POST /api/v1/accounts/onboarding
+Desc:     Submit final onboarding details.
+Auth:     Required
+
+Request Body:
+{
+  "username":  "string",
+  "name":      "string",
+  "interests": ["string"],
+  "avatar":    <file> // optional
+}
+
+Response 201:
+{
+  "success": true,
+  "profile": { ... }
+}
+
+================================================================================
+12. MESSAGES
+================================================================================
+URL:      GET /api/v1/messages/threads
+Desc:     Get all active message threads.
+Auth:     Required
+
+Response 200:
+[
+  {
+    "id": "thread-1",
+    "user": {
+      "name": "Jane Doe",
+      "username": "janedoe",
+      "avatarUrl": "https://..."
+    },
+    "lastMessage": "Sounds good!",
+    "timestamp": "2026-08-01T10:00:00Z",
+    "isUnread": true
+  }
+]
+
+URL:      GET /api/v1/messages/requests
+Desc:     Get message requests from non-followers.
+Auth:     Required
+
+Response 200:
+[
+  {
+    "id": "req-1",
+    "user": {
+      "name": "Unknown User",
+      "username": "unknown",
+      "avatarUrl": "https://..."
+    },
+    "message": "Hey, I saw your post...",
+    "timestamp": "2026-08-02T12:00:00Z"
+  }
+]
+
+URL:      GET /api/v1/messages/unread-count
+Desc:     Get total unread threads/requests count.
+Auth:     Required
+
+Response 200:
+{
+  "count": 3
+}
+
+URL:      POST /api/v1/messages/requests/:id/accept
+Desc:     Accept a message request.
+Auth:     Required
+
+Response 200:
+{ "success": true }
+
+URL:      POST /api/v1/messages/requests/:id/decline
+Desc:     Decline a message request.
+Auth:     Required
+
+Response 200:
+{ "success": true }
+
+================================================================================
+13. FEED
+================================================================================
+URL:      GET /api/v1/feed
+Desc:     Get the personalized feed. Can pass personaId to filter feed.
+Query:    ?personaId=number&page=1&limit=10
+Auth:     Required
+
+Response 200:
+{
+  "posts": [ ... ],
+  "page": 1,
+  "totalPages": 5
+}
+
+================================================================================
+14. UPDATE PROFILE
+================================================================================
+URL:      PATCH /api/v1/profile/:username
+Desc:     Update profile details.
+Auth:     Required
+
+Request Body:
+{
+  "bio": "string",
+  "name": "string",
+  "link": "string"
+}
+
+Response 200:
+{
+  "success": true,
+  "profile": { ... }
+}
+
+================================================================================
+15. AUTHENTICATION (JWT)
+================================================================================
+URL:      POST /api/v1/auth/signup
+Desc:     Register a new user and return JWT.
+Auth:     Public
+
+Request Body:
+{
+  "email": "string",
+  "password": "strongPassword"
+}
+
+Response 201:
+{
+  "token": "eyJhbG...",
+  "user": {
+    "username": "string",
+    "email": "string",
+    "onboardingComplete": false
+  }
+}
+
+URL:      POST /api/v1/auth/login
+Desc:     Login an existing user and return JWT.
+Auth:     Public
+
+Request Body:
+{
+  "email": "string",
+  "password": "string"
+}
+
+Response 200:
+{
+  "token": "eyJhbG...",
+  "user": {
+    "username": "string",
+    "email": "string",
+    "onboardingComplete": true
+  }
+}
+
+URL:      GET /api/v1/auth/me
+Desc:     Get current user profile based on JWT token.
+Auth:     Required (Bearer token)
+
+Response 200:
+{
+  "username": "string",
+  "email": "string",
+  "onboardingComplete": true
+}
+
+================================================================================
 NOTES
 ================================================================================
 - All image URLs (avatarUrl, imageUrl) should be absolute URLs.

@@ -8,13 +8,16 @@ urlpatterns = [
     path("api/login/", views.login, name="login"),
 
     # Profile
+    path("api/accounts/check-username/", views.check_username, name="check-username"),
+    path("api/accounts/onboarding/", views.onboarding, name="onboarding"),
     path("api/profile/", views.user_profile, name="user-profile"),
     path("api/profile/edit/", views.edit_profile, name="edit-profile"),
     path("api/profile/upload-picture/", views.upload_profile_picture, name="upload-profile-picture"),
     path("api/profile/upload-banner/", views.upload_banner, name="upload-banner"),
 
     # User Profiles
-    path("api/profile/<int:user_id>/", views.user_profile_detail, name="user-profile-detail"),
+    path("api/profile/<str:username>/", views.user_profile_detail, name="user-profile-detail"),
+    path("api/profile/<str:username>/posts/", views.user_profile_posts, name="user-profile-posts"),
 
     # Follow System
     path("api/follow/<int:user_id>/", views.follow_user, name="follow-user"),

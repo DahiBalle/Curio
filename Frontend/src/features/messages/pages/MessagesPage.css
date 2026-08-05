@@ -1,0 +1,57 @@
+/* ============================================
+   MessagesPage — Full height layout
+   ============================================ */
+
+.messages-page-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background-color: #0b1416;
+}
+
+.messages-page-sidebar {
+  width: 398px;
+  min-width: 398px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-page-main {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.messages-page-loading,
+.messages-page-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #818384;
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px) {
+  .messages-page-sidebar {
+    width: 320px;
+    min-width: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* For mobile, you would typically only show the sidebar (list of chats) 
+     until a chat is selected. For now, we'll let them sit side by side but squeezed. */
+  .messages-page-sidebar {
+    width: 100%;
+    min-width: 100%;
+  }
+  
+  .messages-page-main {
+    display: none; /* Hide main on mobile unless a chat is selected */
+  }
+}

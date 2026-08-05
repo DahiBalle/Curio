@@ -1,0 +1,109 @@
+.confetti-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.confetti-icon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  animation: bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.confetti-title {
+  font-size: 40px;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  color: var(--text-h);
+}
+
+.confetti-subtitle {
+  font-size: 18px;
+  color: #818384;
+  margin: 0 0 40px 0;
+}
+
+.confetti-options {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s ease-out;
+  pointer-events: none;
+}
+
+.confetti-options.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.options-divider {
+  width: 40px;
+  height: 4px;
+  background-color: var(--border);
+  margin: 0 auto 24px;
+  border-radius: 2px;
+}
+
+.options-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin-bottom: 24px;
+}
+
+.options-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-primary {
+  background-color: #1d9bf0;
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 240px;
+}
+
+.btn-primary:hover {
+  background-color: #1a8cd8;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: #818384;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 240px;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255,255,255,0.05);
+  color: var(--text-h);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}

@@ -3,11 +3,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models import Max, Q
-from Backend.interactions.models import Conversation, Message
-from Backend.accounts.models import User
+from interactions.models import Conversation, Message
+from accounts.models import User
 
-from Backend.posts.models import Post
-from Backend.interactions.models import Like, Save, Share, Interaction
+from posts.models import Post
+from interactions.models import Like, Save, Share, Interaction
 
 
 @api_view(["POST"])

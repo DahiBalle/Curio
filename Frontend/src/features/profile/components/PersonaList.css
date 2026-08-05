@@ -11,6 +11,8 @@
 
 .persona-list {
   display: flex;
+  flex-wrap: wrap; /* Allow wrapping to form a grid */
+  justify-content: center; /* Center them nicely */
   padding: 0;
   margin: 0;
   list-style: none;

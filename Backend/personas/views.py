@@ -338,3 +338,8 @@ def active_persona(request):
         status=status.HTTP_200_OK
     )
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def interest_floor(request, persona_id):
+    # Return empty list for now until model is implemented
+    return Response([], status=status.HTTP_200_OK)

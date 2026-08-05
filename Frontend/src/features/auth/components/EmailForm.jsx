@@ -152,6 +152,10 @@ export function EmailForm({
         >
           {isChecking ? 'Checking…' : 'Continue'}
         </button>
+
+        <div className="auth-switch-prompt">
+          Already have an account? <a href="/login" className="auth-switch-link">Log in</a>
+        </div>
       </form>
     </div>
   );

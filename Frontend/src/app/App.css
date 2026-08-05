@@ -1,18 +1,22 @@
-/* Background Wrapper supporting an image */
-.demo-page-wrapper {
-  min-height: 100vh;
-  width: 100%;
+/* ============================================
+   App Layout
+   ============================================ */
+
+.app-layout {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  
-  /* Put your design image path here */
-  background-image: url(''); 
-  
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #0d0b11; /* Fallback deep aesthetic background */
-  padding: 24px;
-  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+.app-main-content {
+  flex: 1;
+  /* Add margin to offset the fixed sidebar width */
+  margin-left: 244px;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 1200px) {
+  .app-main-content {
+    margin-left: 72px; /* collapsed sidebar width */
+  }
 }

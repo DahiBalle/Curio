@@ -1,3 +1,6 @@
+import client from '../../../services/client';
+
+/* 
 // Mock API implementation returning Promises to simulate network requests.
 // In the future, this would import the shared axios client from 'services/client.js'
 
@@ -14,7 +17,8 @@ const mockProfileData = {
   threadsUsername: "redbull",
   followedBy: ["ljkuconfession", "ash_dykes"],
   followedByCount: 4,
-  avatarUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f5/RedBullEnergyDrink.svg/1200px-RedBullEnergyDrink.svg.png"
+  avatarUrl: "https://avatars.githubusercontent.com/u/9919?v=4",
+  bannerUrl: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200&auto=format&fit=crop"
 };
 
 const mockPersonas = [
@@ -87,30 +91,51 @@ const mockInterestFloor = [
   { id: 6, name: "r/ShinChan", avatarUrl: "https://picsum.photos/id/35/32/32" },
 ];
 
+*/
+
 export const profileApi = {
-  getProfile: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockProfileData), 500);
-    });
+  getProfile: async (username) => {
+    const { data } = await client.get(`/profile/${username}/`);
+    return data;
   },
-  getPersonas: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockPersonas), 600);
-    });
+  getPersonas: async (username) => {
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!token) return [];
+
+    try {
+      const { data } = await client.get(`/personas/`);
+      return data.personas || [];
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return [];
+      }
+      throw error;
+    }
   },
-  getPosts: (username, page = 1) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockPosts), 700);
-    });
+  getPosts: async (username, page = 1) => {
+    const { data } = await client.get(`/profile/${username}/posts/`, { params: { page } });
+    return data.posts || [];
   },
-  getActivePersona: (username) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockActivePersona), 400);
-    });
+  getActivePersona: async (username) => {
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    try {
+      const { data } = await client.get(`/personas/active/`);
+      return data.active_persona || null;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return null;
+      }
+      throw error;
+    }
   },
-  getInterestFloor: (personaId) => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve(mockInterestFloor), 450);
-    });
+  getInterestFloor: async (personaId) => {
+    const { data } = await client.get(`/personas/${personaId}/interest-floor/`);
+    return data;
+  },
+  updateProfile: async (payload) => {
+    const { data } = await client.patch(`/profile/edit/`, payload);
+    return data;
   }
 };

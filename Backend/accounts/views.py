@@ -1,6 +1,6 @@
 import profile
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,12 +27,6 @@ def signup(request):
     # Empty Field Validation
     # -------------------------
 
-    if not username:
-        return Response(
-            {"error": "Username is required"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
     if not email:
         return Response(
             {"error": "Email is required"},
@@ -44,6 +38,15 @@ def signup(request):
             {"error": "Password is required"},
             status=status.HTTP_400_BAD_REQUEST
         )
+
+    if not username:
+        # Auto-generate a username from email if missing
+        base_username = email.split("@")[0][:20]
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
 
     # -------------------------
     # Duplicate Username
@@ -104,10 +107,14 @@ def signup(request):
     active_persona=default_persona
 )
 
+    refresh = RefreshToken.for_user(user)
+
     return Response(
         {
             "message": "Account created successfully",
-
+            "token": str(refresh.access_token),
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
             "user": {
                 "id": user.id,
                 "username": user.username,
@@ -233,6 +240,7 @@ def login(request):
                 "display_name": profile.display_name,
                 "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
                 "is_verified": profile.is_verified,
+                "onboardingComplete": bool(user.first_name),
             },
             "active_persona": {
             "id": profile.active_persona.id if profile.active_persona else None,
@@ -256,6 +264,7 @@ def user_profile(request):
             "email": user.email,
             "first_name": user.first_name,
             "last_name": user.last_name,
+            "onboardingComplete": bool(user.first_name),
 
             "active_persona": {
                 "id": profile.active_persona.id if profile.active_persona else None,
@@ -293,7 +302,7 @@ def user_profile(request):
         status=status.HTTP_200_OK,
     )
 
-@api_view(["PUT"])
+@api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])
 def edit_profile(request):
 
@@ -322,6 +331,8 @@ def edit_profile(request):
     website = request.data.get("website")
     date_of_birth = request.data.get("date_of_birth")
     is_private = request.data.get("is_private")
+    avatar_url = request.data.get("avatar_url")
+    banner_url = request.data.get("banner_url")
 
     if display_name is not None:
         profile.display_name = display_name.strip()
@@ -340,6 +351,12 @@ def edit_profile(request):
             profile.is_private = is_private.lower() == "true"
         elif is_private is not None:
             profile.is_private = is_private
+
+    if avatar_url is not None:
+        profile.avatar_url = avatar_url.strip()
+
+    if banner_url is not None:
+        profile.banner_url = banner_url.strip()
     # -------------------------
     # Save
     # -------------------------
@@ -350,7 +367,6 @@ def edit_profile(request):
     return Response(
         {
             "message": "Profile updated successfully",
-
             "user": {
                 "username": user.username,
                 "first_name": user.first_name,
@@ -360,6 +376,16 @@ def edit_profile(request):
                 "website": profile.website,
                 "date_of_birth": profile.date_of_birth,
                 "is_private": profile.is_private,
+                "avatar_url": getattr(profile, 'avatar_url', None),
+                "banner_url": getattr(profile, 'banner_url', None),
+                "profile_picture": (
+                    request.build_absolute_uri(profile.profile_picture.url)
+                    if profile.profile_picture else None
+                ),
+                "banner": (
+                    request.build_absolute_uri(profile.banner.url)
+                    if profile.banner else None
+                ),
             }
         },
         status=status.HTTP_200_OK
@@ -511,11 +537,11 @@ def unfollow_user(request, user_id):
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def user_profile_detail(request, user_id):
+def user_profile_detail(request, username):
 
     current_user = request.user
 
-    user = get_object_or_404(User, id=user_id)
+    user = get_object_or_404(User, username__iexact=username)
 
     profile = user.profile
 
@@ -542,14 +568,15 @@ def user_profile_detail(request, user_id):
                 "website": profile.website,
                 "date_of_birth": profile.date_of_birth,
 
+                # Use saved URL fields if available, otherwise fall back to uploaded file
                 "profile_picture": (
-                    request.build_absolute_uri(profile.profile_picture.url)
-                    if profile.profile_picture else None
+                    profile.avatar_url or
+                    (request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None)
                 ),
 
                 "banner": (
-                    request.build_absolute_uri(profile.banner.url)
-                    if profile.banner else None
+                    profile.banner_url or
+                    (request.build_absolute_uri(profile.banner.url) if profile.banner else None)
                 ),
 
                 "followers": profile.followers_count,
@@ -570,6 +597,11 @@ def user_profile_detail(request, user_id):
         },
         status=status.HTTP_200_OK
     )
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def user_profile_posts(request, username):
+    return Response({"posts": [], "has_more": False}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -757,3 +789,55 @@ def search_users(request):
         },
         status=status.HTTP_200_OK
     )
+
+from rest_framework.permissions import AllowAny
+from rest_framework.authentication import BasicAuthentication
+
+@api_view(["GET"])
+@permission_classes([AllowAny])
+@authentication_classes([])
+def check_username(request):
+    username = request.GET.get("username")
+    if not username:
+        return Response({"available": False})
+    
+    exists = User.objects.filter(username__iexact=username).exists()
+    return Response({"available": not exists})
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def onboarding(request):
+    user = request.user
+    username = request.data.get("username")
+    name = request.data.get("name")
+    
+    if username:
+        if User.objects.filter(username__iexact=username).exclude(id=user.id).exists():
+            return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+        user.username = username
+        
+    if name:
+        user.first_name = name
+        
+    user.save()
+    
+    # Update default persona name to match username if provided
+    if username:
+        persona = Persona.objects.filter(user=user, is_default=True).first()
+        if persona:
+            persona.name = username
+            persona.save()
+            
+    # Also update profile display name
+    if name:
+        profile = user.profile
+        profile.display_name = name
+        profile.save(update_fields=["display_name"])
+        
+    return Response({
+        "success": True,
+        "profile": {
+            "username": user.username,
+            "display_name": user.profile.display_name
+        }
+    })
