@@ -9,7 +9,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
-from Backend.personas.models import Persona
+from personas.models import Persona
 from .models import User, Profile, Follow
 from django.db.models import Q
 

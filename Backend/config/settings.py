@@ -91,8 +91,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'feed_db',  # database name
+        'USER': 'neondb_owner',  # username
+        'PASSWORD': 'npg_vSwnjN9aYZi2',  # password
+        'HOST': 'ep-silent-thunder-azbu1vly-pooler.c-3.ap-southeast-1.aws.neon.tech',  # Neon host
+        'PORT': '5432',  # default PostgreSQL port
+        'OPTIONS': {
+            'sslmode': 'require',
+            'channel_binding': 'require',
+        },
     }
 }
 

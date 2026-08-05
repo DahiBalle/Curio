@@ -1,7 +1,7 @@
 from django.db import models
 from pgvector.django import VectorField
 
-from Backend.accounts.models import User
+from accounts.models import User
 
 
 class Persona(models.Model):
