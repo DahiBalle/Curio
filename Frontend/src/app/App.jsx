@@ -7,6 +7,7 @@ import { SignupPage, LoginPage } from '../features/auth';
 import { OnboardingPage } from '../features/onboarding';
 import { MessagesPage } from '../features/messages';
 import { HomePage } from '../features/feed';
+import { CreatePostPage } from '../features/post';
 import './App.css';
 
 function App() {
@@ -17,7 +18,7 @@ function App() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/onboarding" element={<OnboardingPage />} />
-      
+
       {/* Routes that need the Sidebar layout */}
       <Route path="/*" element={
         <div className="app-layout">
@@ -28,6 +29,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/messages" element={<MessagesPage />} />
+              <Route path="/create" element={<CreatePostPage />} />
             </Routes>
           </div>
 
