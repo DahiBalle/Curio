@@ -9,6 +9,8 @@ urlpatterns = [
     path("<int:post_id>/", views.post_detail, name="post-detail"),
     path("<int:post_id>/update/", views.update_post, name="update-post"),
     path("<int:post_id>/delete/", views.delete_post, name="delete-post"),
+    path("<int:post_id>/click/", views.record_click, name="record-click"),
+    path("<int:post_id>/impression/", views.record_impression, name="record-impression"),
 
     # Media
     path("<int:post_id>/media/upload/", views.upload_media, name="upload-media"),

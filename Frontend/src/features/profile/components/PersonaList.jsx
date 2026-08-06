@@ -4,7 +4,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { CreatePersonaModal } from './CreatePersonaModal';
 import { Icon } from '../../../components/ui/Icon';
 
-export const PersonaList = ({ personas, onPersonaCreated, onPersonaSelected, selectedPersonaId }) => {
+export const PersonaList = ({ personas, isOwnProfile = true, onPersonaCreated, onPersonaSelected, selectedPersonaId }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -22,12 +22,14 @@ export const PersonaList = ({ personas, onPersonaCreated, onPersonaSelected, sel
             <span className="persona-title" style={{ color: selectedPersonaId === persona.id ? 'var(--text-p)' : 'var(--text-h)' }}>{persona.name}</span>
           </li>
         ))}
-        <li className="persona-item" onClick={() => setIsModalOpen(true)}>
-          <div className="persona-avatar-wrapper persona-add-btn">
-            <span style={{ fontSize: '24px', color: 'var(--text-p)' }}>+</span>
-          </div>
-          <span className="persona-title">New</span>
-        </li>
+        {isOwnProfile && (
+          <li className="persona-item" onClick={() => setIsModalOpen(true)}>
+            <div className="persona-avatar-wrapper persona-add-btn">
+              <span style={{ fontSize: '24px', color: 'var(--text-p)' }}>+</span>
+            </div>
+            <span className="persona-title">New</span>
+          </li>
+        )}
       </ul>
 
       <CreatePersonaModal 

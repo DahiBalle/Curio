@@ -103,7 +103,7 @@ export const profileApi = {
     if (!token) return [];
 
     try {
-      const { data } = await client.get(`/personas/`);
+      const { data } = await client.get(`/personas/`, { params: { username } });
       return data.personas || [];
     } catch (error) {
       if (error.response && error.response.status === 401) {

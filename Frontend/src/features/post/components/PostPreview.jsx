@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import client from '../../../services/client';
+import { postApi } from '../api/postApi';
 import './PostPreview.css';
 import { Avatar } from '../../../components/ui/Avatar';
 
-export const PostPreview = ({ post }) => {
+export const PostPreview = ({ post, isDetailView = false }) => {
+  const navigate = useNavigate();
+  const cardRef = useRef(null);
+  const impressionRecorded = useRef(false);
   const authorName = post.author?.name || post.subreddit || 'Unknown';
   const authorAvatar = post.author?.avatar || post.authorAvatar;
   const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;
@@ -34,13 +39,61 @@ export const PostPreview = ({ post }) => {
     }
   };
 
+  useEffect(() => {
+    if (isDetailView) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting && !impressionRecorded.current) {
+          impressionRecorded.current = true;
+          postApi.recordImpression(post.id).catch(err => console.error(err));
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.5 } // Record impression when 50% of the post is visible
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [post.id, isDetailView]);
+
+  const handleCardClick = (e) => {
+    if (isDetailView) return;
+    
+    // Check if the click originated from an interactive element
+    const isInteractive = e.target.closest('button') || e.target.closest('a');
+    if (isInteractive) return;
+
+    // Record click and navigate
+    postApi.recordClick(post.id).catch(err => console.error(err));
+    navigate(`/post/${post.id}`);
+  };
+
   return (
-    <article className="post-preview">
+    <article 
+      className={`post-preview ${isDetailView ? 'post-preview--detail' : ''}`} 
+      ref={cardRef} 
+      onClick={handleCardClick}
+      style={{ cursor: isDetailView ? 'default' : 'pointer' }}
+    >
       {/* Header: Avatar + subreddit + time + options */}
       <div className="post-preview__header">
         <div className="post-preview__header-left">
           <Avatar src={authorAvatar} alt={authorName} size="small" />
-          <span className="post-preview__subreddit">{authorName}</span>
+          <Link 
+            to={post.author?.username ? `/profile/${post.author.username}` : '#'} 
+            className="post-preview__subreddit"
+            onClick={(e) => e.stopPropagation()}
+            style={{ textDecoration: 'none', color: 'inherit' }}
+          >
+            {authorName}
+          </Link>
           <span className="post-preview__dot">•</span>
           <span className="post-preview__time">{timeAgo}</span>
         </div>
@@ -65,7 +118,7 @@ export const PostPreview = ({ post }) => {
 
       {/* Description with truncation */}
       {description && (
-        <p className={`post-preview__description ${hasImage ? 'post-preview__description--short' : 'post-preview__description--long'}`}>
+        <p className={`post-preview__description ${isDetailView ? 'post-preview__description--full' : (hasImage ? 'post-preview__description--short' : 'post-preview__description--long')}`}>
           {description}
         </p>
       )}
@@ -120,6 +173,17 @@ export const PostPreview = ({ post }) => {
           <span>Share</span>
         </button>
       </div>
+
+      {/* Comment Input Box for Detail View */}
+      {isDetailView && (
+        <div className="post-preview__comment-box" onClick={(e) => e.stopPropagation()}>
+          <input 
+            type="text" 
+            placeholder="Join the conversation" 
+            className="post-preview__comment-input"
+          />
+        </div>
+      )}
     </article>
   );
 };
