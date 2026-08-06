@@ -103,11 +103,21 @@ def create_persona(request):
 @permission_classes([IsAuthenticated])
 def my_personas(request):
 
+    username = request.query_params.get("username")
+    if username:
+        try:
+            from accounts.models import User
+            target_user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+    else:
+        target_user = request.user
+
     personas = Persona.objects.filter(
-        user=request.user
+        user=target_user
     ).order_by("-is_default", "name")
 
-    active_persona = request.user.profile.active_persona
+    active_persona = target_user.profile.active_persona
 
     data = []
 

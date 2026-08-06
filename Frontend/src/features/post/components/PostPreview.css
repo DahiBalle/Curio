@@ -110,6 +110,35 @@
   -webkit-line-clamp: 5;
 }
 
+.post-preview__description--full {
+  display: block;
+}
+
+.post-preview__comment-box {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #333;
+}
+
+.post-preview__comment-input {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: transparent;
+  border: 1px solid #444;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.post-preview__comment-input:focus {
+  border-color: #666;
+}
+.post-preview__comment-input::placeholder {
+  color: #888;
+}
+
 /* --- Media --- */
 .post-preview__media {
   margin: 0 -16px;

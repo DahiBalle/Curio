@@ -54,7 +54,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             <button className="profile-options-btn">
               <Icon name="options" size={24} />
             </button>
-            {profile.isPersona ? (
+            {profile.isPersona && isOwnProfile ? (
               profile.isActive ? (
                 <Button variant="secondary" disabled>Active Persona</Button>
               ) : (
@@ -65,6 +65,8 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
                   } catch (e) { console.error(e); }
                 }}>Make Active</Button>
               )
+            ) : profile.isPersona ? (
+              null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
               <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (
@@ -116,7 +118,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           </div>
           
           <div className="profile-actions-mobile">
-            {profile.isPersona ? (
+            {profile.isPersona && isOwnProfile ? (
               profile.isActive ? (
                 <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
               ) : (
@@ -127,6 +129,8 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
                   } catch (e) { console.error(e); }
                 }}>Make Active</Button>
               )
+            ) : profile.isPersona ? (
+              null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
               <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (

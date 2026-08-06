@@ -128,6 +128,7 @@ def list_posts(request):
             "author": {
                 "id": post.author.id,
                 "name": post.author.name,
+                "username": post.author.user.username,
                 "avatar": (
                     request.build_absolute_uri(post.author.avatar.url)
                     if post.author.avatar
@@ -196,6 +197,7 @@ def post_detail(request, post_id):
             "author": {
                 "id": post.author.id,
                 "name": post.author.name,
+                "username": post.author.user.username,
 
                 "avatar": (
                     request.build_absolute_uri(post.author.avatar.url)
@@ -229,6 +231,30 @@ def post_detail(request, post_id):
         },
         status=status.HTTP_200_OK
     )
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def record_click(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id, is_removed=False)
+        post.view_count += 1
+        post.save(update_fields=['view_count'])
+        return Response({"success": True}, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def record_impression(request, post_id):
+    try:
+        post = Post.objects.get(id=post_id, is_removed=False)
+        post.impression_count += 1
+        post.save(update_fields=['impression_count'])
+        return Response({"success": True}, status=status.HTTP_200_OK)
+    except Post.DoesNotExist:
+        return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(["PUT"])

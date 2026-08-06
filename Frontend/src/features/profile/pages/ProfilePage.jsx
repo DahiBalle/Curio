@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import './ProfilePage.css';
 import '../../../app/layouts/TwoColumnLayout.css';
 import { useProfile } from '../hooks/useProfile';
@@ -10,8 +11,10 @@ import { PersonaCard, InterestFloor } from '../../persona';
 import { PersonaList } from '../components/PersonaList';
 
 export const ProfilePage = () => {
+  const { username: paramUsername } = useParams();
   const { user } = useAuth();
-  const username = user?.username || '';
+  const username = paramUsername || user?.username || '';
+  const isOwnProfile = username === (user?.username || '');
   const { profile, setProfile, personas, posts, loading, error } = useProfile(username);
   const { activePersona, interestFloor } = usePersona();
   
@@ -33,7 +36,8 @@ export const ProfilePage = () => {
     postsCount: posts.filter(p => p.author?.id === selectedPersona.id).length,
     isPersona: true, // flag to know it's a persona
     id: selectedPersona.id,
-    isActive: activePersona && activePersona.id === selectedPersona.id
+    isActive: activePersona && activePersona.id === selectedPersona.id,
+    username: profile?.username // pass the base profile's username
   } : profile;
 
   const displayedPosts = selectedPersona
@@ -49,6 +53,7 @@ export const ProfilePage = () => {
         <div className="layout-content">
           <PersonaList 
             personas={personas} 
+            isOwnProfile={isOwnProfile}
             onPersonaCreated={() => window.location.reload()} 
             onPersonaSelected={(persona) => {
               if (selectedPersona?.id === persona.id) {
