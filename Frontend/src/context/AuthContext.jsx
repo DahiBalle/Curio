@@ -35,8 +35,14 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const completeOnboarding = () => {
-    setUser(prev => prev ? { ...prev, onboardingComplete: true } : prev);
+  const completeOnboarding = async () => {
+    try {
+      const userData = await authApi.getMe();
+      setUser(userData);
+    } catch (error) {
+      console.error('Failed to refresh user after onboarding', error);
+      setUser(prev => prev ? { ...prev, onboardingComplete: true } : prev);
+    }
   };
 
   return (
