@@ -3,6 +3,7 @@ Django                    # LTS release
 djangorestframework
 djangorestframework-simplejwt   # token auth for /api/auth/login
 django-cors-headers             # allow the React frontend to call the API
+Pillow
 
 # --- Database ---
 psycopg2-binary           # PostgreSQL adapter

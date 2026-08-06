@@ -1,5 +1,6 @@
 from django.db import models
 from pgvector.django import VectorField
+import uuid
 
 
 # =====================================
@@ -124,6 +125,10 @@ class Post(models.Model):
 # Post Media
 # =====================================
 
+def post_media_upload_path(instance, filename):
+    ext = filename.split('.')[-1]
+    return f"uploaded_images/{uuid.uuid4()}.{ext}"
+
 class PostMedia(models.Model):
 
     IMAGE = "IMAGE"
@@ -141,7 +146,7 @@ class PostMedia(models.Model):
     )
 
     file = models.FileField(
-        upload_to="posts/"
+        upload_to=post_media_upload_path
     )
 
     media_type = models.CharField(

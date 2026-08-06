@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './EditProfileModal.css';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { onboardingApi } from '../../onboarding/api/onboardingApi';
 import { profileApi } from '../api/profileApi';
+import client from '../../../services/client';
 import { Avatar } from '../../../components/ui/Avatar';
+import defaultAvatar from '../../../assets/default-avatar.png';
+import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const EditProfileModal = ({ isOpen, onClose, profile, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
@@ -82,10 +85,37 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSaveSuccess }) =>
     }
   };
 
-  const handleRandomizeImages = () => {
-    const rAvatar = `https://picsum.photos/seed/${Math.random()}/100`;
-    const rBanner = `https://picsum.photos/seed/${Math.random()}/600/200`;
-    setFormData(prev => ({ ...prev, avatarUrl: rAvatar, bannerUrl: rBanner }));
+  const avatarInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+    try {
+      const response = await client.put('/profile/upload-picture/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setFormData(prev => ({ ...prev, avatarUrl: response.data.image }));
+    } catch (error) {
+      console.error("Avatar upload failed", error);
+    }
+  };
+
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('banner', file);
+    try {
+      const response = await client.put('/profile/upload-banner/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setFormData(prev => ({ ...prev, bannerUrl: response.data.banner }));
+    } catch (error) {
+      console.error("Banner upload failed", error);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -152,24 +182,51 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSaveSuccess }) =>
 
         <div className="edit-profile-content">
           <div className="edit-profile-images">
+            <input 
+              type="file" 
+              ref={bannerInputRef} 
+              style={{ display: 'none' }} 
+              accept="image/*"
+              onChange={handleBannerUpload} 
+            />
             <div 
               className="edit-profile-banner" 
-              style={{ backgroundImage: formData.bannerUrl ? `url(${formData.bannerUrl})` : 'none' }}
+              style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+              onClick={() => bannerInputRef.current.click()}
             >
-              <div className="edit-profile-image-overlay">
+              <img 
+                src={formData.bannerUrl || defaultBanner} 
+                alt="Banner"
+                style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+                onError={(e) => { e.target.onerror = null; e.target.src = defaultBanner; }}
+              />
+              <div className="edit-profile-image-overlay" style={{ zIndex: 1 }}>
                 <span className="camera-icon">📷</span>
               </div>
             </div>
             <div className="edit-profile-avatar-row">
-              <div className="edit-profile-avatar-wrapper">
-                <img src={formData.avatarUrl || 'https://picsum.photos/100'} alt="Avatar" className="edit-profile-avatar" />
+              <input 
+                type="file" 
+                ref={avatarInputRef} 
+                style={{ display: 'none' }} 
+                accept="image/*"
+                onChange={handleAvatarUpload} 
+              />
+              <div 
+                className="edit-profile-avatar-wrapper"
+                style={{ cursor: 'pointer' }}
+                onClick={() => avatarInputRef.current.click()}
+              >
+                <img 
+                  src={formData.avatarUrl || defaultAvatar} 
+                  alt="Avatar" 
+                  className="edit-profile-avatar" 
+                  onError={(e) => { e.target.onerror = null; e.target.src = defaultAvatar; }}
+                />
                 <div className="edit-profile-image-overlay avatar-overlay">
                   <span className="camera-icon">📷</span>
                 </div>
               </div>
-              <button type="button" className="randomize-images-btn" onClick={handleRandomizeImages}>
-                🎲 Randomize
-              </button>
             </div>
           </div>
 
