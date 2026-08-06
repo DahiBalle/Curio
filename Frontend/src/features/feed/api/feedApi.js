@@ -43,7 +43,9 @@ const generateMockFeed = (personaId) => {
 
 export const feedApi = {
   getFeed: async (personaId) => {
-    const { data } = await client.get('', { params: { personaId } });
-    return data;
+
+    const { data } = await client.get('/posts/', { params: { personaId } });
+    return data.posts || [];
+
   }
 };

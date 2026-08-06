@@ -15,11 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from django.urls import include
+from django.urls import path, include
+from django.http import JsonResponse
+
+def dummy_messages(request):
+    return JsonResponse({"unread": 0, "requests": []})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
-
+    path('api/personas/', include('personas.urls')),
+    path('api/posts/', include('posts.urls')),
+    path('api/', include('interactions.urls')),
+    
+    # Dummy endpoints for messages app to prevent 404s
+    path('api/messages/unread-count/', dummy_messages),
+    path('api/messages/requests/', dummy_messages),
 ]

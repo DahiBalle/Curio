@@ -5,11 +5,15 @@ import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { UserListModal } from './UserListModal';
 import { EditProfileModal } from './EditProfileModal';
+import { useAuth } from '../../../context/AuthContext';
 
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
+  const { user } = useAuth();
   const [isFollowingModalOpen, setIsFollowingModalOpen] = React.useState(false);
   const [isFollowersModalOpen, setIsFollowersModalOpen] = React.useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
+
+  const isOwnProfile = profile.username === user?.username;
 
   // Mock data for the modals
   const mockFollowing = [
@@ -47,8 +51,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             <button className="profile-options-btn">
               <Icon name="options" size={24} />
             </button>
-            {/* Using a mock condition for isOwnProfile for now */}
-            {profile.username === "redbull" ? (
+            {isOwnProfile ? (
               <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
@@ -95,7 +98,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           </div>
           
           <div className="profile-actions-mobile">
-            {profile.username === "redbull" ? (
+            {isOwnProfile ? (
               <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (
               <>

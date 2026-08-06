@@ -59,27 +59,27 @@ const mockRequests = [
 
 export const messagesApi = {
   getThreads: async () => {
-    const { data } = await client.get('');
+    const { data } = await client.get('/messages/');
     return data;
   },
   
   getRequests: async () => {
-    const { data } = await client.get('');
+    const { data } = await client.get('/messages/requests/');
     return data;
   },
 
   getUnreadCount: async () => {
-    const { data } = await client.get('');
+    const { data } = await client.get('/messages/unread-count/');
     return data;
   },
 
   acceptRequest: async (requestId) => {
-    const { data } = await client.post('');
+    const { data } = await client.post(`/messages/requests/${requestId}/accept/`);
     return data;
   },
 
   declineRequest: async (requestId) => {
-    const { data } = await client.post('');
+    const { data } = await client.post(`/messages/requests/${requestId}/decline/`);
     return data;
   }
 };

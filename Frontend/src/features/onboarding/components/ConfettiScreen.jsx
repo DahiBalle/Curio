@@ -7,6 +7,7 @@ import './ConfettiScreen.css';
 export function ConfettiScreen() {
   const [showOptions, setShowOptions] = useState(false);
   const { completeOnboarding } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fire confetti on mount

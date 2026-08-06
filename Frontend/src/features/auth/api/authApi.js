@@ -24,20 +24,28 @@ export const authApi = {
   },
 
   signup: async (payload) => {
-    // Expected response: { token: '...', user: { ... } }
-    const { data } = await client.post('', payload);
-    return data;
+
+    const { data } = await client.post('/signup/', payload);
+    return {
+      ...data,
+      token: data.token || data.access
+    };
   },
 
   login: async (payload) => {
-    // Expected response: { token: '...', user: { ... } }
-    const { data } = await client.post('', payload);
-    return data;
+    const { data } = await client.post('/login/', payload);
+    return {
+      ...data,
+      token: data.token || data.access
+    };
+
   },
 
   getMe: async () => {
     // Expected response: { username: '...', onboardingComplete: true }
-    const { data } = await client.get('');
+
+    const { data } = await client.get('/profile/');
+
     return data;
   }
 };

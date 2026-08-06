@@ -94,9 +94,26 @@ export const EditProfileModal = ({ isOpen, onClose, profile, onSaveSuccess }) =>
 
     setIsSubmitting(true);
     try {
-      const response = await profileApi.updateProfile(formData);
-      if (response.success) {
-        if (onSaveSuccess) onSaveSuccess(response.profile);
+      const response = await profileApi.updateProfile({
+        first_name: formData.name,
+        display_name: formData.name,
+        username: formData.username,
+        bio: formData.bio,
+        avatar_url: formData.avatarUrl,
+        banner_url: formData.bannerUrl,
+      });
+      // Backend returns { message, user } — not { success, profile }
+      if (response && response.message) {
+        // Merge returned server data back into the existing profile shape
+        const updatedProfile = {
+          ...profile,
+          name: response.user.display_name || response.user.first_name || profile.name,
+          username: response.user.username || profile.username,
+          bio: response.user.bio || profile.bio,
+          avatarUrl: formData.avatarUrl || profile.avatarUrl,
+          bannerUrl: formData.bannerUrl || profile.bannerUrl,
+        };
+        if (onSaveSuccess) onSaveSuccess(updatedProfile);
         onClose();
       }
     } catch (error) {

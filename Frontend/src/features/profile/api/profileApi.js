@@ -95,27 +95,47 @@ const mockInterestFloor = [
 
 export const profileApi = {
   getProfile: async (username) => {
-    const { data } = await client.get('');
+    const { data } = await client.get(`/profile/${username}/`);
     return data;
   },
   getPersonas: async (username) => {
-    const { data } = await client.get('');
-    return data;
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!token) return [];
+
+    try {
+      const { data } = await client.get(`/personas/`);
+      return data.personas || [];
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return [];
+      }
+      throw error;
+    }
   },
   getPosts: async (username, page = 1) => {
-    const { data } = await client.get('', { params: { page } });
-    return data;
+    const { data } = await client.get(`/profile/${username}/posts/`, { params: { page } });
+    return data.posts || [];
   },
   getActivePersona: async (username) => {
-    const { data } = await client.get('');
-    return data;
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    try {
+      const { data } = await client.get(`/personas/active/`);
+      return data.active_persona || null;
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        return null;
+      }
+      throw error;
+    }
   },
   getInterestFloor: async (personaId) => {
-    const { data } = await client.get('');
+    const { data } = await client.get(`/personas/${personaId}/interest-floor/`);
     return data;
   },
   updateProfile: async (payload) => {
-    const { data } = await client.patch('', payload);
+    const { data } = await client.patch(`/profile/edit/`, payload);
     return data;
   }
 };

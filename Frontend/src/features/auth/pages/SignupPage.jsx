@@ -43,17 +43,13 @@ export function SignupPage({ onSignupComplete }) {
           // Standard flow: proceed to onboarding
           navigate('/onboarding');
         }
-      } else {
-        // Fallback if mock endpoint doesn't return exactly what we want right now,
-        // we fake a token to keep flow working since backend isn't ready.
-        login('fake-jwt-token-123', { email: data.email, onboardingComplete: false });
-        navigate('/onboarding');
+
       }
     } catch (error) {
       console.error('Signup failed', error);
-      // Fallback for empty URL 404s
-      login('fake-jwt-token-123', { email: data.email, onboardingComplete: false });
-      navigate('/onboarding');
+      const message = error?.response?.data?.error || 'Signup failed. Please try again.';
+      alert(message);
+      
     } finally {
       setIsSubmitting(false);
     }

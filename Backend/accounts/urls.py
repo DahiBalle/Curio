@@ -1,15 +1,30 @@
-# urls.py
-from django.urls import path   
-from Backend.accounts.views import DeleteProfileView, LoginView, LogoutView, ProfileView, SignupView, UpdateProfileView
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView  
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path("api/login/", LoginView.as_view(), name="login"),
-    path("api/logout/", LogoutView.as_view(), name="logout"),
-    path("api/profile/", ProfileView.as_view(), name="profile"),
-    path("api/signup/", SignupView.as_view(), name="signup"),
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/profile/update/", UpdateProfileView.as_view(), name="profile_update"),
-    path("api/delete_account/", DeleteProfileView.as_view(), name="delete_account"),    
+
+    # Authentication
+    path("api/signup/", views.signup, name="signup"),
+    path("api/login/", views.login, name="login"),
+
+    # Profile
+    path("api/accounts/check-username/", views.check_username, name="check-username"),
+    path("api/accounts/onboarding/", views.onboarding, name="onboarding"),
+    path("api/profile/", views.user_profile, name="user-profile"),
+    path("api/profile/edit/", views.edit_profile, name="edit-profile"),
+    path("api/profile/upload-picture/", views.upload_profile_picture, name="upload-profile-picture"),
+    path("api/profile/upload-banner/", views.upload_banner, name="upload-banner"),
+
+    # User Profiles
+    path("api/profile/<str:username>/", views.user_profile_detail, name="user-profile-detail"),
+    path("api/profile/<str:username>/posts/", views.user_profile_posts, name="user-profile-posts"),
+
+    # Follow System
+    path("api/follow/<int:user_id>/", views.follow_user, name="follow-user"),
+    path("api/unfollow/<int:user_id>/", views.unfollow_user, name="unfollow-user"),
+    path("api/followers/<int:user_id>/", views.followers_list, name="followers-list"),
+    path("api/following/<int:user_id>/", views.following_list, name="following-list"),
+
+    # Search
+    path("api/search/", views.search_users, name="search-users"),
 ]

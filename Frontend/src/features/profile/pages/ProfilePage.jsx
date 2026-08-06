@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './ProfilePage.css';
 import '../../../app/layouts/TwoColumnLayout.css';
 import { useProfile } from '../hooks/useProfile';
 import { usePersona } from '../../../context/PersonaContext';
+import { useAuth } from '../../../context/AuthContext';
 import { ProfileHeader } from '../components/ProfileHeader';
 import { PersonaList } from '../components/PersonaList';
 import { PostFeed } from '../../post';
-import { Tabs } from '../../../components/ui/Tabs';
 import { PersonaCard, InterestFloor } from '../../persona';
 
 export const ProfilePage = () => {
-  // Hardcoded 'redbull' for demo purposes
-  const { profile, setProfile, personas, posts, loading, error } = useProfile('redbull');
+  const { user } = useAuth();
+  const username = user?.username || '';
+  const { profile, setProfile, personas, posts, loading, error } = useProfile(username);
   const { activePersona, interestFloor } = usePersona();
-  const [activeTab, setActiveTab] = useState(0);
 
   if (loading) {
     return <div className="page-loading">Loading profile...</div>;
@@ -23,12 +23,6 @@ export const ProfilePage = () => {
     return <div className="page-error">{error}</div>;
   }
 
-  const tabs = [
-    { label: 'Posts', icon: 'grid' },
-    { label: 'Reels', icon: 'reels' },
-    { label: 'Tagged', icon: 'tags' }
-  ];
-
   return (
     <div className="layout-two-column">
       {/* Center — main content */}
@@ -36,12 +30,8 @@ export const ProfilePage = () => {
         <ProfileHeader profile={profile} onProfileUpdate={setProfile} />
         <PersonaList personas={personas} />
 
-        <Tabs tabs={tabs} defaultTab={0} onTabChange={setActiveTab} />
-
         <div className="layout-content">
-          {activeTab === 0 && <PostFeed posts={posts} />}
-          {activeTab === 1 && <PostFeed posts={posts.filter(p => p.type === 'video')} />}
-          {activeTab === 2 && <PostFeed posts={[]} />}
+          <PostFeed posts={posts} />
         </div>
       </main>
 

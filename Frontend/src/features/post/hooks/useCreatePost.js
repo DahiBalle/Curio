@@ -69,7 +69,7 @@ export const useCreatePost = () => {
         formData.append('media', img.file);
       });
 
-      await client.post('', formData, {
+      await client.post('/posts/create/', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

@@ -37,6 +37,14 @@ class Profile(models.Model):
         blank=True
     )
 
+    active_persona = models.ForeignKey(
+    "personas.Persona",
+    on_delete=models.SET_NULL,
+    null=True,
+    blank=True,
+    related_name="active_users"
+    )
+
     profile_picture = models.ImageField(
         upload_to="profile_pictures/",
         default="defaults/profile.png",
@@ -50,6 +58,9 @@ class Profile(models.Model):
     )
 
     website = models.URLField(blank=True)
+
+    avatar_url = models.URLField(blank=True, null=True)
+    banner_url = models.URLField(blank=True, null=True)
 
     date_of_birth = models.DateField(
         blank=True,
