@@ -22,6 +22,17 @@ class Persona(models.Model):
         null=True
     )
 
+    banner = models.ImageField(
+        upload_to="persona_banners/",
+        blank=True,
+        null=True
+    )
+
+    interests = models.JSONField(
+        default=list,
+        blank=True
+    )
+
     embedding = VectorField(
         dimensions=384,
         null=True,

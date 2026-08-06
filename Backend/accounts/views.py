@@ -10,6 +10,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from personas.models import Persona
+from posts.models import Post
 from .models import User, Profile, Follow
 from django.db.models import Q
 
@@ -139,6 +140,11 @@ def upload_profile_picture(request):
     profile.profile_picture = request.FILES["profile_picture"]
     profile.save()
 
+    default_persona = Persona.objects.filter(user=request.user, is_default=True).first()
+    if default_persona:
+        default_persona.avatar = profile.profile_picture
+        default_persona.save(update_fields=['avatar'])
+
     return Response(
         {
             "message": "Profile picture updated",
@@ -159,6 +165,11 @@ def upload_banner(request):
 
     profile.banner = request.FILES["banner"]
     profile.save()
+
+    default_persona = Persona.objects.filter(user=request.user, is_default=True).first()
+    if default_persona:
+        default_persona.banner = profile.banner
+        default_persona.save(update_fields=['banner'])
 
     return Response(
         {
@@ -363,6 +374,18 @@ def edit_profile(request):
 
     user.save()
     profile.save()
+
+    default_persona = Persona.objects.filter(user=user, is_default=True).first()
+    if default_persona:
+        update_fields = []
+        if display_name is not None:
+            default_persona.name = display_name.strip()
+            update_fields.append('name')
+        if bio is not None:
+            default_persona.bio = bio.strip()
+            update_fields.append('bio')
+        if update_fields:
+            default_persona.save(update_fields=update_fields)
 
     return Response(
         {
@@ -601,7 +624,62 @@ def user_profile_detail(request, username):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def user_profile_posts(request, username):
-    return Response({"posts": [], "has_more": False}, status=status.HTTP_200_OK)
+    user = get_object_or_404(User, username__iexact=username)
+    
+    # Get all personas for this user
+    personas = Persona.objects.filter(user=user)
+    
+    # Fetch posts authored by any of these personas
+    posts = (
+        Post.objects
+        .filter(author__in=personas, is_removed=False)
+        .select_related("author", "author__user")
+        .prefetch_related("media")
+        .order_by("-created_at")
+    )
+    
+    data = []
+    
+    for post in posts:
+        media = []
+        for item in post.media.all():
+            media.append({
+                "id": item.id,
+                "type": item.media_type,
+                "url": request.build_absolute_uri(item.file.url)
+            })
+            
+        data.append({
+            "id": post.id,
+            "author": {
+                "id": post.author.id,
+                "name": post.author.name,
+                "avatar": (
+                    request.build_absolute_uri(post.author.avatar.url)
+                    if post.author.avatar
+                    else None
+                )
+            },
+            "title": post.title,
+            "content": post.content,
+            "tags": post.tags,
+            "post_type": post.post_type,
+            "visibility": post.visibility,
+            "media": media,
+            "stats": {
+                "likes": post.like_count,
+                "comments": post.comment_count,
+                "shares": post.share_count,
+                "saves": post.save_count,
+                "views": post.view_count,
+                "impressions": post.impression_count,
+            },
+            "is_nsfw": post.is_nsfw,
+            "created_at": post.created_at,
+            "updated_at": post.updated_at,
+        })
+        
+    return Response({"posts": data, "has_more": False}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -810,6 +888,19 @@ def onboarding(request):
     user = request.user
     username = request.data.get("username")
     name = request.data.get("name")
+    bio = request.data.get("bio", "")
+    interests_str = request.data.get("interests", "[]")
+    
+    import json
+    try:
+        if isinstance(interests_str, list):
+            interests = interests_str
+        else:
+            interests = json.loads(interests_str)
+        if not isinstance(interests, list):
+            interests = []
+    except (json.JSONDecodeError, TypeError):
+        interests = []
     
     if username:
         if User.objects.filter(username__iexact=username).exclude(id=user.id).exists():
@@ -821,18 +912,29 @@ def onboarding(request):
         
     user.save()
     
-    # Update default persona name to match username if provided
-    if username:
-        persona = Persona.objects.filter(user=user, is_default=True).first()
-        if persona:
-            persona.name = username
-            persona.save()
-            
-    # Also update profile display name
+    # Update profile display name and bio
+    profile = user.profile
     if name:
-        profile = user.profile
         profile.display_name = name
-        profile.save(update_fields=["display_name"])
+    if bio:
+        profile.bio = bio
+    profile.save(update_fields=["display_name", "bio"])
+
+    # Sync to default persona
+    persona = Persona.objects.filter(user=user, is_default=True).first()
+    if persona:
+        if username:
+            persona.name = username
+        persona.bio = bio
+        persona.interests = interests
+        
+        # Copy images from profile if they exist
+        if profile.profile_picture:
+            persona.avatar = profile.profile_picture
+        if profile.banner:
+            persona.banner = profile.banner
+            
+        persona.save()
         
     return Response({
         "success": True,

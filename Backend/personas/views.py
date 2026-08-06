@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+import json
 
 from .models import Persona
 
@@ -47,6 +48,18 @@ def create_persona(request):
         )
 
     # -------------------------
+    # Parse Interests
+    # -------------------------
+
+    interests_str = request.data.get("interests", "[]")
+    try:
+        interests = json.loads(interests_str)
+        if not isinstance(interests, list):
+            interests = []
+    except json.JSONDecodeError:
+        interests = []
+
+    # -------------------------
     # Create Persona
     # -------------------------
 
@@ -54,8 +67,17 @@ def create_persona(request):
         user=user,
         name=name,
         bio=bio,
-        allow_nsfw=allow_nsfw
+        allow_nsfw=allow_nsfw,
+        interests=interests
     )
+
+    if "avatar" in request.FILES:
+        persona.avatar = request.FILES["avatar"]
+    
+    if "banner" in request.FILES:
+        persona.banner = request.FILES["banner"]
+
+    persona.save()
 
     return Response(
         {
@@ -67,6 +89,9 @@ def create_persona(request):
                 "bio": persona.bio,
                 "allow_nsfw": persona.allow_nsfw,
                 "is_default": persona.is_default,
+                "avatar": request.build_absolute_uri(persona.avatar.url) if persona.avatar else None,
+                "banner": request.build_absolute_uri(persona.banner.url) if persona.banner else None,
+                "interests": persona.interests,
                 "created_at": persona.created_at
             }
         },
@@ -97,6 +122,13 @@ def my_personas(request):
                 request.build_absolute_uri(persona.avatar.url)
                 if persona.avatar else None
             ),
+            
+            "banner": (
+                request.build_absolute_uri(persona.banner.url)
+                if persona.banner else None
+            ),
+            
+            "interests": persona.interests,
 
             "allow_nsfw": persona.allow_nsfw,
             "is_default": persona.is_default,
@@ -187,6 +219,21 @@ def update_persona(request, persona_id):
         "allow_nsfw",
         persona.allow_nsfw
     )
+    
+    interests_str = request.data.get("interests")
+    if interests_str is not None:
+        import json
+        try:
+            if isinstance(interests_str, list):
+                interests = interests_str
+            else:
+                interests = json.loads(interests_str)
+            if not isinstance(interests, list):
+                interests = persona.interests
+        except (json.JSONDecodeError, TypeError):
+            interests = persona.interests
+    else:
+        interests = persona.interests
 
     # -------------------------
     # Validation
@@ -222,6 +269,7 @@ def update_persona(request, persona_id):
     persona.name = name
     persona.bio = bio
     persona.allow_nsfw = allow_nsfw
+    persona.interests = interests
     persona.save()
 
     return Response(
@@ -231,6 +279,7 @@ def update_persona(request, persona_id):
                 "id": persona.id,
                 "name": persona.name,
                 "bio": persona.bio,
+                "interests": persona.interests,
                 "allow_nsfw": persona.allow_nsfw,
                 "is_default": persona.is_default
             }
@@ -329,6 +378,13 @@ def active_persona(request):
                     if persona.avatar
                     else None
                 ),
+                
+                "banner": (
+                    request.build_absolute_uri(persona.banner.url)
+                    if persona.banner else None
+                ),
+                
+                "interests": persona.interests,
 
                 "allow_nsfw": persona.allow_nsfw,
                 "is_default": persona.is_default,

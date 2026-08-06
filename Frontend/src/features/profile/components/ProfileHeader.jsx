@@ -6,6 +6,7 @@ import { Icon } from '../../../components/ui/Icon';
 import { UserListModal } from './UserListModal';
 import { EditProfileModal } from './EditProfileModal';
 import { useAuth } from '../../../context/AuthContext';
+import client from '../../../services/client';
 import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
@@ -53,7 +54,18 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             <button className="profile-options-btn">
               <Icon name="options" size={24} />
             </button>
-            {isOwnProfile ? (
+            {profile.isPersona ? (
+              profile.isActive ? (
+                <Button variant="secondary" disabled>Active Persona</Button>
+              ) : (
+                <Button variant="primary" onClick={async () => {
+                  try {
+                    await client.post('/personas/switch/', { persona_id: profile.id });
+                    window.location.reload();
+                  } catch (e) { console.error(e); }
+                }}>Make Active</Button>
+              )
+            ) : isOwnProfile ? (
               <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
@@ -80,8 +92,12 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             </div>
             
             <ul className="profile-stats">
-              <li onClick={() => setIsFollowingModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followingCount}</strong> following</li>
-              <li onClick={() => setIsFollowersModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followersCount}</strong> followers</li>
+              {!profile.isPersona && (
+                <>
+                  <li onClick={() => setIsFollowingModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followingCount}</strong> following</li>
+                  <li onClick={() => setIsFollowersModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followersCount}</strong> followers</li>
+                </>
+              )}
               <li><strong>{profile.postsCount}</strong> posts</li>
             </ul>
 
@@ -100,7 +116,18 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           </div>
           
           <div className="profile-actions-mobile">
-            {isOwnProfile ? (
+            {profile.isPersona ? (
+              profile.isActive ? (
+                <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
+              ) : (
+                <Button variant="primary" className="flex-1" onClick={async () => {
+                  try {
+                    await client.post('/personas/switch/', { persona_id: profile.id });
+                    window.location.reload();
+                  } catch (e) { console.error(e); }
+                }}>Make Active</Button>
+              )
+            ) : isOwnProfile ? (
               <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
             ) : (
               <>

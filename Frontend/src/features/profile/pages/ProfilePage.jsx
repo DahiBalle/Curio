@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './ProfilePage.css';
 import '../../../app/layouts/TwoColumnLayout.css';
 import { useProfile } from '../hooks/useProfile';
 import { usePersona } from '../../../context/PersonaContext';
 import { useAuth } from '../../../context/AuthContext';
 import { ProfileHeader } from '../components/ProfileHeader';
-import { PersonaList } from '../components/PersonaList';
 import { PostFeed } from '../../post';
 import { PersonaCard, InterestFloor } from '../../persona';
+import { PersonaList } from '../components/PersonaList';
 
 export const ProfilePage = () => {
   const { user } = useAuth();
   const username = user?.username || '';
   const { profile, setProfile, personas, posts, loading, error } = useProfile(username);
   const { activePersona, interestFloor } = usePersona();
+  
+  const [selectedPersona, setSelectedPersona] = useState(null);
 
   if (loading) {
     return <div className="page-loading">Loading profile...</div>;
@@ -23,15 +25,41 @@ export const ProfilePage = () => {
     return <div className="page-error">{error}</div>;
   }
 
+  const displayedProfile = selectedPersona ? {
+    name: selectedPersona.name,
+    bio: selectedPersona.bio,
+    avatarUrl: selectedPersona.avatar,
+    bannerUrl: selectedPersona.banner,
+    postsCount: posts.filter(p => p.author?.id === selectedPersona.id).length,
+    isPersona: true, // flag to know it's a persona
+    id: selectedPersona.id,
+    isActive: activePersona && activePersona.id === selectedPersona.id
+  } : profile;
+
+  const displayedPosts = selectedPersona
+    ? posts.filter(p => p.author?.id === selectedPersona.id)
+    : posts;
+
   return (
     <div className="layout-two-column">
       {/* Center — main content */}
       <main className="layout-main">
-        <ProfileHeader profile={profile} onProfileUpdate={setProfile} />
-        <PersonaList personas={personas} />
+        <ProfileHeader profile={displayedProfile} onProfileUpdate={setProfile} />
 
         <div className="layout-content">
-          <PostFeed posts={posts} />
+          <PersonaList 
+            personas={personas} 
+            onPersonaCreated={() => window.location.reload()} 
+            onPersonaSelected={(persona) => {
+              if (selectedPersona?.id === persona.id) {
+                setSelectedPersona(null); // toggle off
+              } else {
+                setSelectedPersona(persona);
+              }
+            }}
+            selectedPersonaId={selectedPersona?.id}
+          />
+          <PostFeed posts={displayedPosts} />
         </div>
       </main>
 
@@ -39,7 +67,7 @@ export const ProfilePage = () => {
       <aside className="layout-aside">
         <div className="layout-sidebar-sticky">
           <PersonaCard persona={activePersona} />
-          <InterestFloor labels={interestFloor} />
+          <InterestFloor activePersona={activePersona} />
         </div>
       </aside>
     </div>

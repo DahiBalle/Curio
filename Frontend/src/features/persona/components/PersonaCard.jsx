@@ -9,7 +9,7 @@ export const PersonaCard = ({ persona }) => {
     <div className="persona-card">
       {/* Top row: avatar on left, name on right */}
       <div className="persona-card__header">
-        <Avatar src={persona.avatarUrl} alt={persona.name} size="medium" />
+        <Avatar src={persona.avatar || persona.avatarUrl} alt={persona.name} size="medium" />
         <div className="persona-card__header-info">
           <h3 className="persona-card__name">{persona.name}</h3>
         </div>
@@ -20,13 +20,6 @@ export const PersonaCard = ({ persona }) => {
         <p className="persona-card__bio">{persona.bio}</p>
       )}
 
-      {/* Stats: just Posts */}
-      <div className="persona-card__stats">
-        <div className="persona-card__stat">
-          <span className="persona-card__stat-value">{persona.postsCount}</span>
-          <span className="persona-card__stat-label">Posts</span>
-        </div>
-      </div>
     </div>
   );
 };

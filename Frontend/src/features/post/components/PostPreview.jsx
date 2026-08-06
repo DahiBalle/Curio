@@ -1,19 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
+import client from '../../../services/client';
 import './PostPreview.css';
 import { Avatar } from '../../../components/ui/Avatar';
 
 export const PostPreview = ({ post }) => {
-  const hasImage = !!post.imageUrl;
+  const authorName = post.author?.name || post.subreddit || 'Unknown';
+  const authorAvatar = post.author?.avatar || post.authorAvatar;
+  const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;
+  const imageUrl = post.media && post.media.length > 0 ? post.media[0].url : post.imageUrl;
+  const description = post.content || post.description;
+  const hasImage = !!imageUrl;
+  
+  const [isLiked, setIsLiked] = useState(post.is_liked || false);
+  const [likeCount, setLikeCount] = useState(post.stats?.likes || post.upvotes || 0);
+  
+  const commentsCount = post.stats?.comments || post.commentsCount || 0;
+  const label = post.tags || post.label;
+
+  const handleLike = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const newIsLiked = !isLiked;
+    setIsLiked(newIsLiked);
+    setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
+    
+    try {
+      await client.post(`/${post.id}/like/`);
+    } catch (err) {
+      setIsLiked(!newIsLiked);
+      setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
+      console.error('Failed to toggle like:', err);
+    }
+  };
 
   return (
     <article className="post-preview">
       {/* Header: Avatar + subreddit + time + options */}
       <div className="post-preview__header">
         <div className="post-preview__header-left">
-          <Avatar src={post.authorAvatar} alt={post.subreddit} size="small" />
-          <span className="post-preview__subreddit">{post.subreddit}</span>
+          <Avatar src={authorAvatar} alt={authorName} size="small" />
+          <span className="post-preview__subreddit">{authorName}</span>
           <span className="post-preview__dot">•</span>
-          <span className="post-preview__time">{post.timeAgo}</span>
+          <span className="post-preview__time">{timeAgo}</span>
         </div>
         <button className="post-preview__options-btn" aria-label="More options">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -28,16 +57,16 @@ export const PostPreview = ({ post }) => {
       <h3 className="post-preview__title">{post.title}</h3>
 
       {/* Label badge (shown below title for text-only posts) */}
-      {!hasImage && post.label && (
+      {!hasImage && label && (
         <div className="post-preview__label-row">
-          <span className="post-preview__label">{post.label}</span>
+          <span className="post-preview__label">{label}</span>
         </div>
       )}
 
       {/* Description with truncation */}
-      {post.description && (
+      {description && (
         <p className={`post-preview__description ${hasImage ? 'post-preview__description--short' : 'post-preview__description--long'}`}>
-          {post.description}
+          {description}
         </p>
       )}
 
@@ -45,7 +74,7 @@ export const PostPreview = ({ post }) => {
       {hasImage && (
         <div className="post-preview__media">
           <img
-            src={post.imageUrl}
+            src={imageUrl}
             alt={post.title}
             className="post-preview__image"
             loading="lazy"
@@ -55,21 +84,22 @@ export const PostPreview = ({ post }) => {
 
       {/* Footer: action buttons */}
       <div className="post-preview__footer">
-        <button className="post-preview__action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 19V5M5 12l7-7 7 7" />
+        <button 
+          className={`post-preview__action-btn ${isLiked ? 'post-preview__action-btn--liked' : ''}`}
+          onClick={handleLike}
+          style={isLiked ? { color: '#ff3040' } : {}}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill={isLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
-          <span>{post.upvotes}</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5v14M19 12l-7 7-7-7" />
-          </svg>
+          <span>{likeCount}</span>
         </button>
 
         <button className="post-preview__action-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
-          <span>{post.commentsCount}</span>
+          <span>{commentsCount}</span>
         </button>
 
         <button className="post-preview__action-btn">

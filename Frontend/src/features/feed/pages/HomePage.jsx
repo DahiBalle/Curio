@@ -37,7 +37,7 @@ export function HomePage() {
       <aside className="layout-aside">
         <div className="layout-sidebar-sticky">
           <PersonaCard persona={activePersona} />
-          <InterestFloor labels={interestFloor} />
+          <InterestFloor activePersona={activePersona} />
         </div>
       </aside>
     </div>
