@@ -14,8 +14,10 @@ export function PersonaProvider({ children }) {
       try {
         setLoading(true);
         const [fetchedPersonas, fetchedActivePersona] = await Promise.all([
+
           profileApi.getPersonas(),
           profileApi.getActivePersona()
+
         ]);
         
         setPersonas(fetchedPersonas);

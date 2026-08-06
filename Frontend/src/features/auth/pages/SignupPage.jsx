@@ -43,11 +43,13 @@ export function SignupPage({ onSignupComplete }) {
           // Standard flow: proceed to onboarding
           navigate('/onboarding');
         }
+
       }
     } catch (error) {
       console.error('Signup failed', error);
       const message = error?.response?.data?.error || 'Signup failed. Please try again.';
       alert(message);
+      
     } finally {
       setIsSubmitting(false);
     }

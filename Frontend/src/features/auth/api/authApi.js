@@ -24,6 +24,7 @@ export const authApi = {
   },
 
   signup: async (payload) => {
+
     const { data } = await client.post('/signup/', payload);
     return {
       ...data,
@@ -37,11 +38,14 @@ export const authApi = {
       ...data,
       token: data.token || data.access
     };
+
   },
 
   getMe: async () => {
     // Expected response: { username: '...', onboardingComplete: true }
+
     const { data } = await client.get('/profile/');
+
     return data;
   }
 };

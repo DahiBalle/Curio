@@ -28,7 +28,9 @@ export function LoginForm({
     if (!emailValid || hasSpace || !password) return;
 
     if (onLoginComplete) {
+
       onLoginComplete({ email, password });
+
     }
   };
 
