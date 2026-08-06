@@ -25,8 +25,8 @@ export function ConfettiScreen() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleFinish = () => {
-    completeOnboarding();
+  const handleFinish = async () => {
+    await completeOnboarding();
     navigate('/');
   };
 
