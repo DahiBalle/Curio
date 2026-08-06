@@ -3,9 +3,11 @@ import { NavLink, Link } from 'react-router-dom';
 import './Sidebar.css';
 import { Avatar } from '../ui/Avatar';
 import { useMessages } from '../../features/messages/hooks/useMessages';
+import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar = ({ onSearchClick }) => {
   const { unreadCount } = useMessages();
+  const { logout, user } = useAuth();
   return (
     <aside className="sidebar">
       <div className="sidebar__brand">
@@ -57,20 +59,20 @@ export const Sidebar = ({ onSearchClick }) => {
         </NavLink>
 
         <NavLink to="/profile" className={({ isActive }) => `sidebar__nav-item ${isActive ? 'active' : ''}`}>
-          <Avatar src="https://picsum.photos/id/64/32/32" alt="Profile" size="small" />
+          <Avatar src={user?.profile?.profile_picture || user?.profile_picture} alt="Profile" size="small" />
           <span className="sidebar__label">Profile</span>
         </NavLink>
       </nav>
 
       <div className="sidebar__footer">
-        <Link to="/login" className="sidebar__nav-item">
+        <button className="sidebar__nav-item sidebar__btn" onClick={logout}>
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           <span className="sidebar__label">Logout</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );

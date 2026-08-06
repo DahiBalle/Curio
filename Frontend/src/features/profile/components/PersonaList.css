@@ -43,6 +43,11 @@
   transform: scale(1.05);
 }
 
+.persona-add-btn {
+  border: 1px dashed var(--border);
+  background: transparent;
+}
+
 .persona-title {
   font-size: 12px;
   font-weight: 600;

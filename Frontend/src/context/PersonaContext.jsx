@@ -53,7 +53,7 @@ export function PersonaProvider({ children }) {
   };
 
   return (
-    <PersonaContext.Provider value={{ activePersona, personas, interestFloor, switchPersona, loading }}>
+    <PersonaContext.Provider value={{ activePersona, personas, interestFloor, switchPersona, loading, setActivePersona }}>
       {children}
     </PersonaContext.Provider>
   );
