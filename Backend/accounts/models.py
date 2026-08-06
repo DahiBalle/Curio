@@ -1,5 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import uuid
+import os
+
+def avatar_upload_path(instance, filename):
+    ext = filename.split('.')[-1]
+    return f"uploaded_images/{uuid.uuid4()}.{ext}"
+
+def banner_upload_path(instance, filename):
+    ext = filename.split('.')[-1]
+    return f"uploaded_images/{uuid.uuid4()}.{ext}"
 
 # -------------------------
 # Authentication Model
@@ -46,13 +56,13 @@ class Profile(models.Model):
     )
 
     profile_picture = models.ImageField(
-        upload_to="profile_pictures/",
+        upload_to=avatar_upload_path,
         default="defaults/profile.png",
         blank=True
     )
 
     banner = models.ImageField(
-        upload_to="profile_banners/",
+        upload_to=banner_upload_path,
         default="defaults/banner.jpg",
         blank=True
     )

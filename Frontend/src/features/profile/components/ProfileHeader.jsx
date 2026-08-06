@@ -6,6 +6,7 @@ import { Icon } from '../../../components/ui/Icon';
 import { UserListModal } from './UserListModal';
 import { EditProfileModal } from './EditProfileModal';
 import { useAuth } from '../../../context/AuthContext';
+import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   const { user } = useAuth();
@@ -34,11 +35,12 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   return (
     <header className="profile-header">
       <div className="profile-header__banner">
-        {profile.bannerUrl ? (
-          <img src={profile.bannerUrl} alt={`${profile.name} banner`} className="profile-banner-image" />
-        ) : (
-          <div className="profile-header__banner-placeholder"></div>
-        )}
+        <img 
+          src={profile.bannerUrl || defaultBanner} 
+          alt={`${profile.name} banner`} 
+          className="profile-banner-image" 
+          onError={(e) => { e.target.onerror = null; e.target.src = defaultBanner; }}
+        />
       </div>
 
       <div className="profile-header__bottom">

@@ -1,52 +1,99 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import './OnboardingSteps.css';
-
-const AVATAR_PRESETS = [
-  'https://picsum.photos/seed/a1/100',
-  'https://picsum.photos/seed/a2/100',
-  'https://picsum.photos/seed/a3/100',
-  'https://picsum.photos/seed/a4/100'
-];
-
-const BANNER_PRESETS = [
-  'https://picsum.photos/seed/b1/600/200',
-  'https://picsum.photos/seed/b2/600/200',
-  'https://picsum.photos/seed/b3/600/200'
-];
+import client from '../../../services/client';
+import defaultAvatar from '../../../assets/default-avatar.png';
+import defaultBanner from '../../../assets/default-banner.jpg';
 
 export function ProfileStep({ data, updateData }) {
-  const handleRandomize = () => {
-    const rAvatar = `https://picsum.photos/seed/${Math.random()}/100`;
-    const rBanner = `https://picsum.photos/seed/${Math.random()}/600/200`;
-    updateData('avatar', rAvatar);
-    updateData('banner', rBanner);
+  const avatarInputRef = useRef(null);
+  const bannerInputRef = useRef(null);
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('profile_picture', file);
+
+    try {
+      const response = await client.put('/profile/upload-picture/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      updateData('avatar', response.data.image);
+    } catch (error) {
+      console.error("Avatar upload failed", error);
+    }
   };
 
+  const handleBannerUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('banner', file);
+
+    try {
+      const response = await client.put('/profile/upload-banner/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      updateData('banner', response.data.banner);
+    } catch (error) {
+      console.error("Banner upload failed", error);
+    }
+  };
   return (
     <div className="onboarding-step-container">
       <h2 className="step-title">Set up your profile</h2>
       <p className="step-subtitle">Tell us a bit about yourself (Optional)</p>
 
       <div className="profile-images-setup">
+        <input 
+          type="file" 
+          ref={bannerInputRef} 
+          style={{ display: 'none' }} 
+          accept="image/*"
+          onChange={handleBannerUpload} 
+        />
         <div 
           className="setup-banner"
-          style={{ backgroundImage: data.banner ? `url(${data.banner})` : 'none' }}
+          style={{ cursor: 'pointer', position: 'relative', overflow: 'hidden' }}
+          onClick={() => bannerInputRef.current.click()}
         >
-          {!data.banner && <span>Banner Image</span>}
+          <img 
+            src={data.banner || defaultBanner} 
+            alt="Banner"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+            onError={(e) => { e.target.onerror = null; e.target.src = defaultBanner; }}
+          />
+          {!data.banner && <span style={{ zIndex: 1, position: 'relative' }}>Click to upload Banner Image</span>}
         </div>
         
         <div className="setup-avatar-row">
-          <div className="setup-avatar-wrapper">
+          <input 
+            type="file" 
+            ref={avatarInputRef} 
+            style={{ display: 'none' }} 
+            accept="image/*"
+            onChange={handleAvatarUpload} 
+          />
+          <div 
+            className="setup-avatar-wrapper" 
+            style={{ cursor: 'pointer' }}
+            onClick={() => avatarInputRef.current.click()}
+          >
             {data.avatar ? (
-              <img src={data.avatar} alt="Avatar" className="setup-avatar" />
+              <img 
+                src={data.avatar} 
+                alt="Avatar" 
+                className="setup-avatar" 
+                onError={(e) => { e.target.onerror = null; e.target.src = defaultAvatar; }}
+              />
             ) : (
-              <div className="setup-avatar-placeholder" />
+              <div className="setup-avatar-placeholder">
+                <span>+</span>
+              </div>
             )}
           </div>
-          
-          <button className="randomize-btn" onClick={handleRandomize}>
-            🎲 Randomize Look
-          </button>
         </div>
       </div>
 

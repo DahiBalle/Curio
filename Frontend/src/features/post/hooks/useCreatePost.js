@@ -41,16 +41,13 @@ export const useCreatePost = () => {
   const toggleLabel = useCallback((label) => {
     setLabels(prev => {
       if (prev.includes(label)) {
-        return prev.filter(l => l !== label);
+        return [];
       }
-      if (prev.length >= 3) {
-        return prev;
-      }
-      return [...prev, label];
+      return [label];
     });
   }, []);
 
-  const isValid = title.trim().length > 0 && images.length > 0 && labels.length > 0 && labels.length <= 3;
+  const isValid = title.trim().length > 0 && images.length > 0 && labels.length === 1;
 
   const submitPost = async (e) => {
     if (e) e.preventDefault();
@@ -60,20 +57,26 @@ export const useCreatePost = () => {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      formData.append('description', body.trim());
-      formData.append('labelId', labels[0]); // Taking first label for now as per api docs
+      const postResponse = await client.post('/posts/create/', {
+        title: title.trim(),
+        content: body.trim(),
+        tags: labels[0]
+      });
       
-      images.forEach((img) => {
-        formData.append('media', img.file);
-      });
+      const postId = postResponse.data.post.id;
 
-      await client.post('/posts/create/', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      if (images.length > 0) {
+        const mediaFormData = new FormData();
+        images.forEach((img) => {
+          mediaFormData.append('media', img.file);
+        });
+
+        await client.post(`/posts/${postId}/media/upload/`, mediaFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
       
       // Success, navigate to home
       navigate('/');

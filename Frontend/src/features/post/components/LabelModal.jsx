@@ -8,11 +8,7 @@ export const LabelModal = ({ availableLabels, selectedLabels, onToggleLabel, onC
     if (e.key === 'Enter' && customLabel.trim()) {
       e.preventDefault();
       const label = customLabel.trim();
-      if (!selectedLabels.includes(label) && selectedLabels.length < 3) {
-        onToggleLabel(label);
-      } else if (selectedLabels.includes(label)) {
-        onToggleLabel(label); // This will actually remove it if it exists, maybe we just do nothing if it's already there? Wait, toggle removes it. If they type it again, maybe just clear the input.
-      }
+      onToggleLabel(label);
       setCustomLabel('');
     }
   };
@@ -21,13 +17,13 @@ export const LabelModal = ({ availableLabels, selectedLabels, onToggleLabel, onC
       <div className="label-modal" onClick={e => e.stopPropagation()}>
         <header className="label-modal__header">
           <h1 className="label-modal__title">Categorize your post</h1>
-          <p className="label-modal__subtitle">Pick some labels to categorize your post. (Required 1-3)</p>
+          <p className="label-modal__subtitle">Pick a label to categorize your post. (Required)</p>
           <button className="label-modal__close" onClick={onClose}>&times;</button>
         </header>
 
         <div className="label-modal__body">
           <div className="label-modal__counter">
-            {selectedLabels.length}/3 selected
+            {selectedLabels.length}/1 selected
           </div>
           
           <div className="label-modal__selected-area">
@@ -64,7 +60,6 @@ export const LabelModal = ({ availableLabels, selectedLabels, onToggleLabel, onC
             <div className="pill-container">
               {availableLabels.map(label => {
                 const isSelected = selectedLabels.includes(label.id);
-                const isDisabled = !isSelected && selectedLabels.length >= 3;
                 
                 if (isSelected) return null; // Don't show in suggested if already selected
 
@@ -73,8 +68,7 @@ export const LabelModal = ({ availableLabels, selectedLabels, onToggleLabel, onC
                     key={label.id}
                     type="button"
                     onClick={() => onToggleLabel(label.id)}
-                    disabled={isDisabled}
-                    className={`pill-btn ${isDisabled ? 'disabled' : ''}`}
+                    className="pill-btn"
                   >
                     + {label.label}
                   </button>

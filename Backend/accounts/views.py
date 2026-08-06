@@ -142,7 +142,7 @@ def upload_profile_picture(request):
     return Response(
         {
             "message": "Profile picture updated",
-            "image": profile.profile_picture.url
+            "image": request.build_absolute_uri(profile.profile_picture.url)
         }
     )
 
@@ -163,7 +163,7 @@ def upload_banner(request):
     return Response(
         {
             "message": "Banner updated",
-            "banner": profile.banner.url
+            "banner": request.build_absolute_uri(profile.banner.url)
         }
     )
 
