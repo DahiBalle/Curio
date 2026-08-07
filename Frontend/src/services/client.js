@@ -18,7 +18,6 @@ const client = axios.create({
 /**
  * Request interceptor
  * - Add auth token to requests if available
- * - Handle token expiration (optional)
  */
 client.interceptors.request.use(
     (config) => {
@@ -39,7 +38,6 @@ client.interceptors.request.use(
 /**
  * Response interceptor
  * - Handle common errors (401, 403, 500)
- * - Optional: token refresh logic
  */
 client.interceptors.response.use(
     (response) => response,

@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / '.env')
-load_dotenv(BASE_DIR / 'env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -166,4 +165,4 @@ AUTH_USER_MODEL = "accounts.User"
 
 # Media files (Uploaded by users)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'
