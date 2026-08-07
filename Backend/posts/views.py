@@ -218,6 +218,15 @@ def delete_comment(request, comment_id):
     return Response({"success": True})
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def like_comment(request, comment_id):
+    c = get_object_or_404(Comment, id=comment_id)
+    # Simple increment for now, could be improved with interaction model later
+    c.likes_count += 1
+    c.save(update_fields=['likes_count'])
+    return Response({"upvotes": str(c.likes_count)})
+
+@api_view(["POST"])
 def record_click(request, post_id):
     # Moved to interactions app realistically, but we can leave placeholder
     return Response({"success": True})

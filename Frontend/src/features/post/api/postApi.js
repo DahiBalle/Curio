@@ -47,5 +47,11 @@ export const postApi = {
     }
     const { data } = await client.post(`/posts/${id}/comments/create/`, payload);
     return data;
+  },
+
+  likeComment: async (commentId) => {
+    const id = String(commentId).replace('comment-', '');
+    const { data } = await client.post(`/posts/comments/${id}/like/`);
+    return data;
   }
 };
