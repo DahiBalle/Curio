@@ -14,6 +14,7 @@ urlpatterns = [
     
     # Profile API
     path("profile/edit/", views.edit_profile, name="edit-profile"),
+    path("profile/edit-username/", views.edit_username, name="edit-username"),
     path("profile/upload-picture/", views.upload_profile_picture, name="upload-profile-picture"),
     path("profile/upload-banner/", views.upload_banner, name="upload-banner"),
     path("profile/saved-posts/", views.saved_posts_list, name="saved-posts"),

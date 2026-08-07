@@ -103,8 +103,12 @@ def check_username(request):
     username = request.query_params.get("username")
     if not username:
         return Response({"error": "Username required"}, status=400)
-    exists = User.objects.filter(username__iexact=username).exists()
+    query = User.objects.filter(username__iexact=username)
+    if request.user and request.user.is_authenticated:
+        query = query.exclude(pk=request.user.pk)
+    exists = query.exists()
     return Response({"available": not exists})
+
 
 @api_view(["GET"])
 def check_email(request):
@@ -206,6 +210,30 @@ def edit_profile(request):
             "bio": persona.bio if persona else "",
         }
     })
+
+@api_view(["PATCH", "POST"])
+@permission_classes([IsAuthenticated])
+def edit_username(request):
+    user = request.user
+    new_username = request.data.get("username", "").strip()
+
+    if not new_username:
+        return Response({"error": "Username cannot be empty"}, status=400)
+
+    if len(new_username) < 3 or len(new_username) > 30:
+        return Response({"error": "Username must be between 3 and 30 characters"}, status=400)
+
+    if new_username.lower() != user.username.lower():
+        if User.objects.filter(username__iexact=new_username).exists():
+            return Response({"error": "Username is already taken"}, status=400)
+        user.username = new_username
+        user.save()
+
+    return Response({
+        "success": True,
+        "username": user.username
+    })
+
 
 @api_view(["PUT", "PATCH"])
 @permission_classes([IsAuthenticated])

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './ProfileHeader.css';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 
 import { EditPersonaModal } from '../../persona/components/EditPersonaModal';
+import { EditUsernameModal } from './EditUsernameModal';
 import { useAuth } from '../../../context/AuthContext';
 import { usePersona } from '../../../context/PersonaContext';
 import defaultBanner from '../../../assets/default-banner.jpg';
@@ -12,18 +14,17 @@ import defaultBanner from '../../../assets/default-banner.jpg';
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   const { user } = useAuth();
   const { switchPersona } = usePersona();
-  const [isEditPersonaModalOpen, setIsEditPersonaModalOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const [isEditPersonaModalOpen, setIsEditPersonaModalOpen] = useState(false);
+  const [isEditUsernameModalOpen, setIsEditUsernameModalOpen] = useState(false);
 
-  const isOwnProfile = profile.username === user?.username;
+  const isOwnProfile = profile?.username === user?.username;
 
   const handleMakeActive = async () => {
-    if (profile.id) {
+    if (profile?.id) {
       await switchPersona(profile.id);
     }
   };
-
-
-
 
   if (!profile) return null;
 
@@ -46,22 +47,23 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           
           <div className="profile-actions-desktop">
             {profile.isPersona && isOwnProfile ? (
-              <>
-                {profile.isActive ? (
-                  <Button variant="secondary" disabled>Active Persona</Button>
-                ) : (
-                  <Button variant="primary" onClick={handleMakeActive}>Make Active</Button>
-                )}
-                <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
-              </>
-            ) : profile.isPersona ? (
-              null // Don't show anything for someone else's persona
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  {profile.isActive ? (
+                    <Button variant="secondary" disabled>Active Persona</Button>
+                  ) : (
+                    <Button variant="primary" onClick={handleMakeActive}>Make Active</Button>
+                  )}
+                  <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+                </div>
+                <Button variant="secondary" onClick={() => setIsEditUsernameModalOpen(true)}>Edit username</Button>
+              </div>
             ) : isOwnProfile ? (
-              <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
-            ) : (
-              <>
-              </>
-            )}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+                <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
+                <Button variant="secondary" onClick={() => setIsEditUsernameModalOpen(true)}>Edit username</Button>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -81,40 +83,33 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             </div>
             
             <ul className="profile-stats">
-
               <li><strong>{profile.postsCount}</strong> posts</li>
             </ul>
-
-
           </div>
           
           <div className="profile-actions-mobile">
             {profile.isPersona && isOwnProfile ? (
-              <>
-                {profile.isActive ? (
-                  <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
-                ) : (
-                  <Button variant="primary" className="flex-1" onClick={handleMakeActive}>Make Active</Button>
-                )}
-                <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
-              </>
-            ) : profile.isPersona ? (
-              null // Don't show anything for someone else's persona
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                  {profile.isActive ? (
+                    <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
+                  ) : (
+                    <Button variant="primary" className="flex-1" onClick={handleMakeActive}>Make Active</Button>
+                  )}
+                  <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+                </div>
+                <Button variant="secondary" className="flex-1" onClick={() => setIsEditUsernameModalOpen(true)}>Edit username</Button>
+              </div>
             ) : isOwnProfile ? (
-              <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
-            ) : (
-              <>
-              </>
-            )}
-            <Button variant="secondary" className="profile-add-contact">
-              <Icon name="addContact" size={16} />
-            </Button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+                <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
+                <Button variant="secondary" className="flex-1" onClick={() => setIsEditUsernameModalOpen(true)}>Edit username</Button>
+              </div>
+            ) : null}
           </div>
         </section>
       </div>
 
-
-      
       <EditPersonaModal
         isOpen={isEditPersonaModalOpen}
         onClose={() => setIsEditPersonaModalOpen(false)}
@@ -123,6 +118,20 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           if (onProfileUpdate) onProfileUpdate(updatedPersona);
         }}
       />
+
+      <EditUsernameModal
+        isOpen={isEditUsernameModalOpen}
+        onClose={() => setIsEditUsernameModalOpen(false)}
+        currentUsername={profile.username}
+        onSuccess={(newUsername) => {
+          if (user) {
+            user.username = newUsername;
+          }
+          navigate(`/profile/${newUsername}`, { replace: true });
+          window.location.reload();
+        }}
+      />
     </header>
   );
 };
+

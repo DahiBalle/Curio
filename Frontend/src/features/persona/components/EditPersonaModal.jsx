@@ -8,7 +8,6 @@ import defaultBanner from '../../../assets/default-banner.jpg';
 export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
-    username: '',
     bio: '',
     avatarUrl: '',
     bannerUrl: ''
@@ -24,7 +23,6 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
     if (isOpen && persona) {
       setFormData({
         name: persona.name || '',
-        username: persona.username || '',
         bio: persona.bio || '',
         avatarUrl: persona.avatarUrl || persona.imageUrl || '',
         bannerUrl: persona.bannerUrl || ''
@@ -66,10 +64,10 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
       setErrorMsg('');
       const data = new FormData();
       data.append('name', formData.name);
-      data.append('username', formData.username);
       data.append('bio', formData.bio);
       if (avatarFile) data.append('avatar', avatarFile);
       if (bannerFile) data.append('banner', bannerFile);
+
 
       const response = await client.put(`/personas/${persona.id}/update/`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -172,20 +170,8 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
             {errorMsg && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{errorMsg}</div>}
             
             <div className="form-group">
-              <label>Username</label>
-              <input 
-                type="text" 
-                name="username" 
-                value={formData.username} 
-                onChange={handleChange} 
-                placeholder="Username" 
-                maxLength={30}
-                required
-              />
-            </div>
-
-            <div className="form-group">
               <label>Name</label>
+
               <input 
                 type="text" 
                 name="name" 
