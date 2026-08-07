@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from .models import Interaction, SavedPost, Repost
 from posts.models import Post
-from accounts.models import Follow
+
 
 from django.core.cache import cache
 from personas.models import Persona, PersonaTopic

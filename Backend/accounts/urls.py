@@ -19,12 +19,7 @@ urlpatterns = [
     path("profile/<str:username>/", views.user_profile_detail, name="user-profile-detail"),
     path("profile/<str:username>/posts/", views.user_profile_posts, name="user-profile-posts"),
     
-    # Follow
-    path("profile/<str:username>/follow/", views.follow_user, name="follow-user"),
-    path("unfollow/<int:user_id>/", views.unfollow_user, name="unfollow-user"), # legacy fallback
-    path("followers/<int:user_id>/", views.followers_list, name="followers-list"),
-    path("following/<int:user_id>/", views.following_list, name="following-list"),
-    
+
     # Search
     path("search/", views.search_users, name="search-users"),
 ]

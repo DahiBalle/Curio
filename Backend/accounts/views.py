@@ -11,10 +11,10 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.core.paginator import Paginator
 
-from .models import User, Follow
+from .models import User
 from personas.models import Persona, Topic, PersonaTopic
 from posts.models import Post
-from interactions.models import SavedPost
+from interactions.models import SavedPost, Interaction
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -214,33 +214,19 @@ def upload_banner(request):
 def user_profile_detail(request, username):
     user = get_object_or_404(User, username__iexact=username)
     persona = user.default_persona
-
-    followers_count = Follow.objects.filter(following=user).count()
-    following_count = Follow.objects.filter(follower=user).count()
     posts_count = Post.objects.filter(author_persona=persona).count() if persona else 0
-
-    followed_by = []
-    if request.user.is_authenticated:
-        is_following = Follow.objects.filter(follower=request.user, following=user).exists()
-    else:
-        is_following = False
 
     return Response({
         "username": user.username,
         "name": persona.name if persona else user.username,
         "isVerified": False,
         "postsCount": str(posts_count),
-        "followersCount": str(followers_count),
-        "followingCount": str(following_count),
         "bio": persona.bio if persona else "",
         "hashtag": None,
         "link": None,
         "threadsUsername": None,
-        "followedBy": followed_by,
-        "followedByCount": followers_count,
         "avatarUrl": request.build_absolute_uri(persona.avatar.url) if (persona and persona.avatar) else None,
         "bannerUrl": request.build_absolute_uri(persona.banner.url) if (persona and persona.banner) else None,
-        "isFollowing": is_following
     })
 
 @api_view(["GET"])
@@ -255,13 +241,20 @@ def user_profile_posts(request, username):
     paginator = Paginator(posts_query, request.query_params.get("limit", 10))
     page_obj = paginator.get_page(request.query_params.get("page", 1))
 
+    post_ids = [post.id for post in page_obj]
+    liked_post_ids = set()
+    if request.user.is_authenticated:
+        req_persona = getattr(request.user, 'default_persona', None)
+        if req_persona:
+            liked_post_ids = set(Interaction.objects.filter(persona=req_persona, post_id__in=post_ids, interaction_type='like').values_list('post_id', flat=True))
+
     data = []
     for post in page_obj:
         topic = post.narrow_topic if post.narrow_topic else post.broad_topic
         topic_name = topic.name if topic else None
         
         media = post.media.first()
-        media_url = request.build_absolute_uri(media.file.url) if (media and media.file) else None
+        media_url = request.build_absolute_uri(media.file.url) if (media and getattr(media, 'file', None)) else None
         
         is_saved = False
         if request.user.is_authenticated:
@@ -280,7 +273,8 @@ def user_profile_posts(request, username):
             "commentsCount": str(post.comments.count()),
             "label": None,
             "type": media.media_type if media else "text",
-            "isSaved": is_saved
+            "isSaved": is_saved,
+            "userVote": 1 if post.id in liked_post_ids else 0
         })
 
     return Response({
@@ -300,6 +294,13 @@ def saved_posts_list(request):
     paginator = Paginator(saved, request.query_params.get("limit", 10))
     page_obj = paginator.get_page(request.query_params.get("page", 1))
 
+    post_ids = [s.post.id for s in page_obj]
+    liked_post_ids = set()
+    if request.user.is_authenticated:
+        req_persona = getattr(request.user, 'default_persona', None)
+        if req_persona:
+            liked_post_ids = set(Interaction.objects.filter(persona=req_persona, post_id__in=post_ids, interaction_type='like').values_list('post_id', flat=True))
+
     data = []
     for s in page_obj:
         post = s.post
@@ -307,14 +308,14 @@ def saved_posts_list(request):
         topic_name = topic.name if topic else None
         
         media = post.media.first()
-        media_url = request.build_absolute_uri(media.file.url) if (media and media.file) else None
+        media_url = request.build_absolute_uri(media.file.url) if (media and getattr(media, 'file', None)) else None
         author = post.author_persona
         
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic_name,
             "author": f"u/{author.user.username}" if author else None,
-            "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and author.avatar) else None,
+            "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and getattr(author, 'avatar', None)) else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,
             "description": post.description,
@@ -323,7 +324,8 @@ def saved_posts_list(request):
             "commentsCount": str(post.comments.count()),
             "label": None,
             "type": media.media_type if media else "text",
-            "isSaved": True
+            "isSaved": True,
+            "userVote": 1 if post.id in liked_post_ids else 0
         })
 
     return Response({
@@ -333,49 +335,7 @@ def saved_posts_list(request):
         "totalPosts": paginator.count
     })
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def follow_user(request, username):
-    try:
-        user_to_follow = User.objects.get(username__iexact=username)
-    except User.DoesNotExist:
-        return Response({"error": "User not found"}, status=404)
 
-    action = request.data.get("action", "follow")
-    
-    if action == "follow":
-        if user_to_follow != request.user:
-            Follow.objects.get_or_create(follower=request.user, following=user_to_follow)
-            is_following = True
-        else:
-            is_following = False
-    elif action == "unfollow":
-        Follow.objects.filter(follower=request.user, following=user_to_follow).delete()
-        is_following = False
-
-    followers_count = Follow.objects.filter(following=user_to_follow).count()
-    return Response({
-        "isFollowing": is_following,
-        "followersCount": str(followers_count)
-    })
-
-@api_view(["DELETE"])
-@permission_classes([IsAuthenticated])
-def unfollow_user(request, user_id):
-    try:
-        user_to_unfollow = User.objects.get(id=user_id)
-        Follow.objects.filter(follower=request.user, following=user_to_unfollow).delete()
-    except User.DoesNotExist:
-        return Response({"error": "Not found"}, status=404)
-    return Response({"success": True})
-
-@api_view(["GET"])
-def followers_list(request, user_id):
-    return Response([])
-
-@api_view(["GET"])
-def following_list(request, user_id):
-    return Response([])
 
 @api_view(["GET"])
 def search_users(request):

@@ -32,5 +32,15 @@ export const postApi = {
     const id = String(postId).replace('post-', '');
     const { data } = await client.post(`/posts/${id}/save/`);
     return data;
+  },
+
+  createComment: async (postId, content, parentId = null) => {
+    const id = String(postId).replace('post-', '');
+    const payload = { content };
+    if (parentId) {
+      payload.parentId = String(parentId).replace('comment-', '');
+    }
+    const { data } = await client.post(`/posts/${id}/comments/create/`, payload);
+    return data;
   }
 };

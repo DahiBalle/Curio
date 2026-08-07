@@ -10,7 +10,7 @@ from django.conf import settings
 
 from personas.models import Persona, PersonaTopic, Topic
 from posts.models import Post
-from interactions.models import Interaction
+from interactions.models import Interaction, SavedPost
 
 # Thread-safe lazy loading of the ML model
 import threading
@@ -44,6 +44,17 @@ def get_ml_model():
 
 def serialize_posts(posts, request):
     data = []
+    
+    saved_post_ids = set()
+    liked_post_ids = set()
+    
+    if request.user.is_authenticated:
+        persona = getattr(request.user, 'default_persona', None)
+        post_ids = [p.id for p in posts]
+        saved_post_ids = set(SavedPost.objects.filter(user=request.user, post_id__in=post_ids).values_list('post_id', flat=True))
+        if persona:
+            liked_post_ids = set(Interaction.objects.filter(persona=persona, post_id__in=post_ids, interaction_type='like').values_list('post_id', flat=True))
+            
     for post in posts:
         topic = post.narrow_topic if post.narrow_topic else post.broad_topic
         media = post.media.first()
@@ -52,14 +63,16 @@ def serialize_posts(posts, request):
             "id": f"post-{post.id}",
             "subreddit": topic.name if topic else None,
             "author": f"u/{author.user.username}" if author else None,
-            "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and author.avatar) else None,
+            "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and getattr(author, 'avatar', None)) else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,
             "description": post.description,
-            "imageUrl": request.build_absolute_uri(media.file.url) if (media and media.file) else None,
+            "imageUrl": request.build_absolute_uri(media.file.url) if (media and getattr(media, 'file', None)) else None,
             "upvotes": str(post.likes_count),
             "commentsCount": str(post.comments.count()),
-            "type": media.media_type if media else "text"
+            "type": media.media_type if media else "text",
+            "isSaved": post.id in saved_post_ids,
+            "userVote": 1 if post.id in liked_post_ids else 0
         })
     return data
 

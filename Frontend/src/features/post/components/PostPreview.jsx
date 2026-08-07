@@ -194,16 +194,6 @@ export const PostPreview = ({ post, isDetailView = false }) => {
         </button>
       </div>
 
-      {/* Comment Input Box for Detail View */}
-      {isDetailView && (
-        <div className="post-preview__comment-box" onClick={(e) => e.stopPropagation()}>
-          <input
-            type="text"
-            placeholder="Join the conversation"
-            className="post-preview__comment-input"
-          />
-        </div>
-      )}
-    </article>
+      </article>
   );
 };

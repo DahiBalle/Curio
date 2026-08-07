@@ -84,8 +84,12 @@ def list_posts(request):
         media = post.media.first()
         author = post.author_persona
         is_saved = False
+        user_vote = 0
         if request.user.is_authenticated:
             is_saved = SavedPost.objects.filter(user=request.user, post=post).exists()
+            persona = getattr(request.user, 'default_persona', None)
+            if persona and Interaction.objects.filter(persona=persona, post=post, interaction_type='like').exists():
+                user_vote = 1
             
         data.append({
             "id": f"post-{post.id}",
@@ -99,9 +103,22 @@ def list_posts(request):
             "upvotes": str(post.likes_count),
             "commentsCount": str(post.comments.count()),
             "type": media.media_type if media else "text",
-            "isSaved": is_saved
+            "isSaved": is_saved,
+            "userVote": user_vote
         })
     return Response({"posts": data, "page": page_obj.number, "totalPages": paginator.num_pages})
+
+def serialize_comment(c, request):
+    c_author = c.persona
+    return {
+        "id": f"comment-{c.id}",
+        "author": f"u/{c_author.user.username}" if c_author else None,
+        "authorAvatar": request.build_absolute_uri(c_author.avatar.url) if (c_author and getattr(c_author, 'avatar', None)) else None,
+        "content": c.content,
+        "timeAgo": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "upvotes": str(c.likes_count),
+        "replies": [serialize_comment(reply, request) for reply in c.replies.all().order_by('created_at')]
+    }
 
 @api_view(["GET"])
 def post_detail(request, post_id):
@@ -120,18 +137,7 @@ def post_detail(request, post_id):
             
         is_saved = SavedPost.objects.filter(user=request.user, post=post).exists()
 
-    comments = []
-    for c in post.comments.all():
-        c_author = c.persona
-        comments.append({
-            "id": f"comment-{c.id}",
-            "author": f"u/{c_author.user.username}" if c_author else None,
-            "authorAvatar": request.build_absolute_uri(c_author.avatar.url) if (c_author and c_author.avatar) else None,
-            "content": c.content,
-            "timeAgo": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "upvotes": str(c.likes_count),
-            "replies": []
-        })
+    comments = [serialize_comment(c, request) for c in post.comments.filter(parent_comment__isnull=True).order_by('-created_at')]
 
     return Response({
         "id": f"post-{post.id}",
@@ -178,20 +184,19 @@ def create_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     persona = request.user.default_persona
     content = request.data.get("content")
+    parent_id = request.data.get("parentId")
     
     if not content or not persona:
         return Response({"error": "Content and persona required"}, status=400)
         
-    c = Comment.objects.create(post=post, persona=persona, content=content)
-    return Response({
-        "id": f"comment-{c.id}",
-        "author": f"u/{persona.user.username}",
-        "authorAvatar": request.build_absolute_uri(persona.avatar.url) if persona.avatar else None,
-        "content": c.content,
-        "timeAgo": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "upvotes": "0",
-        "replies": []
-    }, status=201)
+    parent_comment = None
+    if parent_id:
+        if str(parent_id).startswith("comment-"):
+            parent_id = str(parent_id).replace("comment-", "")
+        parent_comment = get_object_or_404(Comment, id=parent_id, post=post)
+        
+    c = Comment.objects.create(post=post, persona=persona, content=content, parent_comment=parent_comment)
+    return Response(serialize_comment(c, request), status=201)
 
 @api_view(["GET"])
 def get_comments(request, post_id):
