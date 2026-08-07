@@ -21,7 +21,7 @@ export function PersonaProvider({ children }) {
         ]);
         
         setPersonas(fetchedPersonas);
-        setActivePersona(fetchedActivePersona);
+        setActivePersona(fetchedActivePersona || (fetchedPersonas && fetchedPersonas.length > 0 ? fetchedPersonas[0] : null));
       } catch (error) {
         console.error('Failed to initialize personas', error);
       } finally {

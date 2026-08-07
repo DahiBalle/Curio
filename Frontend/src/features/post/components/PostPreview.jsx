@@ -12,8 +12,8 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   const cardRef = useRef(null);
   const impressionRecorded = useRef(false);
   const authorName = typeof post.author === 'string' ? post.author : (post.author?.name || 'Unknown');
-  const authorUsername = typeof post.author === 'string' && post.author.startsWith('u/') 
-    ? post.author.substring(2) 
+  const authorUsername = typeof post.author === 'string' && post.author.startsWith('@') 
+    ? post.author.substring(1) 
     : post.author?.username;
   const authorAvatar = post.author?.avatar || post.authorAvatar;
   const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;

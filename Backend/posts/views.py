@@ -102,7 +102,7 @@ def list_posts(request):
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic.name if topic else None,
-            "author": f"u/{author.user.username}" if author else None,
+            "author": f"@{author.user.username}" if author else None,
             "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and author.avatar) else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,
@@ -120,7 +120,7 @@ def serialize_comment(c, request):
     c_author = c.persona
     return {
         "id": f"comment-{c.id}",
-        "author": f"u/{c_author.user.username}" if c_author else None,
+        "author": f"@{c_author.user.username}" if c_author else None,
         "authorAvatar": request.build_absolute_uri(c_author.avatar.url) if (c_author and getattr(c_author, 'avatar', None)) else None,
         "content": c.content,
         "timeAgo": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -149,7 +149,7 @@ def post_detail(request, post_id):
     return Response({
         "id": f"post-{post.id}",
         "subreddit": topic.name if topic else None,
-        "author": f"u/{author.user.username}" if author else None,
+        "author": f"@{author.user.username}" if author else None,
         "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and author.avatar) else None,
         "createdAt": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),

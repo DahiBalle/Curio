@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { isValidEmail, hasNoWhiteSpace } from '../../../utils/validators';
 import { authApi } from '../api/authApi';
 import './PasswordForm.css';
@@ -132,7 +133,9 @@ export function EmailForm({
         )}
 
         {accountExists && (
-          <p className="email-error-text">Account already exists</p>
+          <p className="email-error-text">
+            Account already exists. <Link to="/login" style={{ color: '#1d9bf0', textDecoration: 'none' }}>Login here</Link>
+          </p>
         )}
 
         {emailValid && !accountExists && (
@@ -154,7 +157,7 @@ export function EmailForm({
         </button>
 
         <div className="auth-switch-prompt">
-          Already have an account? <a href="/login" className="auth-switch-link">Log in</a>
+          Already have an account? <Link to="/login" className="auth-switch-link">Log in</Link>
         </div>
       </form>
     </div>

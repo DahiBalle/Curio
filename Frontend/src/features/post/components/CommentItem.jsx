@@ -11,8 +11,8 @@ export const CommentItem = ({ comment, postId, onReplyAdded }) => {
   const [localReplies, setLocalReplies] = useState(comment.replies || []);
 
   const authorDisplayName = typeof comment.author === 'string' ? comment.author : (comment.author?.name || 'Unknown');
-  const authorUsername = typeof comment.author === 'string' && comment.author.startsWith('u/') 
-    ? comment.author.substring(2) 
+  const authorUsername = typeof comment.author === 'string' && comment.author.startsWith('@') 
+    ? comment.author.substring(1) 
     : comment.author?.username;
 
   const handleReplySubmit = async (e) => {
