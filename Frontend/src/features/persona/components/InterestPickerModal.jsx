@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '../../profile/components/EditProfileModal.css';
+import './EditPersonaModal.css';
 import '../../onboarding/components/OnboardingSteps.css';
 import { InterestSelector } from '../../onboarding/components/InterestSelector';
 import client from '../../../services/client';

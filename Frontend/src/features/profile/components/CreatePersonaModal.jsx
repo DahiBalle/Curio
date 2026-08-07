@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import './EditProfileModal.css'; // Reusing edit profile styles for step 1
+import '../../persona/components/EditPersonaModal.css'; // Reusing edit persona styles for step 1
 import '../../onboarding/components/OnboardingSteps.css'; // Reusing onboarding styles for step 2
 import { InterestSelector } from '../../onboarding/components/InterestSelector';
 import client from '../../../services/client';

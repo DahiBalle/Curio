@@ -42,10 +42,10 @@ const generateMockFeed = (personaId) => {
 */
 
 export const feedApi = {
-  getFeed: async (personaId) => {
+  getFeed: async (personaId, page = 1, options = {}) => {
     // Phase 3 points to /feed/, but while we haven't implemented it, let's point to /posts/
     // Wait, the plan says we will create /api/feed/ endpoint soon. I'll point it to /feed/
-    const { data } = await client.get('/feed/', { params: { personaId } });
+    const { data } = await client.get('/feed/', { params: { personaId, page }, ...options });
     return data.posts || [];
   },
   logImpression: async (personaId, postIds) => {

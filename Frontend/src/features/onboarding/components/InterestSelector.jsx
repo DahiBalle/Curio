@@ -1,14 +1,22 @@
 import React, { useState } from 'react';
 import './InterestSelector.css';
 
-const SUGGESTED_INTERESTS = [
-  'Skateboarding', 'Technology', 'Music', 'Gaming', 'Art',
-  'Coding', 'Fashion', 'Fitness', 'Food', 'Travel',
-  'Movies', 'Books', 'Photography', 'Design', 'Science'
-];
+import client from '../../../services/client';
 
 export function InterestSelector({ interests, onChange }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [suggestedInterests, setSuggestedInterests] = useState([]);
+
+  const HARDCODED_INTERESTS = [
+    'Drugs', 'Advice', 'Social', 'Anime', 'Relationships',
+    'Software', 'Health', 'Other', 'Animals', 'Arts', 
+    'Programming', 'Rpg', 'Books', 'Parenting', 'Education', 
+    'Company', 'Profession', 'Music', 'Politics'
+  ];
+
+  React.useEffect(() => {
+    setSuggestedInterests(HARDCODED_INTERESTS);
+  }, []);
 
   const handleAdd = (interest) => {
     if (interests.length < 10 && !interests.includes(interest)) {
@@ -27,10 +35,10 @@ export function InterestSelector({ interests, onChange }) {
     }
   };
 
-  // Filter suggested that are not already selected and match search
-  const availableSuggestions = SUGGESTED_INTERESTS.filter(
+  // Filter suggested that are not already selected and match search, and limit to top 20
+  const availableSuggestions = suggestedInterests.filter(
     i => !interests.includes(i) && i.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ).slice(0, 20);
 
   return (
     <div className="interest-selector">

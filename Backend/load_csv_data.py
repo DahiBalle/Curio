@@ -17,135 +17,158 @@ def clean_key(k):
     return k.strip().lower()
 
 def load_data(userdata_csv_path, post_csv_path):
+    # ── 1. USERS & PERSONAS ──────────────────────────────────────────────────
     print("Loading users and personas...")
     personas = []
-    
+
     with open(userdata_csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        # Clean headers
-        reader.fieldnames = [clean_key(field) for field in reader.fieldnames]
-        
+        raw_headers = reader.fieldnames
+        reader.fieldnames = [clean_key(h) for h in raw_headers]
+        print(f"  User CSV headers (normalised): {reader.fieldnames}")
+
+        skipped        = 0
+        created_count  = 0
+        already_exists = 0
+        errored        = 0
+
         for row in reader:
-            username = row.get('username')
-            name = row.get('name')
-            bio = row.get('user bio', '')
-            
+            username = row.get('username', '').strip()
+            name     = row.get('name', '').strip()
+            bio      = row.get('user bio', '').strip()
+
             if not username or not name:
-                print(f"Skipping row missing username or name: {row}")
+                skipped += 1
+                if skipped <= 3:
+                    print(f"  [SKIP-USERROW] username={repr(username)} name={repr(name)} keys={list(row.keys())[:6]}")
                 continue
-                
-            email = f"{username}@example.com"
-            
-            user, created = User.objects.get_or_create(username=username, defaults={'email': email})
-            if created:
+
+            # Sanitize username: Django only allows letters, digits, and @/./+/-/_
+            import re
+            safe_username = re.sub(r'[^\w.@+-]', '_', username)[:150]
+
+            if User.objects.filter(username=safe_username).exists():
+                already_exists += 1
+                # Still need their persona for post authoring
+                existing_persona = Persona.objects.filter(user__username=safe_username).first()
+                if existing_persona:
+                    personas.append(existing_persona)
+                continue
+
+            try:
+                email = f"{safe_username}@example.com"
+                user = User.objects.create(username=safe_username, email=email)
                 user.set_password('password123')
                 user.save()
-            
-            persona, p_created = Persona.objects.get_or_create(
-                user=user,
-                name=name,
-                defaults={'bio': bio}
-            )
-            personas.append(persona)
-            
-            if not user.default_persona:
+                persona = Persona.objects.create(user=user, name=name, bio=bio)
                 user.default_persona = persona
-                user.save()
+                user.save(update_fields=['default_persona'])
+                personas.append(persona)
+                created_count += 1
+            except Exception as e:
+                errored += 1
+                print(f"  [ERROR] Could not create user {repr(safe_username)}: {e}")
+                continue
 
-    print(f"Loaded {len(personas)} personas.")
+    print(f"  Users created: {created_count} | Already existed: {already_exists} | Skipped (bad row): {skipped} | Errors: {errored} | Total personas available: {len(personas)}")
 
-    print("Loading posts...")
+    if not personas:
+        print("ERROR: No personas loaded. Cannot create posts. Check your user CSV column names.")
+        return
+
+    # ── 2. POSTS ─────────────────────────────────────────────────────────────
+    print("\nLoading posts...")
+    post_count   = 0
+    post_skipped = 0
+    POST_LIMIT   = 125_000
+
     with open(post_csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        # Clean headers
-        reader.fieldnames = [clean_key(field) for field in reader.fieldnames]
-        
+        raw_headers = reader.fieldnames
+        reader.fieldnames = [clean_key(h) for h in raw_headers]
+        print(f"  Post CSV headers (normalised): {reader.fieldnames}")
+
+        topic_cache = {}   # name → Topic object, avoids repeated DB hits
+
         for row in reader:
-            title = row.get('title')
-            content = row.get('selftext')
-            broad_topic_name = row.get('category_1', 'General')
-            narrow_topic_name = row.get('category_2', 'General')
-            
+            if post_count >= POST_LIMIT:
+                print(f"  Reached {POST_LIMIT} post limit.")
+                break
+
+            title            = (row.get('title') or '').strip()
+            content          = (row.get('selftext') or '').strip()
+            broad_topic_name = (row.get('category_1') or 'General').strip()
+            narrow_topic_name= (row.get('category_2') or 'General').strip()
+
             if not title or not content:
-                print(f"Skipping row missing title or content: {row}")
-                continue
-            
-            broad_topic, _ = Topic.objects.get_or_create(name=broad_topic_name, topic_type=Topic.BROAD)
-            narrow_topic, _ = Topic.objects.get_or_create(name=narrow_topic_name, topic_type=Topic.NARROW, parent=broad_topic)
-            
-            author = random.choice(personas) if personas else None
-            
-            if not author:
-                print("No personas available to author posts. Skipping post creation.")
+                post_skipped += 1
+                if post_skipped <= 3:
+                    print(f"  [SKIP-POSTROW] title={repr(title[:40])} content={repr(content[:40])}")
                 continue
 
-            # Generate random counts
-            likes = random.randint(0, 50)
-            clicks = random.randint(likes, likes + 100)
-            impressions = random.randint(clicks, clicks + 500)
+            # Topic — use cache to avoid hammering DB
+            broad_key = ('broad', broad_topic_name)
+            if broad_key not in topic_cache:
+                bt, _ = Topic.objects.get_or_create(name=broad_topic_name, topic_type=Topic.BROAD)
+                topic_cache[broad_key] = bt
+            broad_topic = topic_cache[broad_key]
 
-            # Generate dummy random embedding for the post (384 dimensions)
-            dummy_embedding = [random.uniform(-1.0, 1.0) for _ in range(384)]
+            narrow_key = ('narrow', narrow_topic_name)
+            if narrow_key not in topic_cache:
+                nt, _ = Topic.objects.get_or_create(
+                    name=narrow_topic_name,
+                    topic_type=Topic.NARROW,
+                    defaults={'parent': broad_topic}
+                )
+                topic_cache[narrow_key] = nt
+            narrow_topic = topic_cache[narrow_key]
 
-            post = Post.objects.create(
-                author_persona=author,
-                title=title,
-                description=content,
-                broad_topic=broad_topic,
-                narrow_topic=narrow_topic,
-                likes_count=likes,
-                clicks_count=clicks,
-                impressions_count=impressions,
-                embedding=dummy_embedding
-            )
-            
-            # Create Interaction objects using bulk_create for performance
-            interactions = []
-            
-            # Add Likes
-            for _ in range(likes):
-                interactions.append(Interaction(
-                    persona=random.choice(personas),
-                    post=post,
-                    interaction_type=Interaction.LIKE
-                ))
-            
-            # Add Clicks (excluding those who liked, just to match counts roughly)
-            for _ in range(clicks - likes):
-                interactions.append(Interaction(
-                    persona=random.choice(personas),
-                    post=post,
-                    interaction_type=Interaction.CLICK
-                ))
-                
-            # Add Impressions (excluding clicks)
-            for _ in range(impressions - clicks):
-                interactions.append(Interaction(
-                    persona=random.choice(personas),
-                    post=post,
-                    interaction_type=Interaction.IMPRESSION
-                ))
-                
-            Interaction.objects.bulk_create(interactions)
-                
-            # Generate random comments
-            num_comments = random.randint(0, 20)
-            comments = []
-            for _ in range(num_comments):
-                comments.append(Comment(
-                    post=post,
-                    persona=random.choice(personas),
-                    content=f"This is a random comment {random.randint(1, 1000)}!"
-                ))
-            Comment.objects.bulk_create(comments)
-            
-            print(f"Created post '{title}' with {likes} likes, {clicks} clicks, {impressions} impressions, and {num_comments} comments.")
+            author = random.choice(personas)
 
+            # Keep interaction counts small to save storage
+            likes       = random.randint(0, 5)
+            clicks      = random.randint(likes, likes + 20)
+            impressions = random.randint(clicks, clicks + 50)
+
+            try:
+                post = Post.objects.create(
+                    author_persona   = author,
+                    title            = title,
+                    description      = content,
+                    broad_topic      = broad_topic,
+                    narrow_topic     = narrow_topic,
+                    likes_count      = likes,
+                    clicks_count     = clicks,
+                    impressions_count= impressions,
+                    # embedding left NULL intentionally
+                )
+                post_count += 1
+            except Exception as e:
+                print(f"  [ERROR] Could not create post {repr(title[:40])}: {e}")
+                continue
+
+            # Only create LIKE interaction rows (smallest footprint)
+            if likes > 0:
+                like_records = [
+                    Interaction(
+                        persona          = random.choice(personas),
+                        post             = post,
+                        interaction_type = Interaction.LIKE,
+                    )
+                    for _ in range(likes)
+                ]
+                Interaction.objects.bulk_create(like_records)
+
+            if post_count % 1000 == 0:
+                print(f"  {post_count} posts inserted...")
+
+    print(f"\nDone. Posts created: {post_count} | Posts skipped: {post_skipped}")
     print("Data loading complete.")
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: python load_csv_data.py <userdata.csv> <post.csv>")
-        print("Example: python load_csv_data.py ../userdata.csv ../posts.csv")
+        print("Example: python load_csv_data.py users.csv posts.csv")
     else:
         load_data(sys.argv[1], sys.argv[2])

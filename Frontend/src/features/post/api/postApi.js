@@ -2,17 +2,20 @@ import client from '../../../services/client';
 
 export const postApi = {
   getPost: async (postId) => {
-    const { data } = await client.get(`/posts/${postId}/`);
+    const id = String(postId).replace('post-', '');
+    const { data } = await client.get(`/posts/${id}/`);
     return data;
   },
 
   votePost: async (postId, direction, personaId) => {
-    const { data } = await client.post(`/posts/${postId}/vote/`, { direction, personaId });
+    const id = String(postId).replace('post-', '');
+    const { data } = await client.post(`/posts/${id}/vote/`, { direction, personaId });
     return data;
   },
 
   recordClick: async (postId, personaId) => {
-    const { data } = await client.post(`/posts/${postId}/click/`, { personaId });
+    const id = String(postId).replace('post-', '');
+    const { data } = await client.post(`/posts/${id}/click/`, { personaId });
     return data;
   },
 
@@ -20,7 +23,8 @@ export const postApi = {
     if (!Array.isArray(postIds)) {
       postIds = [postIds];
     }
-    const { data } = await client.post(`/posts/impression/`, { postIds, personaId });
+    const cleanIds = postIds.map(id => String(id).replace('post-', ''));
+    const { data } = await client.post(`/posts/impression/`, { postIds: cleanIds, personaId });
     return data;
   }
 };

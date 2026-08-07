@@ -16,8 +16,8 @@ export const ProfilePage = () => {
   const username = paramUsername || user?.username || '';
   const isOwnProfile = username === (user?.username || '');
   const { profile, setProfile, personas, posts, loading, error } = useProfile(username);
-  const { activePersona, interestFloor } = usePersona();
-  
+  const { activePersona, interestFloor, setActivePersona } = usePersona();
+
   const [selectedPersona, setSelectedPersona] = useState(null);
 
   React.useEffect(() => {
@@ -56,13 +56,24 @@ export const ProfilePage = () => {
     <div className="layout-two-column">
       {/* Center — main content */}
       <main className="layout-main">
-        <ProfileHeader profile={displayedProfile} onProfileUpdate={setProfile} />
+        <ProfileHeader
+          profile={displayedProfile}
+          onProfileUpdate={(updatedData) => {
+            if (updatedData.id === selectedPersona?.id) {
+              setSelectedPersona(updatedData);
+            }
+            if (activePersona && updatedData.id === activePersona.id) {
+              setActivePersona(updatedData);
+            }
+            setProfile(updatedData);
+          }}
+        />
 
         <div className="layout-content">
-          <PersonaList 
-            personas={personas} 
+          <PersonaList
+            personas={personas}
             isOwnProfile={isOwnProfile}
-            onPersonaCreated={() => window.location.reload()} 
+            onPersonaCreated={() => window.location.reload()}
             onPersonaSelected={(persona) => {
               setSelectedPersona(persona);
             }}

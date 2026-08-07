@@ -12,6 +12,36 @@ from personas.models import Persona, PersonaTopic, Topic
 from posts.models import Post
 from interactions.models import Interaction
 
+# Thread-safe lazy loading of the ML model
+import threading
+
+GLOBAL_MODEL = None
+MODEL_LOCK = threading.Lock()
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'ml', 'saved_models', 'ranking_model.pkl')
+
+def get_ml_model():
+    global GLOBAL_MODEL
+    if GLOBAL_MODEL is not None:
+        return GLOBAL_MODEL
+        
+    if not os.path.exists(MODEL_PATH):
+        return None
+        
+    with MODEL_LOCK:
+        # Check again inside the lock to prevent double loading
+        if GLOBAL_MODEL is not None:
+            return GLOBAL_MODEL
+            
+        try:
+            import joblib
+            print("Loading ML model into memory... (this may take a few seconds)")
+            GLOBAL_MODEL = joblib.load(MODEL_PATH)
+            print("ML model loaded successfully.")
+            return GLOBAL_MODEL
+        except Exception as e:
+            print(f"Failed to load ranking model: {e}")
+            return None
+
 def serialize_posts(posts, request):
     data = []
     for post in posts:
@@ -37,6 +67,8 @@ def serialize_posts(posts, request):
 @permission_classes([IsAuthenticated])
 def generate_feed(request):
     persona_id = request.query_params.get("personaId")
+    page = int(request.query_params.get("page", 1))
+    
     persona = get_object_or_404(Persona, id=persona_id, user=request.user) if persona_id else request.user.default_persona
     
     if not persona:
@@ -54,27 +86,21 @@ def generate_feed(request):
         Q(broad_topic__in=broad_topic_ids) | Q(narrow_topic__in=narrow_topic_ids)
     )
     
-    # 2. Filter out seen posts
-    seen_post_ids = Interaction.objects.filter(
+    # 2. Filter out seen posts and get latest 1000 candidates to prevent memory overload
+    # Evaluate the subquery to a list immediately. SQLite is notoriously slow with NOT IN (SELECT...) subqueries.
+    seen_post_ids = list(Interaction.objects.filter(
         persona=persona, 
         interaction_type='impression'
-    ).values_list('post_id', flat=True)
+    ).values_list('post_id', flat=True))
     
-    candidates = candidates.exclude(id__in=seen_post_ids)
+    candidates = candidates.exclude(id__in=seen_post_ids).order_by('-created_at')[:1000]
     
     # 3. Rank
     session_data = cache.get(f"session_topics_{persona.id}", {})
     now = timezone.now()
     
-    # Try loading the model
-    model = None
-    model_path = os.path.join(settings.BASE_DIR, 'ml', 'saved_models', 'ranking_model.pkl')
-    if os.path.exists(model_path):
-        import joblib
-        try:
-            model = joblib.load(model_path)
-        except Exception:
-            pass
+    # Try loading the model lazily
+    model = get_ml_model()
             
     ranked_posts = []
     features_list = []
@@ -107,19 +133,23 @@ def generate_feed(request):
             
     ranked_posts.sort(key=lambda x: x[1], reverse=True)
     
-    # Take top 20
-    top_posts = [p[0] for p in ranked_posts[:20]]
+    # Take top 20 for the requested page
+    limit = 20
+    start_idx = (page - 1) * limit
+    end_idx = start_idx + limit
+    
+    top_posts = [p[0] for p in ranked_posts[start_idx:end_idx]]
     
     # Fallback if no posts match topics
-    if len(top_posts) < 5:
-        more_posts = Post.objects.exclude(id__in=[p.id for p in top_posts]).exclude(id__in=seen_post_ids).order_by('-created_at')[:10]
+    if not top_posts:
+        more_posts = Post.objects.exclude(id__in=[p.id for p in top_posts]).exclude(id__in=seen_post_ids).order_by('-created_at')[start_idx:end_idx]
         top_posts.extend(more_posts)
         
     serialized_posts = serialize_posts(top_posts, request)
     
     return Response({
         "posts": serialized_posts,
-        "page": 1,
-        "totalPages": 1,
-        "totalPosts": len(top_posts)
+        "page": page,
+        "totalPages": 1, # Not calculated for infinite scroll
+        "totalPosts": len(ranked_posts)
     })

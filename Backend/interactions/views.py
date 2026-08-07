@@ -106,14 +106,29 @@ def log_impression(request):
         persona = get_object_or_404(Persona, id=persona_id, user=request.user) if persona_id else request.user.default_persona
         
         if persona and post_ids:
+            # Optimize to prevent SQLite lock contention
+            existing_interactions = set(Interaction.objects.filter(
+                persona=persona, 
+                post_id__in=post_ids, 
+                interaction_type='impression'
+            ).values_list('post_id', flat=True))
+            
+            new_interactions = []
             for pid in post_ids:
-                try:
-                    post = Post.objects.get(id=pid)
-                    Interaction.objects.get_or_create(persona=persona, post=post, interaction_type='impression')
-                    post.impressions_count += 1
-                    post.save(update_fields=['impressions_count'])
-                except Post.DoesNotExist:
-                    pass
+                if pid not in existing_interactions:
+                    new_interactions.append(Interaction(
+                        persona=persona, 
+                        post_id=pid, 
+                        interaction_type='impression'
+                    ))
+            
+            if new_interactions:
+                Interaction.objects.bulk_create(new_interactions, ignore_conflicts=True)
+                
+                from django.db.models import F
+                Post.objects.filter(id__in=[i.post_id for i in new_interactions]).update(
+                    impressions_count=F('impressions_count') + 1
+                )
     return Response({"success": True})
 
 @api_view(["GET"])

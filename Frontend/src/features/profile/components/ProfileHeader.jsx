@@ -4,7 +4,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { UserListModal } from './UserListModal';
-import { EditProfileModal } from './EditProfileModal';
+import { EditPersonaModal } from '../../persona/components/EditPersonaModal';
 import { useAuth } from '../../../context/AuthContext';
 import client from '../../../services/client';
 import defaultBanner from '../../../assets/default-banner.jpg';
@@ -13,7 +13,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   const { user } = useAuth();
   const [isFollowingModalOpen, setIsFollowingModalOpen] = React.useState(false);
   const [isFollowersModalOpen, setIsFollowersModalOpen] = React.useState(false);
-  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
+  const [isEditPersonaModalOpen, setIsEditPersonaModalOpen] = React.useState(false);
 
   const isOwnProfile = profile.username === user?.username;
 
@@ -55,20 +55,23 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
               <Icon name="options" size={24} />
             </button>
             {profile.isPersona && isOwnProfile ? (
-              profile.isActive ? (
-                <Button variant="secondary" disabled>Active Persona</Button>
-              ) : (
-                <Button variant="primary" onClick={async () => {
-                  try {
-                    await client.post('/personas/switch/', { persona_id: profile.id });
-                    window.location.reload();
-                  } catch (e) { console.error(e); }
-                }}>Make Active</Button>
-              )
+              <>
+                {profile.isActive ? (
+                  <Button variant="secondary" disabled>Active Persona</Button>
+                ) : (
+                  <Button variant="primary" onClick={async () => {
+                    try {
+                      await client.post('/personas/switch/', { persona_id: profile.id });
+                      window.location.reload();
+                    } catch (e) { console.error(e); }
+                  }}>Make Active</Button>
+                )}
+                <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+              </>
             ) : profile.isPersona ? (
               null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
-              <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+              <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
                 <Button variant="secondary">Message</Button>
@@ -119,20 +122,23 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           
           <div className="profile-actions-mobile">
             {profile.isPersona && isOwnProfile ? (
-              profile.isActive ? (
-                <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
-              ) : (
-                <Button variant="primary" className="flex-1" onClick={async () => {
-                  try {
-                    await client.post('/personas/switch/', { persona_id: profile.id });
-                    window.location.reload();
-                  } catch (e) { console.error(e); }
-                }}>Make Active</Button>
-              )
+              <>
+                {profile.isActive ? (
+                  <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
+                ) : (
+                  <Button variant="primary" className="flex-1" onClick={async () => {
+                    try {
+                      await client.post('/personas/switch/', { persona_id: profile.id });
+                      window.location.reload();
+                    } catch (e) { console.error(e); }
+                  }}>Make Active</Button>
+                )}
+                <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+              </>
             ) : profile.isPersona ? (
               null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
-              <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+              <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
                 <Button variant="primary" className="flex-1">Follow</Button>
@@ -162,12 +168,12 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
         actionType="remove"
       />
       
-      <EditProfileModal
-        isOpen={isEditProfileModalOpen}
-        onClose={() => setIsEditProfileModalOpen(false)}
-        profile={profile}
-        onSaveSuccess={(updatedProfile) => {
-          if (onProfileUpdate) onProfileUpdate(updatedProfile);
+      <EditPersonaModal
+        isOpen={isEditPersonaModalOpen}
+        onClose={() => setIsEditPersonaModalOpen(false)}
+        persona={profile}
+        onSaveSuccess={(updatedPersona) => {
+          if (onProfileUpdate) onProfileUpdate(updatedPersona);
         }}
       />
     </header>

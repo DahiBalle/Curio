@@ -11,27 +11,27 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   const { activePersona } = usePersona();
   const cardRef = useRef(null);
   const impressionRecorded = useRef(false);
-  const authorName = post.author?.name || post.subreddit || 'Unknown';
+  const authorName = post.author?.name || (typeof post.author === 'string' ? post.author : null) || 'Unknown';
   const authorAvatar = post.author?.avatar || post.authorAvatar;
   const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;
   const imageUrl = post.media && post.media.length > 0 ? post.media[0].url : post.imageUrl;
   const description = post.content || post.description;
   const hasImage = !!imageUrl;
-  
+
   const [isLiked, setIsLiked] = useState(post.is_liked || false);
   const [likeCount, setLikeCount] = useState(post.stats?.likes || post.upvotes || 0);
-  
+
   const commentsCount = post.stats?.comments || post.commentsCount || 0;
   const label = post.tags || post.label;
 
   const handleLike = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const newIsLiked = !isLiked;
     setIsLiked(newIsLiked);
     setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
-    
+
     try {
       const direction = newIsLiked ? 1 : 0;
       await postApi.votePost(post.id, direction, activePersona?.id);
@@ -68,7 +68,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
 
   const handleCardClick = (e) => {
     if (isDetailView) return;
-    
+
     // Check if the click originated from an interactive element
     const isInteractive = e.target.closest('button') || e.target.closest('a');
     if (isInteractive) return;
@@ -79,9 +79,9 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   };
 
   return (
-    <article 
-      className={`post-preview ${isDetailView ? 'post-preview--detail' : ''}`} 
-      ref={cardRef} 
+    <article
+      className={`post-preview ${isDetailView ? 'post-preview--detail' : ''}`}
+      ref={cardRef}
       onClick={handleCardClick}
       style={{ cursor: isDetailView ? 'default' : 'pointer' }}
     >
@@ -89,8 +89,8 @@ export const PostPreview = ({ post, isDetailView = false }) => {
       <div className="post-preview__header">
         <div className="post-preview__header-left">
           <Avatar src={authorAvatar} alt={authorName} size="small" />
-          <Link 
-            to={post.author?.username ? `/profile/${post.author.username}` : '#'} 
+          <Link
+            to={post.author?.username ? `/profile/${post.author.username}` : '#'}
             className="post-preview__subreddit"
             onClick={(e) => e.stopPropagation()}
             style={{ textDecoration: 'none', color: 'inherit' }}
@@ -140,7 +140,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
 
       {/* Footer: action buttons */}
       <div className="post-preview__footer">
-        <button 
+        <button
           className={`post-preview__action-btn ${isLiked ? 'post-preview__action-btn--liked' : ''}`}
           onClick={handleLike}
           style={isLiked ? { color: '#ff3040' } : {}}
@@ -180,9 +180,9 @@ export const PostPreview = ({ post, isDetailView = false }) => {
       {/* Comment Input Box for Detail View */}
       {isDetailView && (
         <div className="post-preview__comment-box" onClick={(e) => e.stopPropagation()}>
-          <input 
-            type="text" 
-            placeholder="Join the conversation" 
+          <input
+            type="text"
+            placeholder="Join the conversation"
             className="post-preview__comment-input"
           />
         </div>
