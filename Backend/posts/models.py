@@ -87,7 +87,6 @@ class Comment(models.Model):
     )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    likes_count = models.IntegerField(default=0)
 
     class Meta:
         indexes = [

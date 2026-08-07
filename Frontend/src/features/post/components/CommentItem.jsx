@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Avatar } from '../../../components/ui/Avatar';
 import './CommentSection.css';
 import { postApi } from '../api/postApi';
@@ -8,6 +9,11 @@ export const CommentItem = ({ comment, postId, onReplyAdded }) => {
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localReplies, setLocalReplies] = useState(comment.replies || []);
+
+  const authorDisplayName = typeof comment.author === 'string' ? comment.author : (comment.author?.name || 'Unknown');
+  const authorUsername = typeof comment.author === 'string' && comment.author.startsWith('u/') 
+    ? comment.author.substring(2) 
+    : comment.author?.username;
 
   const handleReplySubmit = async (e) => {
     e.preventDefault();
@@ -38,18 +44,18 @@ export const CommentItem = ({ comment, postId, onReplyAdded }) => {
         </div>
         <div className="comment-item__content">
           <div className="comment-item__header">
-            <span className="comment-item__author">{comment.author}</span>
+            <Link 
+              to={authorUsername ? `/profile/${authorUsername}` : '#'} 
+              className="comment-item__author"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              {authorDisplayName}
+            </Link>
             <span className="comment-item__dot">•</span>
             <span className="comment-item__time">{comment.timeAgo}</span>
           </div>
           <div className="comment-item__text">{comment.content}</div>
           <div className="comment-item__actions">
-            <button className="comment-item__action-btn">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-              </svg>
-              <span>{comment.upvotes || 0}</span>
-            </button>
             <button className="comment-item__action-btn" onClick={() => setIsReplying(!isReplying)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />

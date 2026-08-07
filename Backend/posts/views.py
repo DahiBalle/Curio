@@ -124,7 +124,6 @@ def serialize_comment(c, request):
         "authorAvatar": request.build_absolute_uri(c_author.avatar.url) if (c_author and getattr(c_author, 'avatar', None)) else None,
         "content": c.content,
         "timeAgo": c.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "upvotes": str(c.likes_count),
         "replies": [serialize_comment(reply, request) for reply in c.replies.all().order_by('created_at')]
     }
 

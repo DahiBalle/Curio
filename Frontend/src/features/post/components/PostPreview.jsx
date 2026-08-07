@@ -171,18 +171,14 @@ export const PostPreview = ({ post, isDetailView = false }) => {
           <span>{likeCount}</span>
         </button>
 
-        <button className="post-preview__action-btn">
+        <button className="post-preview__action-btn" onClick={(e) => {
+          e.stopPropagation();
+          if (!isDetailView) navigate(`/post/${post.id}`);
+        }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span>{commentsCount}</span>
-        </button>
-
-        <button className="post-preview__action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="1 4 1 10 7 10" />
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
-          </svg>
         </button>
 
         <button 
