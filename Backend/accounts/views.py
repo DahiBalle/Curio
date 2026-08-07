@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.shortcuts import get_object_or_404
 
 from personas.models import Persona
@@ -45,7 +45,7 @@ def signup(request):
         base_username = email.split("@")[0][:20]
         username = base_username
         counter = 1
-        while User.objects.filter(username=username).exists():
+        while User.objects.filter(username__iexact=username).exists():
             username = f"{base_username}{counter}"
             counter += 1
 
@@ -53,7 +53,7 @@ def signup(request):
     # Duplicate Username
     # -------------------------
 
-    if User.objects.filter(username=username).exists():
+    if User.objects.filter(username__iexact=username).exists():
         return Response(
             {"error": "Username already exists"},
             status=status.HTTP_400_BAD_REQUEST
@@ -63,7 +63,7 @@ def signup(request):
     # Duplicate Email
     # -------------------------
 
-    if User.objects.filter(email=email).exists():
+    if User.objects.filter(email__iexact=email).exists():
         return Response(
             {"error": "Email already registered"},
             status=status.HTTP_400_BAD_REQUEST
@@ -86,13 +86,19 @@ def signup(request):
         )
 
      # Create User
-    user = User.objects.create_user(
-    username=username,
-    email=email,
-    password=password,
-    first_name=first_name,
-    last_name=last_name
-)
+    try:
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
+    except IntegrityError:
+        return Response(
+            {"error": "Username or email already exists"},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 # Create Default Persona
     default_persona = Persona.objects.create(
