@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  background-color: #000; /* Match app background */
+  background-color: var(--bg);
   font-family: var(--sans);
   padding: 40px 20px;
   box-sizing: border-box;
@@ -60,12 +60,12 @@
 }
 
 .btn-back:hover {
-  background-color: rgba(255,255,255,0.05);
+  background-color: var(--social-bg);
 }
 
 .btn-skip {
   background-color: transparent;
-  color: #818384;
+  color: var(--text);
 }
 
 .btn-skip:hover {
@@ -74,18 +74,19 @@
 
 .btn-next,
 .btn-finish {
-  background-color: #1d9bf0;
+  background: linear-gradient(135deg, #fa7e9b 0%, #47cfcf 100%);
   color: #fff;
 }
 
 .btn-next:hover:not(:disabled),
 .btn-finish:hover:not(:disabled) {
-  background-color: #1a8cd8;
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .btn-next:disabled,
 .btn-finish:disabled {
-  background-color: #0c436b;
-  color: #818384;
+  background: var(--border);
+  color: var(--text);
   cursor: not-allowed;
 }

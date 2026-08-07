@@ -19,7 +19,7 @@
 .profile-preview-banner {
   width: 100%;
   height: 120px;
-  background-color: #333;
+  background-color: var(--border);
   background-size: cover;
   background-position: center;
 }
@@ -27,7 +27,7 @@
 .profile-preview-banner-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #2a2d2f;
+  background-color: var(--social-bg);
 }
 
 .profile-preview-avatar-wrapper {
@@ -37,7 +37,7 @@
   height: 80px;
   border-radius: 50%;
   border: 4px solid var(--bg);
-  background-color: #1a1d1f;
+  background-color: var(--social-bg);
   overflow: hidden;
 }
 
@@ -50,7 +50,7 @@
 .profile-preview-avatar-placeholder {
   width: 100%;
   height: 100%;
-  background-color: #2a2d2f;
+  background-color: var(--border);
 }
 
 .profile-preview-info {
@@ -67,7 +67,7 @@
 .profile-preview-username {
   margin: 0 0 12px 0;
   font-size: 14px;
-  color: #818384;
+  color: var(--text);
 }
 
 .profile-preview-bio {
@@ -89,13 +89,13 @@
   padding: 12px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #818384;
+  color: var(--text);
   cursor: default;
 }
 
 .profile-preview-tab.active {
   color: var(--text-h);
-  border-bottom: 2px solid #1d9bf0;
+  border-bottom: 2px solid var(--accent);
 }
 
 .profile-preview-empty-state {
@@ -123,5 +123,5 @@
 .profile-preview-empty-state p {
   margin: 0;
   font-size: 14px;
-  color: #818384;
+  color: var(--text);
 }

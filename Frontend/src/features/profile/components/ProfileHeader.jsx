@@ -45,9 +45,6 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           </div>
           
           <div className="profile-actions-desktop">
-            <button className="profile-options-btn">
-              <Icon name="options" size={24} />
-            </button>
             {profile.isPersona && isOwnProfile ? (
               <>
                 {profile.isActive ? (

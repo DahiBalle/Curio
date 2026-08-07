@@ -8,10 +8,12 @@ import defaultBanner from '../../../assets/default-banner.jpg';
 export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) => {
   const [formData, setFormData] = useState({
     name: '',
+    username: '',
     bio: '',
     avatarUrl: '',
     bannerUrl: ''
   });
+  const [errorMsg, setErrorMsg] = useState('');
   
   const [avatarFile, setAvatarFile] = useState(null);
   const [bannerFile, setBannerFile] = useState(null);
@@ -22,12 +24,14 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
     if (isOpen && persona) {
       setFormData({
         name: persona.name || '',
+        username: persona.username || '',
         bio: persona.bio || '',
         avatarUrl: persona.avatarUrl || persona.imageUrl || '',
         bannerUrl: persona.bannerUrl || ''
       });
       setAvatarFile(null);
       setBannerFile(null);
+      setErrorMsg('');
     }
   }, [isOpen, persona]);
 
@@ -59,8 +63,10 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
 
     setIsSubmitting(true);
     try {
+      setErrorMsg('');
       const data = new FormData();
       data.append('name', formData.name);
+      data.append('username', formData.username);
       data.append('bio', formData.bio);
       if (avatarFile) data.append('avatar', avatarFile);
       if (bannerFile) data.append('banner', bannerFile);
@@ -75,6 +81,11 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
       }
     } catch (error) {
       console.error('Failed to update persona:', error);
+      if (error.response?.data?.error) {
+        setErrorMsg(error.response.data.error);
+      } else {
+        setErrorMsg('Failed to update profile.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -158,6 +169,21 @@ export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) =>
           </div>
 
           <form className="edit-profile-form" onSubmit={handleSubmit}>
+            {errorMsg && <div className="error-message" style={{ color: 'red', marginBottom: '10px' }}>{errorMsg}</div>}
+            
+            <div className="form-group">
+              <label>Username</label>
+              <input 
+                type="text" 
+                name="username" 
+                value={formData.username} 
+                onChange={handleChange} 
+                placeholder="Username" 
+                maxLength={30}
+                required
+              />
+            </div>
+
             <div className="form-group">
               <label>Name</label>
               <input 

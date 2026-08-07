@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../../context/AuthContext';
+import { usePersona } from '../../../context/PersonaContext';
 import './ConfettiScreen.css';
 
 export function ConfettiScreen() {
   const [showOptions, setShowOptions] = useState(false);
   const { completeOnboarding } = useAuth();
+  const { refreshPersonas } = usePersona();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export function ConfettiScreen() {
 
   const handleFinish = async () => {
     await completeOnboarding();
+    if (refreshPersonas) await refreshPersonas();
     navigate('/');
   };
 

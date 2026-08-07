@@ -8,6 +8,7 @@ import { useAuth } from '../../../context/AuthContext';
 
 export function SignupPage({ onSignupComplete }) {
   const [step, setStep] = useState('email');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
