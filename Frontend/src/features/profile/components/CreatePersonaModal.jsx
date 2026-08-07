@@ -70,8 +70,8 @@ export const CreatePersonaModal = ({ isOpen, onClose, onSuccess }) => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      if (response.data.persona) {
-        if (onSuccess) onSuccess(response.data.persona);
+      if (response.data.id) {
+        if (onSuccess) onSuccess(response.data);
         onClose();
         // Reset form
         setStep(1);

@@ -59,7 +59,12 @@ const mockRequests = [
 
 export const messagesApi = {
   getThreads: async () => {
-    const { data } = await client.get('/messages/');
+    const { data } = await client.get('/messages/threads/');
+    return data;
+  },
+  
+  getThreadMessages: async (threadId) => {
+    const { data } = await client.get(`/messages/${threadId}/`);
     return data;
   },
   

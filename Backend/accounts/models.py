@@ -1,22 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-import uuid
-import os
 
-def avatar_upload_path(instance, filename):
-    ext = filename.split('.')[-1]
-    return f"uploaded_images/{uuid.uuid4()}.{ext}"
-
-def banner_upload_path(instance, filename):
-    ext = filename.split('.')[-1]
-    return f"uploaded_images/{uuid.uuid4()}.{ext}"
-
-# -------------------------
-# Authentication Model
-# -------------------------
+def banner_upload_path(instance, filename): pass
+def profile_picture_upload_path(instance, filename): pass
+def avatar_upload_path(instance, filename): pass
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+
+    default_persona = models.ForeignKey(
+        "personas.Persona",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="default_for_users"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
@@ -24,115 +22,27 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
-
-# -------------------------
-# User Profile
-# -------------------------
-
-class Profile(models.Model):
-
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        related_name="profile"
-    )
-
-    display_name = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    bio = models.TextField(
-        max_length=300,
-        blank=True
-    )
-
-    active_persona = models.ForeignKey(
-    "personas.Persona",
-    on_delete=models.SET_NULL,
-    null=True,
-    blank=True,
-    related_name="active_users"
-    )
-
-    profile_picture = models.ImageField(
-        upload_to=avatar_upload_path,
-        default="defaults/profile.png",
-        blank=True
-    )
-
-    banner = models.ImageField(
-        upload_to=banner_upload_path,
-        default="defaults/banner.jpg",
-        blank=True
-    )
-
-    website = models.URLField(blank=True)
-
-    avatar_url = models.URLField(blank=True, null=True)
-    banner_url = models.URLField(blank=True, null=True)
-
-    date_of_birth = models.DateField(
-        blank=True,
-        null=True
-    )
-
-    is_private = models.BooleanField(
-        default=False
-    )
-
-    is_verified = models.BooleanField(
-        default=False
-    )
-
-    followers_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    following_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    posts_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
-
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
-
-
-# -------------------------
-# Follow System
-# -------------------------
+from django.utils import timezone
 
 class Follow(models.Model):
-
     follower = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="following"
     )
-
     following = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="followers"
     )
-
-    followed_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ("follower", "following")
+        indexes = [
+            models.Index(fields=["follower"]),
+            models.Index(fields=["following"]),
+        ]
 
     def __str__(self):
         return f"{self.follower} -> {self.following}"

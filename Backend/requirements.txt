@@ -1,5 +1,7 @@
 # --- Core framework ---
 Django                    # LTS release
+channels                  # WebSockets support
+daphne                    # ASGI server for channels
 djangorestframework
 djangorestframework-simplejwt   # token auth for /api/auth/login
 django-cors-headers             # allow the React frontend to call the API
@@ -11,6 +13,7 @@ pgvector                   # VectorField + similarity search for Django ORM
 
 # --- Config ---
 python-dotenv               # load .env for secrets/DB credentials
+dj-database-url             # parse DATABASE_URL
 
 # --- ML layer ---
 numpy

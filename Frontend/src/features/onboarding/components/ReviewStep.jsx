@@ -7,7 +7,7 @@ export function ReviewStep({ data, updateData }) {
   return (
     <div className="review-step-container">
       <div className="review-left">
-        <h2 className="step-title">Review your profile</h2>
+        <h2 className="step-title">Review your persona</h2>
         <p className="step-subtitle">Make sure everything looks good. You can edit here, and see it instantly on the right.</p>
 
         <div className="step-input-group">

@@ -57,26 +57,23 @@ export const useCreatePost = () => {
     setError(null);
 
     try {
-      const postResponse = await client.post('/posts/create/', {
-        title: title.trim(),
-        content: body.trim(),
-        tags: labels[0]
-      });
-      
-      const postId = postResponse.data.post.id;
-
-      if (images.length > 0) {
-        const mediaFormData = new FormData();
-        images.forEach((img) => {
-          mediaFormData.append('media', img.file);
-        });
-
-        await client.post(`/posts/${postId}/media/upload/`, mediaFormData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('description', body.trim());
+      if (labels.length > 0) {
+        formData.append('labelId', labels[0]);
       }
+      
+      if (images.length > 0) {
+        formData.append('media', images[0].file);
+        formData.append('type', 'image');
+      }
+
+      await client.post('/posts/create/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       
       // Success, navigate to home
       navigate('/');

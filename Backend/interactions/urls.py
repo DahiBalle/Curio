@@ -2,26 +2,20 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
     # Toggle Actions
-    path("<int:post_id>/like/", views.toggle_like, name="toggle-like"),
-    path("<int:post_id>/save/", views.toggle_save, name="toggle-save"),
-    path("<int:post_id>/share/", views.share_post, name="share-post"),
+    path("posts/<int:post_id>/vote/", views.vote_post, name="vote-post"),
+    path("posts/<int:post_id>/save/", views.toggle_save, name="toggle-save"),
+    path("posts/<int:post_id>/repost/", views.toggle_repost, name="toggle-repost"),
 
     # Tracking (feeds ML feedback loop)
-    path("<int:post_id>/view/", views.log_view, name="log-view"),
-    path("impressions/", views.log_impressions, name="log-impressions"),
-    path("<int:post_id>/log/", views.log_interaction, name="log-interaction"),
-
-    # Persona History
-    path("liked/", views.liked_posts, name="liked-posts"),
-    path("saved/", views.saved_posts, name="saved-posts"),
+    path("posts/<int:post_id>/click/", views.log_click, name="log-click"),
+    path("posts/<int:post_id>/impression/", views.log_impression, name="log-impression"),
 
     # Messenger
-    path("messages/start/", views.start_conversation, name="start-conversation"),
-    path("messages/", views.list_conversations, name="list-conversations"),
-    path("messages/<int:conversation_id>/", views.conversation_messages, name="conversation-messages"),
-    path("messages/<int:conversation_id>/send/", views.send_message, name="send-message"),
-    path("messages/delete/<int:message_id>/", views.delete_message, name="delete-message"),
-
+    path("messages/threads/", views.list_threads, name="list-threads"),
+    path("messages/requests/", views.list_requests, name="list-requests"),
+    path("messages/unread-count/", views.unread_count, name="unread-count"),
+    path("messages/<str:thread_id>/", views.thread_messages, name="thread-messages"),
+    path("messages/requests/<int:request_id>/accept/", views.accept_request, name="accept-request"),
+    path("messages/requests/<int:request_id>/decline/", views.decline_request, name="decline-request"),
 ]

@@ -38,15 +38,9 @@ export function ConfettiScreen() {
         <p className="confetti-subtitle">Your personalized feed is ready.</p>
 
         <div className={`confetti-options ${showOptions ? 'visible' : ''}`}>
-          <div className="options-divider" />
-          <p className="options-text">Customize your feed further</p>
-          
-          <div className="options-buttons">
-            <button className="btn-primary" onClick={handleFinish}>
-              Create Persona
-            </button>
-            <button className="btn-secondary" onClick={handleFinish}>
-              Skip for now
+          <div className="options-buttons" style={{ marginTop: '2rem' }}>
+            <button className="btn-primary" onClick={handleFinish} style={{ width: '100%' }}>
+              Go to my feed
             </button>
           </div>
         </div>

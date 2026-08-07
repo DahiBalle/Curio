@@ -43,8 +43,8 @@ export function ProfileStep({ data, updateData }) {
   };
   return (
     <div className="onboarding-step-container">
-      <h2 className="step-title">Set up your profile</h2>
-      <p className="step-subtitle">Tell us a bit about yourself (Optional)</p>
+      <h2 className="step-title">Create your default Persona</h2>
+      <p className="step-subtitle">This will be your primary identity. You can create more personas later.</p>
 
       <div className="profile-images-setup">
         <input 

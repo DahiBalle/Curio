@@ -4,7 +4,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { useAuth } from '../../../context/AuthContext';
 import { RequestsModal } from './RequestsModal';
 
-export const MessagesList = ({ threads, requests, onAcceptRequest, onDeclineRequest }) => {
+export const MessagesList = ({ threads, requests, activeThreadId, onSelectThread, onAcceptRequest, onDeclineRequest }) => {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
@@ -48,7 +48,11 @@ export const MessagesList = ({ threads, requests, onAcceptRequest, onDeclineRequ
 
       <div className="messages-list__threads">
         {filteredThreads.map(thread => (
-          <div key={thread.id} className="thread-item">
+          <div 
+            key={thread.id} 
+            className={`thread-item ${activeThreadId === thread.id ? 'active' : ''}`}
+            onClick={() => onSelectThread(thread)}
+          >
             <div className="thread-item__avatar">
               <Avatar src={thread.user.avatarUrl} alt={thread.user.name} size="medium" />
               {thread.isUnread && <div className="thread-item__unread-dot" />}
