@@ -6,13 +6,21 @@ export const postApi = {
     return data;
   },
 
-  recordClick: async (postId) => {
-    const { data } = await client.post(`/posts/${postId}/click/`);
+  votePost: async (postId, direction, personaId) => {
+    const { data } = await client.post(`/posts/${postId}/vote/`, { direction, personaId });
     return data;
   },
 
-  recordImpression: async (postId) => {
-    const { data } = await client.post(`/posts/${postId}/impression/`);
+  recordClick: async (postId, personaId) => {
+    const { data } = await client.post(`/posts/${postId}/click/`, { personaId });
+    return data;
+  },
+
+  recordImpression: async (postIds, personaId) => {
+    if (!Array.isArray(postIds)) {
+      postIds = [postIds];
+    }
+    const { data } = await client.post(`/posts/impression/`, { postIds, personaId });
     return data;
   }
 };

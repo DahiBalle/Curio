@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/', include('accounts.urls')),
     path('api/personas/', include('personas.urls')),
     path('api/posts/', include('posts.urls')),
+    path('api/feed/', include('feed.urls')),
     path('api/', include('interactions.urls')), # handles posts/... and messages/...
 ]
 

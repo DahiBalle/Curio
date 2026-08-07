@@ -20,6 +20,13 @@ class Topic(models.Model):
 
     name = models.CharField(max_length=255, unique=True)
     topic_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
+    parent = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='subtopics'
+    )
 
     def __str__(self):
         return self.name

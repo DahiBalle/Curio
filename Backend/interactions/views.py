@@ -8,21 +8,50 @@ from .models import Interaction, SavedPost, Repost, Conversation, ConversationPa
 from posts.models import Post
 from accounts.models import Follow
 
+from django.core.cache import cache
+from personas.models import Persona, PersonaTopic
+
+def update_topic_affinity(persona, post, weight_change):
+    if post.broad_topic:
+        pt, _ = PersonaTopic.objects.get_or_create(persona=persona, topic=post.broad_topic)
+        pt.weight += weight_change
+        pt.save()
+    if post.narrow_topic:
+        pt, _ = PersonaTopic.objects.get_or_create(persona=persona, topic=post.narrow_topic)
+        pt.weight += (weight_change * 1.5) # Narrow topic gets slightly higher boost
+        pt.save()
+
+def update_session_cache(persona_id, post):
+    cache_key = f"session_topics_{persona_id}"
+    session_data = cache.get(cache_key, {})
+    if post.broad_topic:
+        session_data[post.broad_topic.id] = session_data.get(post.broad_topic.id, 0) + 1.0
+    if post.narrow_topic:
+        session_data[post.narrow_topic.id] = session_data.get(post.narrow_topic.id, 0) + 1.5
+    cache.set(cache_key, session_data, 60 * 60) # 1 hour session
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def vote_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    user = request.user
+    persona_id = request.data.get("personaId") or request.query_params.get("personaId")
+    persona = get_object_or_404(Persona, id=persona_id, user=request.user) if persona_id else request.user.default_persona
+    
+    if not persona:
+        return Response({"error": "Persona required"}, status=400)
     
     direction = request.data.get("direction", 1) # 1 upvote, -1 downvote, 0 remove
     
-    # Simple like toggle implementation for MVP
     if direction == 1:
-        Interaction.objects.get_or_create(user=user, post=post, interaction_type='like')
+        interaction, created = Interaction.objects.get_or_create(persona=persona, post=post, interaction_type='like')
         is_liked = True
+        if created:
+            update_topic_affinity(persona, post, 1.0)
+            update_session_cache(persona.id, post)
     else:
-        Interaction.objects.filter(user=user, post=post, interaction_type='like').delete()
+        Interaction.objects.filter(persona=persona, post=post, interaction_type='like').delete()
         is_liked = False
+        update_topic_affinity(persona, post, -1.0)
         
     likes_count = Interaction.objects.filter(post=post, interaction_type='like').count()
     post.likes_count = likes_count
@@ -57,14 +86,34 @@ def toggle_repost(request, post_id):
 def log_click(request, post_id):
     if request.user.is_authenticated:
         post = get_object_or_404(Post, id=post_id)
-        Interaction.objects.create(user=request.user, post=post, interaction_type='click')
+        persona_id = request.data.get("personaId") or request.query_params.get("personaId")
+        persona = get_object_or_404(Persona, id=persona_id, user=request.user) if persona_id else request.user.default_persona
+        
+        if persona:
+            interaction, created = Interaction.objects.get_or_create(persona=persona, post=post, interaction_type='click')
+            if created:
+                post.clicks_count += 1
+                post.save(update_fields=['clicks_count'])
+                update_topic_affinity(persona, post, 0.5)
+                update_session_cache(persona.id, post)
     return Response({"success": True})
 
 @api_view(["POST"])
-def log_impression(request, post_id):
+def log_impression(request):
     if request.user.is_authenticated:
-        post = get_object_or_404(Post, id=post_id)
-        Interaction.objects.create(user=request.user, post=post, interaction_type='impression')
+        post_ids = request.data.get("postIds", [])
+        persona_id = request.data.get("personaId")
+        persona = get_object_or_404(Persona, id=persona_id, user=request.user) if persona_id else request.user.default_persona
+        
+        if persona and post_ids:
+            for pid in post_ids:
+                try:
+                    post = Post.objects.get(id=pid)
+                    Interaction.objects.get_or_create(persona=persona, post=post, interaction_type='impression')
+                    post.impressions_count += 1
+                    post.save(update_fields=['impressions_count'])
+                except Post.DoesNotExist:
+                    pass
     return Response({"success": True})
 
 @api_view(["GET"])

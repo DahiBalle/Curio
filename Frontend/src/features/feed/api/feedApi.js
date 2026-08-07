@@ -43,9 +43,24 @@ const generateMockFeed = (personaId) => {
 
 export const feedApi = {
   getFeed: async (personaId) => {
-
-    const { data } = await client.get('/posts/', { params: { personaId } });
+    // Phase 3 points to /feed/, but while we haven't implemented it, let's point to /posts/
+    // Wait, the plan says we will create /api/feed/ endpoint soon. I'll point it to /feed/
+    const { data } = await client.get('/feed/', { params: { personaId } });
     return data.posts || [];
-
+  },
+  logImpression: async (personaId, postIds) => {
+    if (!personaId || !postIds || postIds.length === 0) return;
+    // Extract actual numeric IDs from "post-123"
+    const numericIds = postIds.map(idStr => {
+      const parts = idStr.split('-');
+      return parts.length > 1 ? parseInt(parts[1], 10) : parseInt(idStr, 10);
+    }).filter(id => !isNaN(id));
+    
+    if (numericIds.length === 0) return;
+    
+    await client.post('/posts/impression/', {
+      personaId,
+      postIds: numericIds
+    });
   }
 };

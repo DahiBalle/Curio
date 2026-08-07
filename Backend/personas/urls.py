@@ -15,4 +15,7 @@ urlpatterns = [
     
     # Floor
     path("<int:persona_id>/interest-floor/", views.interest_floor, name="interest-floor"),
+    
+    # Topics
+    path("topics/", views.get_topics, name="get-topics"),
 ]

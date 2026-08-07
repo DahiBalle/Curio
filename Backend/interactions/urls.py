@@ -9,7 +9,7 @@ urlpatterns = [
 
     # Tracking (feeds ML feedback loop)
     path("posts/<int:post_id>/click/", views.log_click, name="log-click"),
-    path("posts/<int:post_id>/impression/", views.log_impression, name="log-impression"),
+    path("posts/impression/", views.log_impression, name="log-impression"),
 
     # Messenger
     path("messages/threads/", views.list_threads, name="list-threads"),

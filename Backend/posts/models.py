@@ -22,25 +22,31 @@ class Post(models.Model):
     impressions_count = models.IntegerField(default=0)
     
     embedding = VectorField(dimensions=384, null=True, blank=True)
-    topics = models.ManyToManyField(Topic, through='PostTopic', related_name='posts')
+    broad_topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="broad_posts"
+    )
+    narrow_topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="narrow_posts"
+    )
 
     class Meta:
         indexes = [
             models.Index(fields=['author_persona']),
+            models.Index(fields=['broad_topic', '-created_at']),
+            models.Index(fields=['narrow_topic', '-created_at']),
+            models.Index(fields=['-created_at']),
         ]
 
     def __str__(self):
         return self.title
-
-class PostTopic(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
-    
-    class Meta:
-        unique_together = ('post', 'topic')
-        indexes = [
-            models.Index(fields=['post', 'topic']),
-        ]
 
 class PostMedia(models.Model):
     IMAGE = 'image'

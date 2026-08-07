@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'interactions',
     'personas',
     'posts',
+    'ml',
     'rest_framework',
     'rest_framework_simplejwt',
     'pgvector','corsheaders',

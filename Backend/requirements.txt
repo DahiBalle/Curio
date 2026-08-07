@@ -19,7 +19,6 @@ dj-database-url             # parse DATABASE_URL
 numpy
 scikit-learn             # logistic regression baseline ranking model
 xgboost                     # gradient boosted ranking model (Step 7 upgrade)
-sentence-transformers       # pretrained post/persona embeddings
 joblib                     # save/load trained ranking models
 
 # --- Session embeddings / background jobs ---

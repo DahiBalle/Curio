@@ -2,42 +2,45 @@ import React from 'react';
 import './CreatePostPage.css';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { ImageUploader } from '../components/ImageUploader';
-import { LabelModal } from '../components/LabelModal';
 import { CancelModal } from '../components/CancelModal';
-
-const AVAILABLE_LABELS = [
-  { id: 'tech', label: 'Technology', icon: '💻' },
-  { id: 'art', label: 'Art & Design', icon: '🎨' },
-  { id: 'gaming', label: 'Gaming', icon: '🎮' },
-  { id: 'music', label: 'Music', icon: '🎵' },
-  { id: 'science', label: 'Science', icon: '🔬' },
-  { id: 'memes', label: 'Memes', icon: '😂' },
-  { id: 'news', label: 'News', icon: '📰' },
-  { id: 'sports', label: 'Sports', icon: '⚽' },
-];
 
 export const CreatePostPage = () => {
   const {
     images,
     title,
     body,
-    labels,
+    availableTopics,
+    broadTopic,
+    narrowTopic,
     isSubmitting,
     error,
     isValid,
     isCancelModalOpen,
     setIsCancelModalOpen,
-    isLabelModalOpen,
-    setIsLabelModalOpen,
     addImages,
     removeImage,
     setTitle,
     setBody,
-    toggleLabel,
+    setBroadTopic,
+    setNarrowTopic,
     submitPost,
     handleCancelClick,
     confirmCancel
   } = useCreatePost();
+
+  const handleBroadTopicChange = (e) => {
+    const selectedId = e.target.value;
+    const topic = availableTopics.find(t => t.id === selectedId);
+    setBroadTopic(topic || null);
+    setNarrowTopic(null); // Reset narrow topic when broad changes
+  };
+
+  const handleNarrowTopicChange = (e) => {
+    if (!broadTopic) return;
+    const selectedId = e.target.value;
+    const topic = broadTopic.subtopics.find(t => t.id === selectedId);
+    setNarrowTopic(topic || null);
+  };
 
   return (
     <div className="create-post-page">
@@ -53,34 +56,31 @@ export const CreatePostPage = () => {
 
         <form className="create-post-form" onSubmit={submitPost}>
           
-          <div className="form-section row-section">
-            <button 
-              type="button" 
-              className="btn-add-label"
-              onClick={() => setIsLabelModalOpen(true)}
+          <div className="form-section row-section" style={{ gap: '10px' }}>
+            <select 
+              className="topic-select" 
+              value={broadTopic?.id || ''} 
+              onChange={handleBroadTopicChange}
+              required
             >
-              Select label-tiles*
-            </button>
-            <div className="inline-labels-container">
-              {labels.map(id => {
-                const labelObj = AVAILABLE_LABELS.find(l => l.id === id);
-                return (
-                  <button 
-                    key={`inline-sel-${id}`} 
-                    className="inline-selected-label"
-                    onClick={() => toggleLabel(id)}
-                    type="button"
-                  >
-                    {labelObj?.label || id} &times;
-                  </button>
-                );
-              })}
-              {labels.length > 0 && (
-                <span className="selected-labels-text">
-                  {labels.length} selected
-                </span>
-              )}
-            </div>
+              <option value="" disabled>Select Broad Topic*</option>
+              {availableTopics.map(topic => (
+                <option key={topic.id} value={topic.id}>{topic.name}</option>
+              ))}
+            </select>
+            
+            <select 
+              className="topic-select" 
+              value={narrowTopic?.id || ''} 
+              onChange={handleNarrowTopicChange}
+              disabled={!broadTopic}
+              required
+            >
+              <option value="" disabled>Select Narrow Topic*</option>
+              {broadTopic?.subtopics?.map(topic => (
+                <option key={topic.id} value={topic.id}>{topic.name}</option>
+              ))}
+            </select>
           </div>
 
           <div className="form-section">
@@ -125,14 +125,7 @@ export const CreatePostPage = () => {
         </form>
       </div>
 
-      {isLabelModalOpen && (
-        <LabelModal
-          availableLabels={AVAILABLE_LABELS}
-          selectedLabels={labels}
-          onToggleLabel={toggleLabel}
-          onClose={() => setIsLabelModalOpen(false)}
-        />
-      )}
+
 
       {isCancelModalOpen && (
         <CancelModal 

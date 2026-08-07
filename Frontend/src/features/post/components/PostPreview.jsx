@@ -4,9 +4,11 @@ import client from '../../../services/client';
 import { postApi } from '../api/postApi';
 import './PostPreview.css';
 import { Avatar } from '../../../components/ui/Avatar';
+import { usePersona } from '../../../context/PersonaContext';
 
 export const PostPreview = ({ post, isDetailView = false }) => {
   const navigate = useNavigate();
+  const { activePersona } = usePersona();
   const cardRef = useRef(null);
   const impressionRecorded = useRef(false);
   const authorName = post.author?.name || post.subreddit || 'Unknown';
@@ -31,7 +33,8 @@ export const PostPreview = ({ post, isDetailView = false }) => {
     setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
     
     try {
-      await client.post(`/${post.id}/like/`);
+      const direction = newIsLiked ? 1 : 0;
+      await postApi.votePost(post.id, direction, activePersona?.id);
     } catch (err) {
       setIsLiked(!newIsLiked);
       setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
@@ -47,7 +50,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
         const [entry] = entries;
         if (entry.isIntersecting && !impressionRecorded.current) {
           impressionRecorded.current = true;
-          postApi.recordImpression(post.id).catch(err => console.error(err));
+          postApi.recordImpression([post.id], activePersona?.id).catch(err => console.error(err));
           observer.disconnect();
         }
       },
@@ -61,7 +64,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
     return () => {
       observer.disconnect();
     };
-  }, [post.id, isDetailView]);
+  }, [post.id, isDetailView, activePersona?.id]);
 
   const handleCardClick = (e) => {
     if (isDetailView) return;
@@ -71,7 +74,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
     if (isInteractive) return;
 
     // Record click and navigate
-    postApi.recordClick(post.id).catch(err => console.error(err));
+    postApi.recordClick(post.id, activePersona?.id).catch(err => console.error(err));
     navigate(`/post/${post.id}`);
   };
 

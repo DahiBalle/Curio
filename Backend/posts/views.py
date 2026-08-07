@@ -20,29 +20,37 @@ def create_post(request):
 
     title = request.data.get("title")
     description = request.data.get("description", "")
-    label_id = request.data.get("labelId") # which is actually topic ID now
+    broad_topic_id = request.data.get("broadTopicId")
+    narrow_topic_id = request.data.get("narrowTopicId")
     post_type = request.data.get("type", "text")
     media_file = request.FILES.get("media")
 
     if not title:
         return Response({"error": "Title required"}, status=400)
 
+    broad_topic = None
+    narrow_topic = None
+    
+    if broad_topic_id:
+        try:
+            broad_topic = Topic.objects.get(id=int(broad_topic_id), topic_type=Topic.BROAD)
+        except (ValueError, Topic.DoesNotExist):
+            pass
+            
+    if narrow_topic_id:
+        try:
+            narrow_topic = Topic.objects.get(id=int(narrow_topic_id), topic_type=Topic.NARROW)
+        except (ValueError, Topic.DoesNotExist):
+            pass
+
     post = Post.objects.create(
         author_persona=persona,
         title=title,
         description=description,
-        contains_media=bool(media_file)
+        contains_media=bool(media_file),
+        broad_topic=broad_topic,
+        narrow_topic=narrow_topic
     )
-
-    if label_id:
-        try:
-            if str(label_id).isdigit():
-                topic = Topic.objects.get(id=int(label_id))
-            else:
-                topic, _ = Topic.objects.get_or_create(name=label_id, defaults={'topic_type': Topic.BROAD})
-            post.topics.add(topic)
-        except Topic.DoesNotExist:
-            pass
             
     if media_file:
         PostMedia.objects.create(
@@ -66,7 +74,7 @@ def list_posts(request):
     
     data = []
     for post in page_obj:
-        topic = post.topics.first()
+        topic = post.narrow_topic if post.narrow_topic else post.broad_topic
         media = post.media.first()
         author = post.author_persona
         data.append({
@@ -87,7 +95,7 @@ def list_posts(request):
 @api_view(["GET"])
 def post_detail(request, post_id):
     post = get_object_or_404(Post, id=post_id)
-    topic = post.topics.first()
+    topic = post.narrow_topic if post.narrow_topic else post.broad_topic
     media = post.media.first()
     author = post.author_persona
 
@@ -122,7 +130,7 @@ def post_detail(request, post_id):
         "description": post.description,
         "imageUrl": request.build_absolute_uri(media.file.url) if (media and media.file) else None,
         "upvotes": str(post.likes_count),
-        "commentsCount": str(post.comment_set.count()),
+        "commentsCount": str(post.comments.count()),
         "label": None,
         "type": media.media_type if media else "text",
         "userVote": user_vote,

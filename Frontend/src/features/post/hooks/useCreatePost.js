@@ -6,13 +6,28 @@ export const useCreatePost = () => {
   const [images, setImages] = useState([]); // Array of { file, previewUrl }
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [labels, setLabels] = useState([]);
+  
+  const [availableTopics, setAvailableTopics] = useState([]);
+  const [broadTopic, setBroadTopic] = useState(null);
+  const [narrowTopic, setNarrowTopic] = useState(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isLabelModalOpen, setIsLabelModalOpen] = useState(false);
   
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchTopics = async () => {
+      try {
+        const { data } = await client.get('/personas/topics/');
+        setAvailableTopics(data);
+      } catch (err) {
+        console.error("Failed to fetch topics", err);
+      }
+    };
+    fetchTopics();
+  }, []);
 
   // Cleanup object URLs to avoid memory leaks
   useEffect(() => {
@@ -38,16 +53,7 @@ export const useCreatePost = () => {
     });
   }, []);
 
-  const toggleLabel = useCallback((label) => {
-    setLabels(prev => {
-      if (prev.includes(label)) {
-        return [];
-      }
-      return [label];
-    });
-  }, []);
-
-  const isValid = title.trim().length > 0 && images.length > 0 && labels.length === 1;
+  const isValid = title.trim().length > 0 && images.length > 0 && broadTopic !== null && narrowTopic !== null;
 
   const submitPost = async (e) => {
     if (e) e.preventDefault();
@@ -60,9 +66,8 @@ export const useCreatePost = () => {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('description', body.trim());
-      if (labels.length > 0) {
-        formData.append('labelId', labels[0]);
-      }
+      formData.append('broadTopicId', broadTopic.id);
+      formData.append('narrowTopicId', narrowTopic.id);
       
       if (images.length > 0) {
         formData.append('media', images[0].file);
@@ -84,7 +89,7 @@ export const useCreatePost = () => {
   };
 
   const handleCancelClick = () => {
-    if (title.trim() || body.trim() || images.length > 0 || labels.length > 0) {
+    if (title.trim() || body.trim() || images.length > 0 || broadTopic || narrowTopic) {
       setIsCancelModalOpen(true);
     } else {
       navigate(-1);
@@ -100,19 +105,20 @@ export const useCreatePost = () => {
     images,
     title,
     body,
-    labels,
+    availableTopics,
+    broadTopic,
+    narrowTopic,
     isSubmitting,
     error,
     isValid,
     isCancelModalOpen,
     setIsCancelModalOpen,
-    isLabelModalOpen,
-    setIsLabelModalOpen,
     addImages,
     removeImage,
     setTitle,
     setBody,
-    toggleLabel,
+    setBroadTopic,
+    setNarrowTopic,
     submitPost,
     handleCancelClick,
     confirmCancel

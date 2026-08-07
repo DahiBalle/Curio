@@ -140,3 +140,16 @@ def interest_floor(request, persona_id):
             "avatarUrl": None # Topic doesn't have avatar yet, default to None
         })
     return Response(data)
+
+@api_view(["GET"])
+def get_topics(request):
+    broad_topics = Topic.objects.filter(topic_type=Topic.BROAD)
+    data = []
+    for bt in broad_topics:
+        narrow_topics = [{"id": str(nt.id), "name": nt.name} for nt in bt.subtopics.all()]
+        data.append({
+            "id": str(bt.id),
+            "name": bt.name,
+            "subtopics": narrow_topics
+        })
+    return Response(data)
