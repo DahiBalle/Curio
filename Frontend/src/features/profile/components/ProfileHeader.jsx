@@ -6,14 +6,22 @@ import { Icon } from '../../../components/ui/Icon';
 
 import { EditPersonaModal } from '../../persona/components/EditPersonaModal';
 import { useAuth } from '../../../context/AuthContext';
-import client from '../../../services/client';
+import { usePersona } from '../../../context/PersonaContext';
 import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   const { user } = useAuth();
+  const { switchPersona } = usePersona();
   const [isEditPersonaModalOpen, setIsEditPersonaModalOpen] = React.useState(false);
 
   const isOwnProfile = profile.username === user?.username;
+
+  const handleMakeActive = async () => {
+    if (profile.id) {
+      await switchPersona(profile.id);
+    }
+  };
+
 
 
 
@@ -45,12 +53,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
                 {profile.isActive ? (
                   <Button variant="secondary" disabled>Active Persona</Button>
                 ) : (
-                  <Button variant="primary" onClick={async () => {
-                    try {
-                      await client.post('/personas/switch/', { persona_id: profile.id });
-                      window.location.reload();
-                    } catch (e) { console.error(e); }
-                  }}>Make Active</Button>
+                  <Button variant="primary" onClick={handleMakeActive}>Make Active</Button>
                 )}
                 <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
               </>
@@ -94,12 +97,7 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
                 {profile.isActive ? (
                   <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
                 ) : (
-                  <Button variant="primary" className="flex-1" onClick={async () => {
-                    try {
-                      await client.post('/personas/switch/', { persona_id: profile.id });
-                      window.location.reload();
-                    } catch (e) { console.error(e); }
-                  }}>Make Active</Button>
+                  <Button variant="primary" className="flex-1" onClick={handleMakeActive}>Make Active</Button>
                 )}
                 <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
               </>

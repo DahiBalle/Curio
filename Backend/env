@@ -1,5 +1,0 @@
-SECRET_KEY=django-insecure-v!n@*mbp6_7r5lbh-48n52f=!aiau0uk_0xper_ibylvy($y&v
-DEBUG=True
-
-# Database Configuration
-DATABASE_URL="postgresql://neondb_owner:npg_GfPoB0zVMCx4@ep-empty-sunset-aznh3kda-pooler.c-3.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"

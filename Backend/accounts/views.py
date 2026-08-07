@@ -79,6 +79,13 @@ def login(request):
 
     tokens = get_tokens_for_user(user)
     
+    if not user.default_persona:
+        persona = Persona.objects.filter(user=user).first()
+        if not persona:
+            persona = Persona.objects.create(user=user, name=user.first_name or user.username)
+        user.default_persona = persona
+        user.save()
+
     return Response({
         "message": "Login successful",
         "token": tokens['access'],
@@ -89,6 +96,7 @@ def login(request):
             "profile_picture": request.build_absolute_uri(user.default_persona.avatar.url) if (user.default_persona and user.default_persona.avatar) else None
         }
     }, status=status.HTTP_200_OK)
+
 
 @api_view(["GET"])
 def check_username(request):

@@ -21,11 +21,20 @@ export const ProfilePage = () => {
   const [selectedPersona, setSelectedPersona] = useState(null);
 
   React.useEffect(() => {
-    if (personas && personas.length > 0 && !selectedPersona) {
-      const defaultP = personas.find(p => p.id === profile?.id) || personas[0];
-      setSelectedPersona(defaultP);
+    if (personas && personas.length > 0) {
+      if (activePersona && isOwnProfile && !selectedPersona) {
+        const activeP = personas.find(p => Number(p.id) === Number(activePersona.id));
+        if (activeP) {
+          setSelectedPersona(activeP);
+          return;
+        }
+      }
+      if (!selectedPersona) {
+        const defaultP = personas.find(p => Number(p.id) === Number(profile?.id)) || personas[0];
+        setSelectedPersona(defaultP);
+      }
     }
-  }, [personas, profile, selectedPersona]);
+  }, [personas, profile, activePersona, isOwnProfile, selectedPersona]);
 
   if (loading) {
     return <div className="page-loading">Loading profile...</div>;
@@ -46,9 +55,10 @@ export const ProfilePage = () => {
     postsCount: posts.length,
     isPersona: true,
     id: activeDisplayPersona?.id,
-    isActive: activePersona && activePersona.id === activeDisplayPersona?.id,
+    isActive: Boolean(activePersona && activeDisplayPersona && Number(activePersona.id) === Number(activeDisplayPersona.id)),
     username: profile?.username // pass the base profile's username
   };
+
 
   const displayedPosts = posts;
 
