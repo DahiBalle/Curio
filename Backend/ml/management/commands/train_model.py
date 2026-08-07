@@ -6,43 +6,43 @@ import joblib
 import os
 from django.conf import settings
 from interactions.models import Interaction
-from django.db.models import Q
 from personas.models import PersonaTopic
 
 class Command(BaseCommand):
-    help = 'Trains the ML ranking model for feed recommendation'
+    help = 'Trains the ML ranking model for feed recommendation using bulk database queries'
 
     def handle(self, *args, **options):
-        self.stdout.write("Gathering training data...")
+        self.stdout.write("Gathering training data using bulk queries...")
         
-        # We need to build dataset from impressions and subsequent interactions
-        impressions = Interaction.objects.filter(interaction_type='impression')
+        # 1. Fetch all positive engagement interactions in a single bulk query (Set of (persona_id, post_id))
+        engaged_pairs = set(
+            Interaction.objects.filter(
+                interaction_type__in=['like', 'comment', 'share', 'click']
+            ).values_list('persona_id', 'post_id')
+        )
+        
+        # 2. Fetch all PersonaTopic affinity scores in a single bulk query -> Map of (persona_id, topic_id) -> weight
+        affinity_map = {}
+        for pt in PersonaTopic.objects.values('persona_id', 'topic_id', 'weight'):
+            affinity_map[(pt['persona_id'], pt['topic_id'])] = pt['weight']
+        
+        # 3. Bulk fetch all impression records with related persona and post
+        impressions = Interaction.objects.filter(interaction_type='impression').select_related('persona', 'post')
         
         data = []
         for imp in impressions:
-            persona = imp.persona
+            persona_id = imp.persona_id
             post = imp.post
             
-            # Did they engage after impression?
-            interactions_after = Interaction.objects.filter(
-                persona=persona, 
-                post=post, 
-                created_at__gte=imp.created_at
-            ).exclude(interaction_type='impression')
+            if not post:
+                continue
             
-            engaged = interactions_after.filter(
-                Q(interaction_type__in=['like', 'comment', 'share', 'click'])
-            ).exists()
+            # Fast O(1) in-memory check if persona engaged with post
+            label = 1 if (persona_id, post.id) in engaged_pairs else 0
             
-            label = 1 if engaged else 0
-            
-            # Features
-            affinity_scores = {pt.topic_id: pt.weight for pt in PersonaTopic.objects.filter(persona=persona)}
-            broad_affinity = affinity_scores.get(post.broad_topic_id, 0.1)
-            narrow_affinity = affinity_scores.get(post.narrow_topic_id, 0.1)
-            
-            # Note: We can't easily reproduce historical session boost, so we skip it for basic training
-            # or we could try to approximate it. For MVP we skip session_boost in training.
+            # Fast O(1) in-memory lookups for topic affinity
+            broad_affinity = affinity_map.get((persona_id, post.broad_topic_id), 0.1) if post.broad_topic_id else 0.1
+            narrow_affinity = affinity_map.get((persona_id, post.narrow_topic_id), 0.1) if post.narrow_topic_id else 0.1
             
             time_decay = 1 / (1 + max(0, (imp.created_at - post.created_at).days))
             quality_score = (post.likes_count * 2 + post.clicks_count) / max(post.impressions_count, 1)

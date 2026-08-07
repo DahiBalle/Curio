@@ -11,16 +11,6 @@ from posts.models import Post
 from django.core.cache import cache
 from personas.models import Persona, PersonaTopic
 
-def update_topic_affinity(persona, post, weight_change):
-    if post.broad_topic:
-        pt, _ = PersonaTopic.objects.get_or_create(persona=persona, topic=post.broad_topic)
-        pt.weight += weight_change
-        pt.save()
-    if post.narrow_topic:
-        pt, _ = PersonaTopic.objects.get_or_create(persona=persona, topic=post.narrow_topic)
-        pt.weight += (weight_change * 1.5) # Narrow topic gets slightly higher boost
-        pt.save()
-
 def update_session_cache(persona_id, post):
     cache_key = f"session_topics_{persona_id}"
     session_data = cache.get(cache_key, {})
@@ -46,12 +36,10 @@ def vote_post(request, post_id):
         interaction, created = Interaction.objects.get_or_create(persona=persona, post=post, interaction_type='like')
         is_liked = True
         if created:
-            update_topic_affinity(persona, post, 1.0)
             update_session_cache(persona.id, post)
     else:
         Interaction.objects.filter(persona=persona, post=post, interaction_type='like').delete()
         is_liked = False
-        update_topic_affinity(persona, post, -1.0)
         
     likes_count = Interaction.objects.filter(post=post, interaction_type='like').count()
     post.likes_count = likes_count
@@ -94,7 +82,6 @@ def log_click(request, post_id):
             if created:
                 post.clicks_count += 1
                 post.save(update_fields=['clicks_count'])
-                update_topic_affinity(persona, post, 0.5)
                 update_session_cache(persona.id, post)
     return Response({"success": True})
 

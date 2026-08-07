@@ -99,12 +99,15 @@ def generate_feed(request):
         Q(broad_topic__in=broad_topic_ids) | Q(narrow_topic__in=narrow_topic_ids)
     )
     
-    # 2. Filter out seen posts and get latest 1000 candidates to prevent memory overload
-    # Evaluate the subquery to a list immediately. SQLite is notoriously slow with NOT IN (SELECT...) subqueries.
-    seen_post_ids = list(Interaction.objects.filter(
-        persona=persona, 
-        interaction_type='impression'
-    ).values_list('post_id', flat=True))
+    # 2. Filter out seen posts. 
+    # If page == 1 (reload), exclude ALL impressions for a completely fresh feed.
+    # If page > 1 (scroll), only exclude impressions older than 15 minutes to keep the list stable for offset pagination.
+    impression_query = Interaction.objects.filter(persona=persona, interaction_type='impression')
+    if page > 1:
+        fifteen_mins_ago = timezone.now() - timezone.timedelta(minutes=15)
+        impression_query = impression_query.filter(created_at__lt=fifteen_mins_ago)
+        
+    seen_post_ids = list(impression_query.values_list('post_id', flat=True))
     
     candidates = candidates.exclude(id__in=seen_post_ids).order_by('-created_at')[:1000]
     

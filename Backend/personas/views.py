@@ -27,13 +27,27 @@ def create_persona(request):
         banner=banner
     )
 
-    interests = request.data.getlist("topics") if hasattr(request.data, "getlist") else request.data.get("topics", [])
-    if isinstance(interests, str):
-        interests = [interests]
-    for t_name in interests:
-        topic = Topic.objects.filter(name__iexact=t_name, topic_type=Topic.BROAD).first()
+    import json
+    raw_interests = request.data.get("interests") or request.data.get("topics")
+    if not raw_interests and hasattr(request.data, "getlist"):
+        raw_interests = request.data.getlist("interests") or request.data.getlist("topics")
+    
+    interests_list = []
+    if isinstance(raw_interests, str):
+        try:
+            interests_list = json.loads(raw_interests)
+        except Exception:
+            interests_list = [raw_interests]
+    elif isinstance(raw_interests, list):
+        interests_list = raw_interests
+
+    for item in interests_list:
+        t_name = item.get("name") if isinstance(item, dict) else str(item)
+        if not t_name or not t_name.strip():
+            continue
+        topic = Topic.objects.filter(name__iexact=t_name.strip(), topic_type=Topic.BROAD).first()
         if not topic:
-            topic = Topic.objects.create(name=t_name, topic_type=Topic.BROAD)
+            topic = Topic.objects.create(name=t_name.strip(), topic_type=Topic.BROAD)
         PersonaTopic.objects.get_or_create(persona=persona, topic=topic)
 
     return Response({
@@ -41,7 +55,8 @@ def create_persona(request):
         "name": persona.name,
         "bio": persona.bio,
         "avatarUrl": request.build_absolute_uri(persona.avatar.url) if persona.avatar else None,
-        "bannerUrl": request.build_absolute_uri(persona.banner.url) if persona.banner else None
+        "bannerUrl": request.build_absolute_uri(persona.banner.url) if persona.banner else None,
+        "interests": [t.name for t in persona.topics.all()]
     }, status=201)
 
 @api_view(["GET"])
@@ -117,7 +132,6 @@ def update_persona(request, persona_id):
     bio = request.data.get("bio")
     avatar = request.FILES.get("avatar")
     banner = request.FILES.get("banner")
-    interests = request.data.getlist("interests") if hasattr(request.data, "getlist") else request.data.get("interests")
 
     if name:
         persona.name = name
@@ -127,15 +141,26 @@ def update_persona(request, persona_id):
         persona.avatar = avatar
     if banner:
         persona.banner = banner
-        
-    if interests is not None:
-        if isinstance(interests, str):
-            interests = [interests]
+
+    raw_interests = request.data.get("interests") or request.data.get("topics")
+    if raw_interests is not None:
+        interests_list = []
+        if isinstance(raw_interests, str):
+            try:
+                interests_list = json.loads(raw_interests)
+            except Exception:
+                interests_list = [raw_interests]
+        elif isinstance(raw_interests, list):
+            interests_list = raw_interests
+
         PersonaTopic.objects.filter(persona=persona).delete()
-        for t_name in interests:
-            topic = Topic.objects.filter(name__iexact=t_name, topic_type=Topic.BROAD).first()
+        for item in interests_list:
+            t_name = item.get("name") if isinstance(item, dict) else str(item)
+            if not t_name or not t_name.strip():
+                continue
+            topic = Topic.objects.filter(name__iexact=t_name.strip(), topic_type=Topic.BROAD).first()
             if not topic:
-                topic = Topic.objects.create(name=t_name, topic_type=Topic.BROAD)
+                topic = Topic.objects.create(name=t_name.strip(), topic_type=Topic.BROAD)
             PersonaTopic.objects.get_or_create(persona=persona, topic=topic)
 
     persona.save()
