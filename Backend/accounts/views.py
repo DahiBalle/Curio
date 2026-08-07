@@ -113,6 +113,7 @@ def onboarding(request):
     user = request.user
     username = request.data.get("username")
     name = request.data.get("name")
+    bio = request.data.get("bio")
     avatar = request.FILES.get("avatar")
     
     # Check if username changed and is available
@@ -134,6 +135,8 @@ def onboarding(request):
         
     if name:
         persona.name = name
+    if bio:
+        persona.bio = bio
     if avatar:
         persona.avatar = avatar
     

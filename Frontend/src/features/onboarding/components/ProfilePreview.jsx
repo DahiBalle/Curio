@@ -35,7 +35,6 @@ export function ProfilePreview({ data }) {
 
       <div className="profile-preview-tabs">
         <div className="profile-preview-tab active">Posts</div>
-        <div className="profile-preview-tab">Reels</div>
       </div>
 
       <div className="profile-preview-empty-state">

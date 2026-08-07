@@ -3,9 +3,18 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 80vh;
   text-align: center;
   animation: fadeIn 0.5s ease-out forwards;
+  
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 80px 40px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  margin: 60px auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .confetti-icon {

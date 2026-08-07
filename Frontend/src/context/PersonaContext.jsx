@@ -52,8 +52,21 @@ export function PersonaProvider({ children }) {
     }
   };
 
+  const refreshPersonas = async () => {
+    try {
+      const [fetchedPersonas, fetchedActivePersona] = await Promise.all([
+        profileApi.getPersonas(),
+        profileApi.getActivePersona()
+      ]);
+      setPersonas(fetchedPersonas);
+      setActivePersona(fetchedActivePersona || (fetchedPersonas && fetchedPersonas.length > 0 ? fetchedPersonas[0] : null));
+    } catch (error) {
+      console.error('Failed to refresh personas', error);
+    }
+  };
+
   return (
-    <PersonaContext.Provider value={{ activePersona, personas, interestFloor, switchPersona, loading, setActivePersona }}>
+    <PersonaContext.Provider value={{ activePersona, personas, interestFloor, switchPersona, loading, setActivePersona, refreshPersonas }}>
       {children}
     </PersonaContext.Provider>
   );
