@@ -11,7 +11,10 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   const { activePersona } = usePersona();
   const cardRef = useRef(null);
   const impressionRecorded = useRef(false);
-  const authorName = post.author?.name || (typeof post.author === 'string' ? post.author : null) || 'Unknown';
+  const authorName = typeof post.author === 'string' ? post.author : (post.author?.name || 'Unknown');
+  const authorUsername = typeof post.author === 'string' && post.author.startsWith('u/') 
+    ? post.author.substring(2) 
+    : post.author?.username;
   const authorAvatar = post.author?.avatar || post.authorAvatar;
   const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;
   const imageUrl = post.media && post.media.length > 0 ? post.media[0].url : post.imageUrl;
@@ -107,7 +110,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
         <div className="post-preview__header-left">
           <Avatar src={authorAvatar} alt={authorName} size="small" />
           <Link
-            to={post.author?.username ? `/profile/${post.author.username}` : '#'}
+            to={authorUsername ? `/profile/${authorUsername}` : '#'}
             className="post-preview__subreddit"
             onClick={(e) => e.stopPropagation()}
             style={{ textDecoration: 'none', color: 'inherit' }}

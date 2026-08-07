@@ -7,6 +7,7 @@ import { SignupPage, LoginPage } from '../features/auth';
 import { OnboardingPage } from '../features/onboarding';
 import { HomePage } from '../features/feed';
 import { CreatePostPage, PostDetailPage } from '../features/post';
+import { SearchPage } from '../features/search/pages/SearchPage';
 import { ProtectedRoute } from '../components/layout/ProtectedRoute';
 
 export const AppRouter = () => {
@@ -36,6 +37,7 @@ export const AppRouter = () => {
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/profile/:username" element={<ProfilePage />} />
                 <Route path="/saved" element={<SavedPage />} />
+                <Route path="/search" element={<SearchPage />} />
                 <Route path="/create" element={<CreatePostPage />} />
                 <Route path="/post/:id" element={<PostDetailPage />} />
               </Routes>

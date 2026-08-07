@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django.core.paginator import Paginator
+from django.db.models import Q
 
 from .models import Post, PostMedia, Comment
 from personas.models import Topic
@@ -74,7 +75,14 @@ def create_post(request):
 @api_view(["GET"])
 def list_posts(request):
     # Fallback list endpoint
+    q = request.query_params.get("q", "").strip()
     posts_query = Post.objects.all().order_by("-created_at")
+    
+    if q:
+        posts_query = posts_query.filter(
+            Q(title__icontains=q) | Q(description__icontains=q)
+        )
+        
     paginator = Paginator(posts_query, request.query_params.get("limit", 10))
     page_obj = paginator.get_page(request.query_params.get("page", 1))
     

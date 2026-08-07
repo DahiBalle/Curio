@@ -7,6 +7,11 @@ export const postApi = {
     return data;
   },
 
+  searchPosts: async (query, page = 1) => {
+    const { data } = await client.get('/posts/', { params: { q: query, page } });
+    return data.posts || [];
+  },
+
   votePost: async (postId, direction, personaId) => {
     const id = String(postId).replace('post-', '');
     const { data } = await client.post(`/posts/${id}/vote/`, { direction, personaId });
