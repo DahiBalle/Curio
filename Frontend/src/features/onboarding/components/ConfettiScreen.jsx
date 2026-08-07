@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../../context/AuthContext';
+import { usePersona } from '../../../context/PersonaContext';
 import './ConfettiScreen.css';
 
 export function ConfettiScreen() {
   const [showOptions, setShowOptions] = useState(false);
   const { completeOnboarding } = useAuth();
+  const { refreshPersonas } = usePersona();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export function ConfettiScreen() {
 
   const handleFinish = async () => {
     await completeOnboarding();
+    if (refreshPersonas) await refreshPersonas();
     navigate('/');
   };
 
@@ -38,15 +41,9 @@ export function ConfettiScreen() {
         <p className="confetti-subtitle">Your personalized feed is ready.</p>
 
         <div className={`confetti-options ${showOptions ? 'visible' : ''}`}>
-          <div className="options-divider" />
-          <p className="options-text">Customize your feed further</p>
-          
-          <div className="options-buttons">
-            <button className="btn-primary" onClick={handleFinish}>
-              Create Persona
-            </button>
-            <button className="btn-secondary" onClick={handleFinish}>
-              Skip for now
+          <div className="options-buttons" style={{ marginTop: '2rem' }}>
+            <button className="btn-primary" onClick={handleFinish} style={{ width: '100%' }}>
+              Go to my feed
             </button>
           </div>
         </div>

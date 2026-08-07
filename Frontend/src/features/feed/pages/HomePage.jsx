@@ -6,11 +6,17 @@ import { PersonaCard, InterestFloor } from '../../persona';
 import '../../../app/layouts/TwoColumnLayout.css';
 
 export function HomePage() {
-  const { posts, loading, error } = useFeed();
+  const { posts, loading, error, fetchMore, loadingMore, hasMore } = useFeed();
   const { activePersona, interestFloor } = usePersona();
 
   if (error) {
-    return <div className="page-error">Failed to load feed.</div>;
+    return (
+      <div className="page-error" style={{ padding: '40px', textAlign: 'center', color: 'red' }}>
+        <h3>Failed to load feed.</h3>
+        <p>Error details: {error.message || String(error)}</p>
+        <p style={{ fontSize: '12px', color: '#888' }}>Please copy this error and share it.</p>
+      </div>
+    );
   }
 
   return (
@@ -29,7 +35,12 @@ export function HomePage() {
           <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>Loading feed...</div>
         ) : (
           <div className="layout-content">
-            <PostFeed posts={posts} />
+            <PostFeed 
+              posts={posts} 
+              fetchMore={fetchMore}
+              loadingMore={loadingMore}
+              hasMore={hasMore}
+            />
           </div>
         )}
       </main>

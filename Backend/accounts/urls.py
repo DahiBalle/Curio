@@ -2,29 +2,25 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
     # Authentication
-    path("api/signup/", views.signup, name="signup"),
-    path("api/login/", views.login, name="login"),
-
-    # Profile
-    path("api/accounts/check-username/", views.check_username, name="check-username"),
-    path("api/accounts/onboarding/", views.onboarding, name="onboarding"),
-    path("api/profile/", views.user_profile, name="user-profile"),
-    path("api/profile/edit/", views.edit_profile, name="edit-profile"),
-    path("api/profile/upload-picture/", views.upload_profile_picture, name="upload-profile-picture"),
-    path("api/profile/upload-banner/", views.upload_banner, name="upload-banner"),
-
-    # User Profiles
-    path("api/profile/<str:username>/", views.user_profile_detail, name="user-profile-detail"),
-    path("api/profile/<str:username>/posts/", views.user_profile_posts, name="user-profile-posts"),
-
-    # Follow System
-    path("api/follow/<int:user_id>/", views.follow_user, name="follow-user"),
-    path("api/unfollow/<int:user_id>/", views.unfollow_user, name="unfollow-user"),
-    path("api/followers/<int:user_id>/", views.followers_list, name="followers-list"),
-    path("api/following/<int:user_id>/", views.following_list, name="following-list"),
+    path("auth/signup/", views.signup, name="signup"),
+    path("auth/login/", views.login, name="login"),
+    path("auth/me/", views.user_profile, name="user-profile"),
+    
+    # Onboarding & Checks
+    path("accounts/check-username/", views.check_username, name="check-username"),
+    path("accounts/check-email/", views.check_email, name="check-email"),
+    path("accounts/onboarding/", views.onboarding, name="onboarding"),
+    
+    # Profile API
+    path("profile/edit/", views.edit_profile, name="edit-profile"),
+    path("profile/upload-picture/", views.upload_profile_picture, name="upload-profile-picture"),
+    path("profile/upload-banner/", views.upload_banner, name="upload-banner"),
+    path("profile/saved-posts/", views.saved_posts_list, name="saved-posts"),
+    path("profile/<str:username>/", views.user_profile_detail, name="user-profile-detail"),
+    path("profile/<str:username>/posts/", views.user_profile_posts, name="user-profile-posts"),
+    
 
     # Search
-    path("api/search/", views.search_users, name="search-users"),
+    path("search/", views.search_users, name="search-users"),
 ]

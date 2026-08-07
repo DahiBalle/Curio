@@ -4,38 +4,61 @@ import client from '../../../services/client';
 import { postApi } from '../api/postApi';
 import './PostPreview.css';
 import { Avatar } from '../../../components/ui/Avatar';
+import { usePersona } from '../../../context/PersonaContext';
 
 export const PostPreview = ({ post, isDetailView = false }) => {
   const navigate = useNavigate();
+  const { activePersona } = usePersona();
   const cardRef = useRef(null);
   const impressionRecorded = useRef(false);
-  const authorName = post.author?.name || post.subreddit || 'Unknown';
+  const authorName = typeof post.author === 'string' ? post.author : (post.author?.name || 'Unknown');
+  const authorUsername = typeof post.author === 'string' && post.author.startsWith('@') 
+    ? post.author.substring(1) 
+    : post.author?.username;
   const authorAvatar = post.author?.avatar || post.authorAvatar;
   const timeAgo = post.created_at ? new Date(post.created_at).toLocaleDateString() : post.timeAgo;
   const imageUrl = post.media && post.media.length > 0 ? post.media[0].url : post.imageUrl;
   const description = post.content || post.description;
   const hasImage = !!imageUrl;
-  
-  const [isLiked, setIsLiked] = useState(post.is_liked || false);
-  const [likeCount, setLikeCount] = useState(post.stats?.likes || post.upvotes || 0);
-  
-  const commentsCount = post.stats?.comments || post.commentsCount || 0;
+
+  const [isLiked, setIsLiked] = useState(post.is_liked || post.userVote === 1 || false);
+  const [isSaved, setIsSaved] = useState(post.isSaved || false);
+  const initialLikes = parseInt(post.stats?.likes || post.upvotes || 0, 10);
+  const [likeCount, setLikeCount] = useState(initialLikes);
+
+  const commentsCount = parseInt(post.stats?.comments || post.commentsCount || 0, 10);
   const label = post.tags || post.label;
 
   const handleLike = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     const newIsLiked = !isLiked;
     setIsLiked(newIsLiked);
     setLikeCount(prev => newIsLiked ? prev + 1 : Math.max(0, prev - 1));
-    
+
     try {
-      await client.post(`/${post.id}/like/`);
+      const direction = newIsLiked ? 1 : 0;
+      await postApi.votePost(post.id, direction, activePersona?.id);
     } catch (err) {
       setIsLiked(!newIsLiked);
       setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
       console.error('Failed to toggle like:', err);
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newIsSaved = !isSaved;
+    setIsSaved(newIsSaved);
+
+    try {
+      await postApi.toggleSave(post.id);
+    } catch (err) {
+      setIsSaved(!newIsSaved);
+      console.error('Failed to toggle save:', err);
     }
   };
 
@@ -47,7 +70,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
         const [entry] = entries;
         if (entry.isIntersecting && !impressionRecorded.current) {
           impressionRecorded.current = true;
-          postApi.recordImpression(post.id).catch(err => console.error(err));
+          postApi.recordImpression([post.id], activePersona?.id).catch(err => console.error(err));
           observer.disconnect();
         }
       },
@@ -61,24 +84,24 @@ export const PostPreview = ({ post, isDetailView = false }) => {
     return () => {
       observer.disconnect();
     };
-  }, [post.id, isDetailView]);
+  }, [post.id, isDetailView, activePersona?.id]);
 
   const handleCardClick = (e) => {
     if (isDetailView) return;
-    
+
     // Check if the click originated from an interactive element
     const isInteractive = e.target.closest('button') || e.target.closest('a');
     if (isInteractive) return;
 
     // Record click and navigate
-    postApi.recordClick(post.id).catch(err => console.error(err));
+    postApi.recordClick(post.id, activePersona?.id).catch(err => console.error(err));
     navigate(`/post/${post.id}`);
   };
 
   return (
-    <article 
-      className={`post-preview ${isDetailView ? 'post-preview--detail' : ''}`} 
-      ref={cardRef} 
+    <article
+      className={`post-preview ${isDetailView ? 'post-preview--detail' : ''}`}
+      ref={cardRef}
       onClick={handleCardClick}
       style={{ cursor: isDetailView ? 'default' : 'pointer' }}
     >
@@ -86,8 +109,8 @@ export const PostPreview = ({ post, isDetailView = false }) => {
       <div className="post-preview__header">
         <div className="post-preview__header-left">
           <Avatar src={authorAvatar} alt={authorName} size="small" />
-          <Link 
-            to={post.author?.username ? `/profile/${post.author.username}` : '#'} 
+          <Link
+            to={authorUsername ? `/profile/${authorUsername}` : '#'}
             className="post-preview__subreddit"
             onClick={(e) => e.stopPropagation()}
             style={{ textDecoration: 'none', color: 'inherit' }}
@@ -137,7 +160,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
 
       {/* Footer: action buttons */}
       <div className="post-preview__footer">
-        <button 
+        <button
           className={`post-preview__action-btn ${isLiked ? 'post-preview__action-btn--liked' : ''}`}
           onClick={handleLike}
           style={isLiked ? { color: '#ff3040' } : {}}
@@ -148,42 +171,28 @@ export const PostPreview = ({ post, isDetailView = false }) => {
           <span>{likeCount}</span>
         </button>
 
-        <button className="post-preview__action-btn">
+        <button className="post-preview__action-btn" onClick={(e) => {
+          e.stopPropagation();
+          if (!isDetailView) navigate(`/post/${post.id}`);
+        }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span>{commentsCount}</span>
         </button>
 
-        <button className="post-preview__action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="1 4 1 10 7 10" />
-            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+        <button 
+          className={`post-preview__action-btn ${isSaved ? 'post-preview__action-btn--saved' : ''}`}
+          onClick={handleSave}
+          style={isSaved ? { color: '#facc15' } : {}}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
-        </button>
-
-        <button className="post-preview__action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          <span>Share</span>
+          <span>{isSaved ? 'Saved' : 'Save'}</span>
         </button>
       </div>
 
-      {/* Comment Input Box for Detail View */}
-      {isDetailView && (
-        <div className="post-preview__comment-box" onClick={(e) => e.stopPropagation()}>
-          <input 
-            type="text" 
-            placeholder="Join the conversation" 
-            className="post-preview__comment-input"
-          />
-        </div>
-      )}
-    </article>
+      </article>
   );
 };

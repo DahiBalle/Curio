@@ -15,7 +15,7 @@
 
 .step-subtitle {
   font-size: 15px;
-  color: #818384;
+  color: var(--text);
   margin: 0 0 32px 0;
 }
 
@@ -49,7 +49,7 @@
 .step-input:focus,
 .step-textarea:focus {
   outline: none;
-  border-color: #1d9bf0;
+  border-color: var(--accent);
 }
 
 .step-input.error {
@@ -74,7 +74,7 @@
 .username-prefix {
   position: absolute;
   left: 16px;
-  color: #818384;
+  color: var(--text);
   font-weight: 600;
   pointer-events: none;
 }
@@ -90,7 +90,7 @@
   font-weight: 600;
 }
 
-.status-checking { color: #818384; }
+.status-checking { color: var(--text); }
 .status-success { color: #38a169; }
 .status-error { color: #e53e3e; }
 
@@ -102,15 +102,16 @@
 .setup-banner {
   width: 100%;
   height: 120px;
-  background-color: #2a2d2f;
+  background-color: var(--social-bg);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #818384;
+  color: var(--text);
   font-size: 14px;
   background-size: cover;
   background-position: center;
+  border: 1px solid var(--border);
 }
 
 .setup-avatar-row {
@@ -119,6 +120,8 @@
   justify-content: space-between;
   margin-top: -30px;
   padding: 0 16px;
+  position: relative;
+  z-index: 2;
 }
 
 .setup-avatar-wrapper {
@@ -126,7 +129,7 @@
   height: 80px;
   border-radius: 50%;
   border: 4px solid var(--bg);
-  background-color: #1a1d1f;
+  background-color: var(--social-bg);
   overflow: hidden;
 }
 
@@ -138,11 +141,11 @@
 }
 
 .setup-avatar-placeholder {
-  background-color: #333;
+  background-color: var(--border);
 }
 
 .randomize-btn {
-  background-color: #1a1d1f;
+  background-color: var(--bg);
   color: var(--text-h);
   border: 1px solid var(--border);
   padding: 8px 16px;
@@ -154,15 +157,15 @@
 }
 
 .randomize-btn:hover {
-  background-color: #2a2d2f;
+  background-color: var(--social-bg);
 }
 
 /* Interest Preview Box */
 .interest-preview-box {
   margin-top: 24px;
   padding: 16px;
-  background-color: rgba(29, 155, 240, 0.05);
-  border: 1px solid rgba(29, 155, 240, 0.2);
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   font-size: 14px;
   line-height: 1.5;
@@ -174,5 +177,5 @@
 }
 
 .interest-preview-box strong {
-  color: #1d9bf0;
+  color: var(--accent);
 }

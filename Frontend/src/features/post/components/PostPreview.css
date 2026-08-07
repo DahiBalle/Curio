@@ -3,16 +3,17 @@
    ============================================ */
 
 .post-preview {
-  background-color: #0e1113;
-  border: 1px solid #2a2d2f;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 16px;
   cursor: pointer;
   transition: border-color 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .post-preview:hover {
-  border-color: #444;
+  border-color: #b0b5ba;
 }
 
 /* --- Header --- */
@@ -28,28 +29,28 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #b8b8b8;
+  color: var(--text);
 }
 
 .post-preview__subreddit {
   font-weight: 700;
-  color: #d7dadc;
+  color: var(--text-h);
 }
 
 .post-preview__dot {
-  color: #6a6d6f;
+  color: var(--text);
   font-size: 10px;
 }
 
 .post-preview__time {
-  color: #818384;
+  color: var(--text);
   font-size: 12px;
 }
 
 .post-preview__options-btn {
   background: none;
   border: none;
-  color: #818384;
+  color: var(--text);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -58,15 +59,15 @@
 }
 
 .post-preview__options-btn:hover {
-  background-color: #1a1d1f;
-  color: #d7dadc;
+  background-color: var(--social-bg);
+  color: var(--text-h);
 }
 
 /* --- Title --- */
 .post-preview__title {
   font-size: 18px;
   font-weight: 700;
-  color: #f2f3f5;
+  color: var(--text-h);
   margin: 0 0 6px 0;
   line-height: 22px;
 }
@@ -78,8 +79,8 @@
 
 .post-preview__label {
   display: inline-block;
-  background-color: #1a3a5c;
-  color: #7bb8eb;
+  background-color: #eaf8fb;
+  color: #115d59;
   padding: 2px 10px;
   border-radius: 20px;
   font-size: 12px;
@@ -91,7 +92,7 @@
 .post-preview__description {
   font-size: 14px;
   line-height: 21px;
-  color: #d2d4d6;
+  color: var(--text);
   margin: 0 0 10px 0;
   overflow: hidden;
   display: -webkit-box;
@@ -169,8 +170,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: #1a1d1f;
-  color: #b8b8b8;
+  background-color: var(--social-bg);
+  color: var(--text);
   border: none;
   border-radius: 20px;
   padding: 6px 12px;
@@ -182,8 +183,8 @@
 }
 
 .post-preview__action-btn:hover {
-  background-color: #2a2d2f;
-  color: #f2f3f5;
+  background-color: var(--border);
+  color: var(--text-h);
 }
 
 .post-preview__action-btn svg {

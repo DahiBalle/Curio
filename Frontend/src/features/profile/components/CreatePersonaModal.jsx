@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import './EditProfileModal.css'; // Reusing edit profile styles for step 1
+import '../../persona/components/EditPersonaModal.css'; // Reusing edit persona styles for step 1
 import '../../onboarding/components/OnboardingSteps.css'; // Reusing onboarding styles for step 2
 import { InterestSelector } from '../../onboarding/components/InterestSelector';
 import client from '../../../services/client';
@@ -70,8 +70,8 @@ export const CreatePersonaModal = ({ isOpen, onClose, onSuccess }) => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      if (response.data.persona) {
-        if (onSuccess) onSuccess(response.data.persona);
+      if (response.data.id) {
+        if (onSuccess) onSuccess(response.data);
         onClose();
         // Reset form
         setStep(1);

@@ -3,10 +3,11 @@
    ============================================ */
 
 .interest-floor {
-  background-color: #0e1113;
-  border: 1px solid #2a2d2f;
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .interest-floor__header {
@@ -26,20 +27,19 @@
 }
 
 .interest-floor__edit-btn {
-  background: transparent;
+  background: linear-gradient(135deg, #fa7e9b 0%, #f3a167 100%);
   border: none;
-  color: var(--text-h);
+  color: #ffffff;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  padding: 6px 16px;
+  border-radius: 8px;
+  transition: opacity 0.2s ease;
 }
 
 .interest-floor__edit-btn:hover {
-  background-color: var(--border);
-  color: var(--text-p);
+  opacity: 0.8;
 }
 
 .interest-floor__list {

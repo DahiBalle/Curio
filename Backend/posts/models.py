@@ -1,142 +1,59 @@
 from django.db import models
+from django.utils import timezone
 from pgvector.django import VectorField
-import uuid
+from personas.models import Persona, Topic
 
-
-# =====================================
-# Post Model
-# =====================================
+def post_media_upload_path(instance, filename):
+    return f"posts/{instance.post.id}/{filename}"
 
 class Post(models.Model):
-
-    PUBLIC = "PUBLIC"
-    FOLLOWERS = "FOLLOWERS"
-    PRIVATE = "PRIVATE"
-
-    VISIBILITY_CHOICES = [
-        (PUBLIC, "Public"),
-        (FOLLOWERS, "Followers"),
-        (PRIVATE, "Private"),
-    ]
-
-    TEXT = "TEXT"
-    IMAGE = "IMAGE"
-    VIDEO = "VIDEO"
-    MIXED = "MIXED"
-
-    POST_TYPES = [
-        (TEXT, "Text"),
-        (IMAGE, "Image"),
-        (VIDEO, "Video"),
-        (MIXED, "Mixed"),
-    ]
-
-    author = models.ForeignKey(
-        "personas.Persona",
+    author_persona = models.ForeignKey(
+        Persona,
         on_delete=models.CASCADE,
         related_name="posts"
     )
-
-    title = models.CharField(
-        max_length=255
-    )
-
-    content = models.TextField()
-
-    post_type = models.CharField(
-        max_length=20,
-        choices=POST_TYPES,
-        default=TEXT
-    )
-
-    visibility = models.CharField(
-        max_length=20,
-        choices=VISIBILITY_CHOICES,
-        default=PUBLIC
-    )
-
-    tags = models.CharField(
-        max_length=255,
-        blank=True
-    )
-
-    embedding = VectorField(
-        dimensions=384,
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    contains_media = models.BooleanField(default=False)
+    
+    likes_count = models.IntegerField(default=0)
+    clicks_count = models.IntegerField(default=0)
+    impressions_count = models.IntegerField(default=0)
+    
+    embedding = VectorField(dimensions=384, null=True, blank=True)
+    broad_topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
         null=True,
-        blank=True
+        blank=True,
+        related_name="broad_posts"
     )
-
-    like_count = models.PositiveIntegerField(
-        default=0
+    narrow_topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="narrow_posts"
     )
-
-    comment_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    impression_count = models.PositiveIntegerField(default=0)
-
-    share_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    save_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    view_count = models.PositiveIntegerField(
-        default=0
-    )
-
-    is_nsfw = models.BooleanField(
-        default=False
-    )
-
-    is_removed = models.BooleanField(
-        default=False
-    )
-
-    is_reported = models.BooleanField(
-        default=False
-    )
-
-    is_evergreen = models.BooleanField(
-        default=False
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
-
-
 
     class Meta:
-        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=['author_persona']),
+            models.Index(fields=['broad_topic', '-created_at']),
+            models.Index(fields=['narrow_topic', '-created_at']),
+            models.Index(fields=['-created_at']),
+        ]
 
     def __str__(self):
         return self.title
 
-
-# =====================================
-# Post Media
-# =====================================
-
-def post_media_upload_path(instance, filename):
-    ext = filename.split('.')[-1]
-    return f"uploaded_images/{uuid.uuid4()}.{ext}"
-
 class PostMedia(models.Model):
-
-    IMAGE = "IMAGE"
-    VIDEO = "VIDEO"
-
+    IMAGE = 'image'
+    VIDEO = 'video'
     MEDIA_TYPES = [
-        (IMAGE, "Image"),
-        (VIDEO, "Video"),
+        (IMAGE, 'Image'),
+        (VIDEO, 'Video'),
     ]
 
     post = models.ForeignKey(
@@ -144,49 +61,23 @@ class PostMedia(models.Model):
         on_delete=models.CASCADE,
         related_name="media"
     )
-
-    file = models.FileField(
-        upload_to=post_media_upload_path
-    )
-
-    media_type = models.CharField(
-        max_length=10,
-        choices=MEDIA_TYPES
-    )
-
-    order = models.PositiveIntegerField(
-        default=0
-    )
-
-    uploaded_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    class Meta:
-        ordering = ["order"]
+    file = models.FileField(upload_to=post_media_upload_path, null=True, blank=True)
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPES)
 
     def __str__(self):
-        return f"{self.media_type} - {self.post.title}"
-
-
-# =====================================
-# Comments
-# =====================================
+        return f"{self.media_type} for {self.post_id}"
 
 class Comment(models.Model):
-
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
         related_name="comments"
     )
-
-    author = models.ForeignKey(
-        "personas.Persona",
+    persona = models.ForeignKey(
+        Persona,
         on_delete=models.CASCADE,
         related_name="comments"
     )
-
     parent_comment = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,
@@ -194,23 +85,14 @@ class Comment(models.Model):
         null=True,
         blank=True
     )
-
     content = models.TextField()
-
-    is_removed = models.BooleanField(
-        default=False
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ["created_at"]
+        indexes = [
+            models.Index(fields=['post']),
+            models.Index(fields=['parent_comment']),
+        ]
 
     def __str__(self):
-        return f"{self.author.name} - {self.post.title}"
+        return f"Comment by {self.persona.name} on {self.post_id}"

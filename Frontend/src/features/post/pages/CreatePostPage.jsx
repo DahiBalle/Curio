@@ -1,43 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CreatePostPage.css';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { ImageUploader } from '../components/ImageUploader';
-import { LabelModal } from '../components/LabelModal';
 import { CancelModal } from '../components/CancelModal';
-
-const AVAILABLE_LABELS = [
-  { id: 'tech', label: 'Technology', icon: '💻' },
-  { id: 'art', label: 'Art & Design', icon: '🎨' },
-  { id: 'gaming', label: 'Gaming', icon: '🎮' },
-  { id: 'music', label: 'Music', icon: '🎵' },
-  { id: 'science', label: 'Science', icon: '🔬' },
-  { id: 'memes', label: 'Memes', icon: '😂' },
-  { id: 'news', label: 'News', icon: '📰' },
-  { id: 'sports', label: 'Sports', icon: '⚽' },
-];
+import { InterestSelector } from '../../onboarding/components/InterestSelector';
 
 export const CreatePostPage = () => {
   const {
     images,
     title,
     body,
-    labels,
+    broadTopic,
+    narrowTopic,
     isSubmitting,
     error,
     isValid,
     isCancelModalOpen,
     setIsCancelModalOpen,
-    isLabelModalOpen,
-    setIsLabelModalOpen,
     addImages,
     removeImage,
     setTitle,
     setBody,
-    toggleLabel,
+    setBroadTopic,
+    setNarrowTopic,
     submitPost,
     handleCancelClick,
     confirmCancel
   } = useCreatePost();
+
+  const [activeModal, setActiveModal] = useState(null); // 'broad' or 'specific'
 
   return (
     <div className="create-post-page">
@@ -53,34 +44,32 @@ export const CreatePostPage = () => {
 
         <form className="create-post-form" onSubmit={submitPost}>
           
-          <div className="form-section row-section">
+          <div className="form-section row-section" style={{ gap: '10px' }}>
             <button 
               type="button" 
-              className="btn-add-label"
-              onClick={() => setIsLabelModalOpen(true)}
+              className="topic-button" 
+              onClick={() => setActiveModal('broad')}
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: '8px', 
+                border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-h)',
+                textAlign: 'left', cursor: 'pointer', fontSize: '15px'
+              }}
             >
-              Select label-tiles*
+              {broadTopic ? `Broad: ${broadTopic}` : 'Select Broad Topic*'}
             </button>
-            <div className="inline-labels-container">
-              {labels.map(id => {
-                const labelObj = AVAILABLE_LABELS.find(l => l.id === id);
-                return (
-                  <button 
-                    key={`inline-sel-${id}`} 
-                    className="inline-selected-label"
-                    onClick={() => toggleLabel(id)}
-                    type="button"
-                  >
-                    {labelObj?.label || id} &times;
-                  </button>
-                );
-              })}
-              {labels.length > 0 && (
-                <span className="selected-labels-text">
-                  {labels.length} selected
-                </span>
-              )}
-            </div>
+            <input 
+              type="text"
+              className="topic-input"
+              placeholder="Specific Topic (Optional)"
+              value={narrowTopic || ''}
+              onChange={(e) => setNarrowTopic(e.target.value)}
+              disabled={!broadTopic}
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: '8px', 
+                border: '1px solid var(--border)', background: 'var(--bg)', color: broadTopic ? 'var(--text-h)' : 'var(--text)',
+                fontSize: '15px', opacity: broadTopic ? 1 : 0.5
+              }}
+            />
           </div>
 
           <div className="form-section">
@@ -125,14 +114,7 @@ export const CreatePostPage = () => {
         </form>
       </div>
 
-      {isLabelModalOpen && (
-        <LabelModal
-          availableLabels={AVAILABLE_LABELS}
-          selectedLabels={labels}
-          onToggleLabel={toggleLabel}
-          onClose={() => setIsLabelModalOpen(false)}
-        />
-      )}
+
 
       {isCancelModalOpen && (
         <CancelModal 
@@ -140,6 +122,28 @@ export const CreatePostPage = () => {
           onClose={() => setIsCancelModalOpen(false)} 
         />
       )}
+
+      {/* Broad Topic Modal */}
+      {activeModal === 'broad' && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '20px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '12px', minWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2>Select Broad Topic</h2>
+              <button type="button" onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+            </div>
+            <InterestSelector 
+              interests={broadTopic ? [broadTopic] : []}
+              onChange={(newInterests) => {
+                setBroadTopic(newInterests.length > 0 ? newInterests[0] : null);
+                if (newInterests.length === 0) setNarrowTopic(null);
+                if (newInterests.length > 0) setActiveModal(null); // Close modal on select
+              }}
+              limit={1}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

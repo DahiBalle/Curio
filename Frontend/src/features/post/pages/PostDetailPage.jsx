@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { postApi } from '../api/postApi';
 import { PostPreview } from '../components/PostPreview';
+import { CommentSection } from '../components/CommentSection';
 import { usePersona } from '../../../context/PersonaContext';
 import { PersonaCard, InterestFloor } from '../../persona';
 import '../../../app/layouts/TwoColumnLayout.css';
@@ -68,6 +69,7 @@ export function PostDetailPage() {
         ) : post ? (
           <div className="layout-content">
             <PostPreview post={post} isDetailView={true} />
+            <CommentSection comments={post.comments} postId={post.id} />
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '40px', color: '#888' }}>Post not found.</div>

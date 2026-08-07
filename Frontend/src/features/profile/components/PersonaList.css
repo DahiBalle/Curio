@@ -46,6 +46,8 @@
 .persona-add-btn {
   border: 1px dashed var(--border);
   background: transparent;
+  width: 72px;
+  height: 72px;
 }
 
 .persona-title {

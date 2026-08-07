@@ -16,9 +16,25 @@ export const ProfilePage = () => {
   const username = paramUsername || user?.username || '';
   const isOwnProfile = username === (user?.username || '');
   const { profile, setProfile, personas, posts, loading, error } = useProfile(username);
-  const { activePersona, interestFloor } = usePersona();
-  
+  const { activePersona, interestFloor, setActivePersona } = usePersona();
+
   const [selectedPersona, setSelectedPersona] = useState(null);
+
+  React.useEffect(() => {
+    if (personas && personas.length > 0) {
+      if (activePersona && isOwnProfile && !selectedPersona) {
+        const activeP = personas.find(p => Number(p.id) === Number(activePersona.id));
+        if (activeP) {
+          setSelectedPersona(activeP);
+          return;
+        }
+      }
+      if (!selectedPersona) {
+        const defaultP = personas.find(p => Number(p.id) === Number(profile?.id)) || personas[0];
+        setSelectedPersona(defaultP);
+      }
+    }
+  }, [personas, profile, activePersona, isOwnProfile, selectedPersona]);
 
   if (loading) {
     return <div className="page-loading">Loading profile...</div>;
@@ -28,41 +44,51 @@ export const ProfilePage = () => {
     return <div className="page-error">{error}</div>;
   }
 
-  const displayedProfile = selectedPersona ? {
-    name: selectedPersona.name,
-    bio: selectedPersona.bio,
-    avatarUrl: selectedPersona.avatar,
-    bannerUrl: selectedPersona.banner,
-    postsCount: posts.filter(p => p.author?.id === selectedPersona.id).length,
-    isPersona: true, // flag to know it's a persona
-    id: selectedPersona.id,
-    isActive: activePersona && activePersona.id === selectedPersona.id,
-    username: profile?.username // pass the base profile's username
-  } : profile;
+  // If we haven't selected a persona yet (still running useEffect), fallback to profile temporarily
+  const activeDisplayPersona = selectedPersona || personas?.[0] || profile;
 
-  const displayedPosts = selectedPersona
-    ? posts.filter(p => p.author?.id === selectedPersona.id)
-    : posts;
+  const displayedProfile = {
+    name: activeDisplayPersona?.name,
+    bio: activeDisplayPersona?.bio,
+    avatarUrl: activeDisplayPersona?.avatarUrl || activeDisplayPersona?.avatar,
+    bannerUrl: activeDisplayPersona?.bannerUrl || activeDisplayPersona?.banner,
+    postsCount: posts.length,
+    isPersona: true,
+    id: activeDisplayPersona?.id,
+    isActive: Boolean(activePersona && activeDisplayPersona && Number(activePersona.id) === Number(activeDisplayPersona.id)),
+    username: profile?.username // pass the base profile's username
+  };
+
+
+  const displayedPosts = posts;
 
   return (
     <div className="layout-two-column">
       {/* Center — main content */}
       <main className="layout-main">
-        <ProfileHeader profile={displayedProfile} onProfileUpdate={setProfile} />
+        <ProfileHeader
+          profile={displayedProfile}
+          onProfileUpdate={(updatedData) => {
+            if (updatedData.id === selectedPersona?.id) {
+              setSelectedPersona(updatedData);
+            }
+            if (activePersona && updatedData.id === activePersona.id) {
+              setActivePersona(updatedData);
+            }
+            setProfile(updatedData);
+          }}
+        />
 
         <div className="layout-content">
-          <PersonaList 
-            personas={personas} 
+          <PersonaList
+            personas={personas}
             isOwnProfile={isOwnProfile}
-            onPersonaCreated={() => window.location.reload()} 
+            onPersonaCreated={() => window.location.reload()}
             onPersonaSelected={(persona) => {
-              if (selectedPersona?.id === persona.id) {
-                setSelectedPersona(null); // toggle off
-              } else {
-                setSelectedPersona(persona);
-              }
+              setSelectedPersona(persona);
             }}
             selectedPersonaId={selectedPersona?.id}
+            defaultPersonaId={profile?.id}
           />
           <PostFeed posts={displayedPosts} />
         </div>

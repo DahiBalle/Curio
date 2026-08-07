@@ -1,5 +1,6 @@
 # --- Core framework ---
 Django                    # LTS release
+
 djangorestframework
 djangorestframework-simplejwt   # token auth for /api/auth/login
 django-cors-headers             # allow the React frontend to call the API
@@ -11,12 +12,12 @@ pgvector                   # VectorField + similarity search for Django ORM
 
 # --- Config ---
 python-dotenv               # load .env for secrets/DB credentials
+dj-database-url             # parse DATABASE_URL
 
 # --- ML layer ---
 numpy
 scikit-learn             # logistic regression baseline ranking model
 xgboost                     # gradient boosted ranking model (Step 7 upgrade)
-sentence-transformers       # pretrained post/persona embeddings
 joblib                     # save/load trained ranking models
 
 # --- Session embeddings / background jobs ---

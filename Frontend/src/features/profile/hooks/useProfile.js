@@ -15,8 +15,6 @@ const normalizeProfile = (data) => {
     bannerUrl: p.banner || null,
     isVerified: p.is_verified || false,
     isPrivate: p.is_private || false,
-    followersCount: p.followers ?? 0,
-    followingCount: p.following ?? 0,
     postsCount: p.posts ?? 0,
     joined: p.joined || null,
     relationship: data.relationship || {},

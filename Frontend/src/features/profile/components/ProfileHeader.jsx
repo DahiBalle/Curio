@@ -3,33 +3,27 @@ import './ProfileHeader.css';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
-import { UserListModal } from './UserListModal';
-import { EditProfileModal } from './EditProfileModal';
+
+import { EditPersonaModal } from '../../persona/components/EditPersonaModal';
 import { useAuth } from '../../../context/AuthContext';
-import client from '../../../services/client';
+import { usePersona } from '../../../context/PersonaContext';
 import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const ProfileHeader = ({ profile, onProfileUpdate }) => {
   const { user } = useAuth();
-  const [isFollowingModalOpen, setIsFollowingModalOpen] = React.useState(false);
-  const [isFollowersModalOpen, setIsFollowersModalOpen] = React.useState(false);
-  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = React.useState(false);
+  const { switchPersona } = usePersona();
+  const [isEditPersonaModalOpen, setIsEditPersonaModalOpen] = React.useState(false);
 
   const isOwnProfile = profile.username === user?.username;
 
-  // Mock data for the modals
-  const mockFollowing = [
-    { id: 1, name: 'Rahul Sharma', username: 'rahulsharma', avatarUrl: 'https://picsum.photos/seed/rahul/40', isVerified: true },
-    { id: 2, name: 'Chahna Acharya', username: 'chahna_acharya', avatarUrl: 'https://picsum.photos/seed/chahna/40', isVerified: false },
-    { id: 3, name: 'Patel', username: 'patel155', avatarUrl: 'https://picsum.photos/seed/patel/40', isVerified: false },
-    { id: 4, name: 'Ketani', username: 'ketani_74', avatarUrl: 'https://picsum.photos/seed/ketani/40', isVerified: true },
-  ];
+  const handleMakeActive = async () => {
+    if (profile.id) {
+      await switchPersona(profile.id);
+    }
+  };
 
-  const mockFollowers = [
-    { id: 5, name: 'Alice Smith', username: 'alicesmith', avatarUrl: 'https://picsum.photos/seed/alice/40', isVerified: false },
-    { id: 6, name: 'Bob Jones', username: 'bobjones', avatarUrl: 'https://picsum.photos/seed/bob/40', isVerified: true },
-    { id: 7, name: 'Charlie Brown', username: 'charlieb', avatarUrl: 'https://picsum.photos/seed/charlie/40', isVerified: false },
-  ];
+
+
 
   if (!profile) return null;
 
@@ -51,28 +45,21 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
           </div>
           
           <div className="profile-actions-desktop">
-            <button className="profile-options-btn">
-              <Icon name="options" size={24} />
-            </button>
             {profile.isPersona && isOwnProfile ? (
-              profile.isActive ? (
-                <Button variant="secondary" disabled>Active Persona</Button>
-              ) : (
-                <Button variant="primary" onClick={async () => {
-                  try {
-                    await client.post('/personas/switch/', { persona_id: profile.id });
-                    window.location.reload();
-                  } catch (e) { console.error(e); }
-                }}>Make Active</Button>
-              )
+              <>
+                {profile.isActive ? (
+                  <Button variant="secondary" disabled>Active Persona</Button>
+                ) : (
+                  <Button variant="primary" onClick={handleMakeActive}>Make Active</Button>
+                )}
+                <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+              </>
             ) : profile.isPersona ? (
               null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
-              <Button variant="secondary" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+              <Button variant="secondary" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
-                <Button variant="secondary">Message</Button>
-                <Button variant="primary">Follow</Button>
               </>
             )}
           </div>
@@ -94,49 +81,29 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
             </div>
             
             <ul className="profile-stats">
-              {!profile.isPersona && (
-                <>
-                  <li onClick={() => setIsFollowingModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followingCount}</strong> following</li>
-                  <li onClick={() => setIsFollowersModalOpen(true)} style={{ cursor: 'pointer' }}><strong>{profile.followersCount}</strong> followers</li>
-                </>
-              )}
+
               <li><strong>{profile.postsCount}</strong> posts</li>
             </ul>
 
-            {profile.followedByCount > 0 && (
-              <div className="profile-followed-by">
-                <div className="profile-followed-by-avatars">
-                  <Avatar src="https://picsum.photos/24/24" size="small" />
-                  <Avatar src="https://picsum.photos/25/25" size="small" className="avatar-overlap" />
-                  <Avatar src="https://picsum.photos/26/26" size="small" className="avatar-overlap" />
-                </div>
-                <span>
-                  Followed by <strong>{profile.followedBy[0]}</strong>, <strong>{profile.followedBy[1]}</strong> + {profile.followedByCount} more
-                </span>
-              </div>
-            )}
+
           </div>
           
           <div className="profile-actions-mobile">
             {profile.isPersona && isOwnProfile ? (
-              profile.isActive ? (
-                <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
-              ) : (
-                <Button variant="primary" className="flex-1" onClick={async () => {
-                  try {
-                    await client.post('/personas/switch/', { persona_id: profile.id });
-                    window.location.reload();
-                  } catch (e) { console.error(e); }
-                }}>Make Active</Button>
-              )
+              <>
+                {profile.isActive ? (
+                  <Button variant="secondary" disabled className="flex-1">Active Persona</Button>
+                ) : (
+                  <Button variant="primary" className="flex-1" onClick={handleMakeActive}>Make Active</Button>
+                )}
+                <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit persona</Button>
+              </>
             ) : profile.isPersona ? (
               null // Don't show anything for someone else's persona
             ) : isOwnProfile ? (
-              <Button variant="secondary" className="flex-1" onClick={() => setIsEditProfileModalOpen(true)}>Edit profile</Button>
+              <Button variant="secondary" className="flex-1" onClick={() => setIsEditPersonaModalOpen(true)}>Edit profile</Button>
             ) : (
               <>
-                <Button variant="primary" className="flex-1">Follow</Button>
-                <Button variant="secondary" className="flex-1">Message</Button>
               </>
             )}
             <Button variant="secondary" className="profile-add-contact">
@@ -146,28 +113,14 @@ export const ProfileHeader = ({ profile, onProfileUpdate }) => {
         </section>
       </div>
 
-      <UserListModal 
-        isOpen={isFollowingModalOpen}
-        onClose={() => setIsFollowingModalOpen(false)}
-        title="Following"
-        users={mockFollowing}
-        actionType="following"
-      />
+
       
-      <UserListModal 
-        isOpen={isFollowersModalOpen}
-        onClose={() => setIsFollowersModalOpen(false)}
-        title="Followers"
-        users={mockFollowers}
-        actionType="remove"
-      />
-      
-      <EditProfileModal
-        isOpen={isEditProfileModalOpen}
-        onClose={() => setIsEditProfileModalOpen(false)}
-        profile={profile}
-        onSaveSuccess={(updatedProfile) => {
-          if (onProfileUpdate) onProfileUpdate(updatedProfile);
+      <EditPersonaModal
+        isOpen={isEditPersonaModalOpen}
+        onClose={() => setIsEditPersonaModalOpen(false)}
+        persona={profile}
+        onSaveSuccess={(updatedPersona) => {
+          if (onProfileUpdate) onProfileUpdate(updatedPersona);
         }}
       />
     </header>

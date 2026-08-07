@@ -10,20 +10,26 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
+import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / 'env')
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v!n@*mbp6_7r5lbh-48n52f=!aiau0uk_0xper_ibylvy($y&v'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-v!n@*mbp6_7r5lbh-48n52f=!aiau0uk_0xper_ibylvy($y&v')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -42,6 +48,7 @@ INSTALLED_APPS = [
     'interactions',
     'personas',
     'posts',
+    'ml',
     'rest_framework',
     'rest_framework_simplejwt',
     'pgvector','corsheaders',
@@ -102,23 +109,13 @@ SIMPLE_JWT = {
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'feed_db',  # database name
-        'USER': 'neondb_owner',  # username
-        'PASSWORD': 'npg_vSwnjN9aYZi2',  # password
-        'HOST': 'ep-silent-thunder-azbu1vly-pooler.c-3.ap-southeast-1.aws.neon.tech',  # Neon host
-        'PORT': '5432',  # default PostgreSQL port
-        'OPTIONS': {
-            'sslmode': 'require',
-            'channel_binding': 'require',
-        },
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL')
+    )
 }
 
 
