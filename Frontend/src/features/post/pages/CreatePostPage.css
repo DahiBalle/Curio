@@ -2,7 +2,7 @@
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  background-color: #0b1416;
+  background-color: var(--bg);
   font-family: var(--sans);
   padding: 40px 20px;
   box-sizing: border-box;
@@ -25,14 +25,14 @@
 .create-post-title {
   font-size: 20px;
   font-weight: 700;
-  color: #f5f5f5;
+  color: var(--text-h);
   margin: 0;
 }
 
 .btn-cancel {
   background: none;
   border: none;
-  color: #f5f5f5;
+  color: var(--text-h);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -42,7 +42,7 @@
 }
 
 .btn-cancel:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .create-post-error {
@@ -59,9 +59,11 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background-color: #1a1d1f;
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .form-section {
@@ -77,8 +79,8 @@
 
 .btn-add-label {
   background-color: transparent;
-  border: 1px solid #2a2d2f;
-  color: #f5f5f5;
+  border: 1px solid var(--border);
+  color: var(--text-h);
   border-radius: 20px;
   padding: 8px 16px;
   font-size: 14px;
@@ -91,12 +93,12 @@
 }
 
 .btn-add-label:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .selected-labels-text {
   font-size: 13px;
-  color: #818384;
+  color: var(--text);
 }
 
 .inline-labels-container {
@@ -108,8 +110,8 @@
 
 .inline-selected-label {
   background-color: transparent;
-  color: #1d9bf0;
-  border: 1px solid #1d9bf0;
+  color: var(--accent);
+  border: 1px solid var(--accent);
   border-radius: 24px;
   padding: 6px 14px;
   font-size: 13px;
@@ -125,11 +127,11 @@
 }
 
 .title-input {
-  background-color: #0b1416;
-  border: 1px solid #2a2d2f;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px 16px;
-  color: #f5f5f5;
+  color: var(--text-h);
   font-family: inherit;
   font-size: 16px;
   font-weight: 500;
@@ -138,19 +140,19 @@
 }
 
 .title-input:focus {
-  border-color: #f5f5f5;
+  border-color: var(--accent);
 }
 
 .title-input::placeholder {
-  color: #818384;
+  color: var(--text);
 }
 
 .body-input {
-  background-color: #0b1416;
-  border: 1px solid #2a2d2f;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
-  color: #f5f5f5;
+  color: var(--text-h);
   font-family: inherit;
   font-size: 14px;
   resize: vertical;
@@ -160,11 +162,11 @@
 }
 
 .body-input:focus {
-  border-color: #f5f5f5;
+  border-color: var(--accent);
 }
 
 .body-input::placeholder {
-  color: #818384;
+  color: var(--text);
 }
 
 .create-post-footer {
@@ -172,11 +174,11 @@
   justify-content: flex-end;
   padding-top: 16px;
   margin-top: 8px;
-  border-top: 1px solid #2a2d2f;
+  border-top: 1px solid var(--border);
 }
 
 .btn-publish {
-  background-color: #1d9bf0;
+  background-color: var(--accent);
   color: #fff;
   border: none;
   border-radius: 20px;
@@ -188,12 +190,12 @@
 }
 
 .btn-publish:hover:not(:disabled) {
-  background-color: #1a8cd8;
+  opacity: 0.9;
 }
 
 .btn-publish:disabled {
-  background-color: #0c436b;
-  color: #818384;
+  background-color: #cccccc;
+  color: #888888;
   cursor: not-allowed;
 }
 

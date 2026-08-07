@@ -58,7 +58,8 @@ def signup(request):
         "user": {
             "username": user.username,
             "email": user.email,
-            "onboardingComplete": False
+            "onboardingComplete": False,
+            "profile_picture": None
         }
     }, status=status.HTTP_201_CREATED)
 
@@ -84,7 +85,8 @@ def login(request):
         "user": {
             "username": user.username,
             "email": user.email,
-            "onboardingComplete": bool(user.first_name) # simple heuristic
+            "onboardingComplete": bool(user.first_name),
+            "profile_picture": request.build_absolute_uri(user.default_persona.avatar.url) if (user.default_persona and user.default_persona.avatar) else None
         }
     }, status=status.HTTP_200_OK)
 
@@ -150,10 +152,12 @@ def onboarding(request):
 @permission_classes([IsAuthenticated])
 def user_profile(request):
     user = request.user
+    persona = user.default_persona
     return Response({
         "username": user.username,
         "email": user.email,
-        "onboardingComplete": bool(user.first_name)
+        "onboardingComplete": bool(user.first_name),
+        "profile_picture": request.build_absolute_uri(persona.avatar.url) if (persona and persona.avatar) else None
     })
 
 @api_view(["PATCH"])
