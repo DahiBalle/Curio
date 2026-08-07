@@ -4,7 +4,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -13,14 +13,15 @@
 }
 
 .label-modal {
-  background-color: #0b1416;
+  background-color: var(--bg);
   width: 100%;
   max-width: 600px;
   border-radius: 16px;
-  border: 1px solid #2a2d2f;
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   max-height: 90vh;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
 }
 
 .label-modal__header {
@@ -31,13 +32,13 @@
 .label-modal__title {
   font-size: 28px;
   font-weight: 800;
-  color: #f5f5f5;
+  color: var(--text-h);
   margin: 0 0 8px 0;
 }
 
 .label-modal__subtitle {
   font-size: 15px;
-  color: #818384;
+  color: var(--text);
   margin: 0;
 }
 
@@ -47,14 +48,14 @@
   right: 24px;
   background: none;
   border: none;
-  color: #818384;
+  color: var(--text);
   font-size: 28px;
   cursor: pointer;
   line-height: 1;
 }
 
 .label-modal__close:hover {
-  color: #f5f5f5;
+  color: var(--text-h);
 }
 
 .label-modal__body {
@@ -66,12 +67,12 @@
 .label-modal__counter {
   text-align: right;
   font-size: 13px;
-  color: #818384;
+  color: var(--text);
   margin-bottom: 8px;
 }
 
 .label-modal__selected-area {
-  border: 1px dashed #2a2d2f;
+  border: 1px dashed var(--border);
   border-radius: 12px;
   min-height: 120px;
   padding: 24px;
@@ -85,18 +86,18 @@
 }
 
 .label-modal__selected-area .placeholder {
-  color: #444;
+  color: var(--text);
   font-style: italic;
   font-size: 15px;
 }
 
 .label-modal__search input {
   width: 100%;
-  background-color: #1a1d1f;
-  border: 1px solid #2a2d2f;
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
-  color: #f5f5f5;
+  color: var(--text-h);
   font-size: 15px;
   outline: none;
   margin-bottom: 32px;
@@ -110,7 +111,7 @@
 .suggested-title {
   font-size: 16px;
   font-weight: 600;
-  color: #f5f5f5;
+  color: var(--text-h);
   margin: 0 0 16px 0;
 }
 
@@ -121,11 +122,11 @@
 }
 
 .pill-btn {
-  background-color: #1a1d1f;
-  border: 1px solid #2a2d2f;
+  background-color: var(--social-bg);
+  border: 1px solid var(--border);
   border-radius: 24px;
   padding: 10px 20px;
-  color: #f5f5f5;
+  color: var(--text-h);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -133,13 +134,13 @@
 }
 
 .pill-btn:hover:not(.disabled) {
-  background-color: #2a2d2f;
+  background-color: var(--border);
 }
 
 .pill-btn.selected {
   background-color: transparent;
-  color: #1d9bf0;
-  border-color: #1d9bf0;
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .pill-btn.disabled {
@@ -151,12 +152,12 @@
   padding: 24px;
   display: flex;
   justify-content: flex-end;
-  border-top: 1px solid #2a2d2f;
+  border-top: 1px solid var(--border);
 }
 
 .btn-done {
-  background-color: #f5f5f5;
-  color: #0b1416;
+  background-color: var(--accent);
+  color: #ffffff;
   border: none;
   border-radius: 24px;
   padding: 12px 32px;

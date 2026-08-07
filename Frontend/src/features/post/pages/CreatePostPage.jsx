@@ -51,7 +51,7 @@ export const CreatePostPage = () => {
               onClick={() => setActiveModal('broad')}
               style={{
                 flex: 1, padding: '12px 16px', borderRadius: '8px', 
-                border: '1px solid #333', background: '#111', color: 'white',
+                border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-h)',
                 textAlign: 'left', cursor: 'pointer', fontSize: '15px'
               }}
             >
@@ -66,7 +66,7 @@ export const CreatePostPage = () => {
               disabled={!broadTopic}
               style={{
                 flex: 1, padding: '12px 16px', borderRadius: '8px', 
-                border: '1px solid #333', background: '#111', color: broadTopic ? 'white' : 'gray',
+                border: '1px solid var(--border)', background: 'var(--bg)', color: broadTopic ? 'var(--text-h)' : 'var(--text)',
                 fontSize: '15px', opacity: broadTopic ? 1 : 0.5
               }}
             />
@@ -125,11 +125,11 @@ export const CreatePostPage = () => {
 
       {/* Broad Topic Modal */}
       {activeModal === 'broad' && (
-        <div className="modal-overlay" onClick={() => setActiveModal(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '20px', background: '#111', border: '1px solid #333', borderRadius: '12px', minWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
+        <div className="modal-overlay" onClick={() => setActiveModal(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '20px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: '12px', minWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <h2>Select Broad Topic</h2>
-              <button type="button" onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+              <button type="button" onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', fontSize: '20px' }}>✕</button>
             </div>
             <InterestSelector 
               interests={broadTopic ? [broadTopic] : []}

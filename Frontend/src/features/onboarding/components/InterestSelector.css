@@ -9,7 +9,7 @@
   display: flex;
   justify-content: flex-end;
   font-size: 13px;
-  color: #818384;
+  color: var(--text);
 }
 
 .interest-count {
@@ -21,11 +21,11 @@
   border: 1px dashed var(--border);
   border-radius: 12px;
   padding: 16px;
-  background-color: rgba(255,255,255,0.02);
+  background-color: rgba(0,0,0,0.02);
 }
 
 .empty-interests-text {
-  color: #818384;
+  color: var(--text);
   text-align: center;
   font-style: italic;
   padding-top: 24px;
@@ -39,7 +39,7 @@
 }
 
 .interest-chip {
-  background-color: #1a1d1f;
+  background-color: var(--social-bg);
   color: var(--text-h);
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -53,14 +53,13 @@
 }
 
 .interest-chip:hover:not(:disabled) {
-  background-color: #2a2d2f;
-  border-color: #444;
+  background-color: var(--border);
 }
 
 .interest-chip.selected {
   background-color: rgba(29, 155, 240, 0.1);
-  border-color: #1d9bf0;
-  color: #1d9bf0;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .interest-chip.selected:hover {
@@ -94,7 +93,7 @@
 
 .interest-search-input:focus {
   outline: none;
-  border-color: #1d9bf0;
+  border-color: var(--accent);
 }
 
 .interest-search-input:disabled {
@@ -105,5 +104,5 @@
 .suggested-heading {
   margin: 16px 0 12px;
   font-size: 14px;
-  color: #818384;
+  color: var(--text);
 }
