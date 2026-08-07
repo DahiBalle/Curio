@@ -26,5 +26,11 @@ export const postApi = {
     const cleanIds = postIds.map(id => String(id).replace('post-', ''));
     const { data } = await client.post(`/posts/impression/`, { postIds: cleanIds, personaId });
     return data;
+  },
+
+  toggleSave: async (postId) => {
+    const id = String(postId).replace('post-', '');
+    const { data } = await client.post(`/posts/${id}/save/`);
+    return data;
   }
 };

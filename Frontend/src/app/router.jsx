@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { ProfilePage } from '../features/profile';
+import { ProfilePage, SavedPage } from '../features/profile';
 import { Sidebar } from '../components/layout/Sidebar';
 import { SearchOverlay } from '../components/layout/SearchOverlay';
 import { SignupPage, LoginPage } from '../features/auth';
@@ -35,6 +35,7 @@ export const AppRouter = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/profile/:username" element={<ProfilePage />} />
+                <Route path="/saved" element={<SavedPage />} />
                 <Route path="/create" element={<CreatePostPage />} />
                 <Route path="/post/:id" element={<PostDetailPage />} />
               </Routes>

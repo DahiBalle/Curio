@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 from .models import User, Follow
 from personas.models import Persona, Topic, PersonaTopic
 from posts.models import Post
+from interactions.models import SavedPost
 
 def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -262,6 +263,10 @@ def user_profile_posts(request, username):
         media = post.media.first()
         media_url = request.build_absolute_uri(media.file.url) if (media and media.file) else None
         
+        is_saved = False
+        if request.user.is_authenticated:
+            is_saved = SavedPost.objects.filter(user=request.user, post=post).exists()
+        
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic_name,
@@ -274,7 +279,51 @@ def user_profile_posts(request, username):
             "upvotes": str(post.likes_count),
             "commentsCount": str(post.comments.count()),
             "label": None,
-            "type": media.media_type if media else "text"
+            "type": media.media_type if media else "text",
+            "isSaved": is_saved
+        })
+
+    return Response({
+        "posts": data,
+        "page": page_obj.number,
+        "totalPages": paginator.num_pages,
+        "totalPosts": paginator.count
+    })
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def saved_posts_list(request):
+    user = request.user
+    
+    saved = SavedPost.objects.filter(user=user).select_related('post').order_by('-created_at')
+    
+    paginator = Paginator(saved, request.query_params.get("limit", 10))
+    page_obj = paginator.get_page(request.query_params.get("page", 1))
+
+    data = []
+    for s in page_obj:
+        post = s.post
+        topic = post.narrow_topic if post.narrow_topic else post.broad_topic
+        topic_name = topic.name if topic else None
+        
+        media = post.media.first()
+        media_url = request.build_absolute_uri(media.file.url) if (media and media.file) else None
+        author = post.author_persona
+        
+        data.append({
+            "id": f"post-{post.id}",
+            "subreddit": topic_name,
+            "author": f"u/{author.user.username}" if author else None,
+            "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and author.avatar) else None,
+            "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "title": post.title,
+            "description": post.description,
+            "imageUrl": media_url,
+            "upvotes": str(post.likes_count),
+            "commentsCount": str(post.comments.count()),
+            "label": None,
+            "type": media.media_type if media else "text",
+            "isSaved": True
         })
 
     return Response({

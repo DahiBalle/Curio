@@ -19,6 +19,7 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   const hasImage = !!imageUrl;
 
   const [isLiked, setIsLiked] = useState(post.is_liked || post.userVote === 1 || false);
+  const [isSaved, setIsSaved] = useState(post.isSaved || false);
   const initialLikes = parseInt(post.stats?.likes || post.upvotes || 0, 10);
   const [likeCount, setLikeCount] = useState(initialLikes);
 
@@ -40,6 +41,21 @@ export const PostPreview = ({ post, isDetailView = false }) => {
       setIsLiked(!newIsLiked);
       setLikeCount(prev => !newIsLiked ? prev + 1 : Math.max(0, prev - 1));
       console.error('Failed to toggle like:', err);
+    }
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const newIsSaved = !isSaved;
+    setIsSaved(newIsSaved);
+
+    try {
+      await postApi.toggleSave(post.id);
+    } catch (err) {
+      setIsSaved(!newIsSaved);
+      console.error('Failed to toggle save:', err);
     }
   };
 
@@ -166,15 +182,15 @@ export const PostPreview = ({ post, isDetailView = false }) => {
           </svg>
         </button>
 
-        <button className="post-preview__action-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        <button 
+          className={`post-preview__action-btn ${isSaved ? 'post-preview__action-btn--saved' : ''}`}
+          onClick={handleSave}
+          style={isSaved ? { color: '#facc15' } : {}}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill={isSaved ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
           </svg>
-          <span>Share</span>
+          <span>{isSaved ? 'Saved' : 'Save'}</span>
         </button>
       </div>
 

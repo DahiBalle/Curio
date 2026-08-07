@@ -8,7 +8,7 @@ from django.core.paginator import Paginator
 
 from .models import Post, PostMedia, Comment
 from personas.models import Topic
-from interactions.models import Interaction
+from interactions.models import Interaction, SavedPost
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -83,6 +83,10 @@ def list_posts(request):
         topic = post.narrow_topic if post.narrow_topic else post.broad_topic
         media = post.media.first()
         author = post.author_persona
+        is_saved = False
+        if request.user.is_authenticated:
+            is_saved = SavedPost.objects.filter(user=request.user, post=post).exists()
+            
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic.name if topic else None,
@@ -94,7 +98,8 @@ def list_posts(request):
             "imageUrl": request.build_absolute_uri(media.file.url) if (media and media.file) else None,
             "upvotes": str(post.likes_count),
             "commentsCount": str(post.comments.count()),
-            "type": media.media_type if media else "text"
+            "type": media.media_type if media else "text",
+            "isSaved": is_saved
         })
     return Response({"posts": data, "page": page_obj.number, "totalPages": paginator.num_pages})
 
@@ -106,11 +111,14 @@ def post_detail(request, post_id):
     author = post.author_persona
 
     user_vote = 0
+    is_saved = False
     if request.user.is_authenticated:
         # Check interactions
         interaction = Interaction.objects.filter(persona=request.user.default_persona, post=post, interaction_type='like').first()
         if interaction:
             user_vote = 1 # Assuming likes only for now (or upvotes)
+            
+        is_saved = SavedPost.objects.filter(user=request.user, post=post).exists()
 
     comments = []
     for c in post.comments.all():
@@ -140,6 +148,7 @@ def post_detail(request, post_id):
         "label": None,
         "type": media.media_type if media else "text",
         "userVote": user_vote,
+        "isSaved": is_saved,
         "comments": comments
     })
 
