@@ -1,9 +1,10 @@
 import client from '../../../services/client';
 
+const cleanId = (id, prefix = 'post-') => String(id).replace(prefix, '');
+
 export const postApi = {
   getPost: async (postId) => {
-    const id = String(postId).replace('post-', '');
-    const { data } = await client.get(`/posts/${id}/`);
+    const { data } = await client.get(`/posts/${cleanId(postId)}/`);
     return data;
   },
 
@@ -13,14 +14,12 @@ export const postApi = {
   },
 
   votePost: async (postId, direction, personaId) => {
-    const id = String(postId).replace('post-', '');
-    const { data } = await client.post(`/posts/${id}/vote/`, { direction, personaId });
+    const { data } = await client.post(`/posts/${cleanId(postId)}/vote/`, { direction, personaId });
     return data;
   },
 
   recordClick: async (postId, personaId) => {
-    const id = String(postId).replace('post-', '');
-    const { data } = await client.post(`/posts/${id}/click/`, { personaId });
+    const { data } = await client.post(`/posts/${cleanId(postId)}/click/`, { personaId });
     return data;
   },
 
@@ -28,30 +27,22 @@ export const postApi = {
     if (!Array.isArray(postIds)) {
       postIds = [postIds];
     }
-    const cleanIds = postIds.map(id => String(id).replace('post-', ''));
+    const cleanIds = postIds.map(id => cleanId(id));
     const { data } = await client.post(`/posts/impression/`, { postIds: cleanIds, personaId });
     return data;
   },
 
   toggleSave: async (postId) => {
-    const id = String(postId).replace('post-', '');
-    const { data } = await client.post(`/posts/${id}/save/`);
+    const { data } = await client.post(`/posts/${cleanId(postId)}/save/`);
     return data;
   },
 
   createComment: async (postId, content, parentId = null) => {
-    const id = String(postId).replace('post-', '');
     const payload = { content };
     if (parentId) {
-      payload.parentId = String(parentId).replace('comment-', '');
+      payload.parentId = cleanId(parentId, 'comment-');
     }
-    const { data } = await client.post(`/posts/${id}/comments/create/`, payload);
-    return data;
-  },
-
-  likeComment: async (commentId) => {
-    const id = String(commentId).replace('comment-', '');
-    const { data } = await client.post(`/posts/comments/${id}/like/`);
+    const { data } = await client.post(`/posts/${cleanId(postId)}/comments/create/`, payload);
     return data;
   }
 };
