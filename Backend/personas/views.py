@@ -74,12 +74,14 @@ def active_persona(request):
     persona = request.user.default_persona
     if not persona:
         persona = Persona.objects.filter(user=request.user).first()
-        if persona:
-            request.user.default_persona = persona
-            request.user.save()
+        if not persona:
+            persona = Persona.objects.create(user=request.user, name=request.user.first_name or request.user.username)
+        request.user.default_persona = persona
+        request.user.save()
             
     if not persona:
         return Response({"active_persona": None})
+
         
     posts_count = persona.posts.count()
     return Response({
