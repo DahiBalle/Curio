@@ -1,15 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CreatePostPage.css';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { ImageUploader } from '../components/ImageUploader';
 import { CancelModal } from '../components/CancelModal';
+import { InterestSelector } from '../../onboarding/components/InterestSelector';
 
 export const CreatePostPage = () => {
   const {
     images,
     title,
     body,
-    availableTopics,
     broadTopic,
     narrowTopic,
     isSubmitting,
@@ -28,19 +28,7 @@ export const CreatePostPage = () => {
     confirmCancel
   } = useCreatePost();
 
-  const handleBroadTopicChange = (e) => {
-    const selectedId = e.target.value;
-    const topic = availableTopics.find(t => t.id === selectedId);
-    setBroadTopic(topic || null);
-    setNarrowTopic(null); // Reset narrow topic when broad changes
-  };
-
-  const handleNarrowTopicChange = (e) => {
-    if (!broadTopic) return;
-    const selectedId = e.target.value;
-    const topic = broadTopic.subtopics.find(t => t.id === selectedId);
-    setNarrowTopic(topic || null);
-  };
+  const [activeModal, setActiveModal] = useState(null); // 'broad' or 'specific'
 
   return (
     <div className="create-post-page">
@@ -57,30 +45,31 @@ export const CreatePostPage = () => {
         <form className="create-post-form" onSubmit={submitPost}>
           
           <div className="form-section row-section" style={{ gap: '10px' }}>
-            <select 
-              className="topic-select" 
-              value={broadTopic?.id || ''} 
-              onChange={handleBroadTopicChange}
-              required
+            <button 
+              type="button" 
+              className="topic-button" 
+              onClick={() => setActiveModal('broad')}
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: '8px', 
+                border: '1px solid #333', background: '#111', color: 'white',
+                textAlign: 'left', cursor: 'pointer', fontSize: '15px'
+              }}
             >
-              <option value="" disabled>Select Broad Topic*</option>
-              {availableTopics.map(topic => (
-                <option key={topic.id} value={topic.id}>{topic.name}</option>
-              ))}
-            </select>
-            
-            <select 
-              className="topic-select" 
-              value={narrowTopic?.id || ''} 
-              onChange={handleNarrowTopicChange}
+              {broadTopic ? `Broad: ${broadTopic}` : 'Select Broad Topic*'}
+            </button>
+            <input 
+              type="text"
+              className="topic-input"
+              placeholder="Specific Topic (Optional)"
+              value={narrowTopic || ''}
+              onChange={(e) => setNarrowTopic(e.target.value)}
               disabled={!broadTopic}
-              required
-            >
-              <option value="" disabled>Select Narrow Topic*</option>
-              {broadTopic?.subtopics?.map(topic => (
-                <option key={topic.id} value={topic.id}>{topic.name}</option>
-              ))}
-            </select>
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: '8px', 
+                border: '1px solid #333', background: '#111', color: broadTopic ? 'white' : 'gray',
+                fontSize: '15px', opacity: broadTopic ? 1 : 0.5
+              }}
+            />
           </div>
 
           <div className="form-section">
@@ -133,6 +122,28 @@ export const CreatePostPage = () => {
           onClose={() => setIsCancelModalOpen(false)} 
         />
       )}
+
+      {/* Broad Topic Modal */}
+      {activeModal === 'broad' && (
+        <div className="modal-overlay" onClick={() => setActiveModal(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ padding: '20px', background: '#111', border: '1px solid #333', borderRadius: '12px', minWidth: '500px', maxHeight: '80vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2>Select Broad Topic</h2>
+              <button type="button" onClick={() => setActiveModal(null)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', fontSize: '20px' }}>✕</button>
+            </div>
+            <InterestSelector 
+              interests={broadTopic ? [broadTopic] : []}
+              onChange={(newInterests) => {
+                setBroadTopic(newInterests.length > 0 ? newInterests[0] : null);
+                if (newInterests.length === 0) setNarrowTopic(null);
+                if (newInterests.length > 0) setActiveModal(null); // Close modal on select
+              }}
+              limit={1}
+            />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

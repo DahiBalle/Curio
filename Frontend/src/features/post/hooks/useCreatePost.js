@@ -7,7 +7,6 @@ export const useCreatePost = () => {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   
-  const [availableTopics, setAvailableTopics] = useState([]);
   const [broadTopic, setBroadTopic] = useState(null);
   const [narrowTopic, setNarrowTopic] = useState(null);
 
@@ -16,18 +15,6 @@ export const useCreatePost = () => {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchTopics = async () => {
-      try {
-        const { data } = await client.get('/personas/topics/');
-        setAvailableTopics(data);
-      } catch (err) {
-        console.error("Failed to fetch topics", err);
-      }
-    };
-    fetchTopics();
-  }, []);
 
   // Cleanup object URLs to avoid memory leaks
   useEffect(() => {
@@ -53,7 +40,7 @@ export const useCreatePost = () => {
     });
   }, []);
 
-  const isValid = title.trim().length > 0 && images.length > 0 && broadTopic !== null && narrowTopic !== null;
+  const isValid = title.trim().length > 0 && broadTopic !== null;
 
   const submitPost = async (e) => {
     if (e) e.preventDefault();
@@ -66,8 +53,10 @@ export const useCreatePost = () => {
       const formData = new FormData();
       formData.append('title', title.trim());
       formData.append('description', body.trim());
-      formData.append('broadTopicId', broadTopic.id);
-      formData.append('narrowTopicId', narrowTopic.id);
+      formData.append('broadTopicId', broadTopic);
+      if (narrowTopic) {
+        formData.append('narrowTopicId', narrowTopic);
+      }
       
       if (images.length > 0) {
         formData.append('media', images[0].file);
@@ -105,7 +94,6 @@ export const useCreatePost = () => {
     images,
     title,
     body,
-    availableTopics,
     broadTopic,
     narrowTopic,
     isSubmitting,

@@ -32,16 +32,22 @@ def create_post(request):
     narrow_topic = None
     
     if broad_topic_id:
-        try:
-            broad_topic = Topic.objects.get(id=int(broad_topic_id), topic_type=Topic.BROAD)
-        except (ValueError, Topic.DoesNotExist):
-            pass
+        if str(broad_topic_id).isdigit():
+            try:
+                broad_topic = Topic.objects.get(id=int(broad_topic_id), topic_type=Topic.BROAD)
+            except Topic.DoesNotExist:
+                pass
+        else:
+            broad_topic, _ = Topic.objects.get_or_create(name=str(broad_topic_id), defaults={'topic_type': Topic.BROAD})
             
     if narrow_topic_id:
-        try:
-            narrow_topic = Topic.objects.get(id=int(narrow_topic_id), topic_type=Topic.NARROW)
-        except (ValueError, Topic.DoesNotExist):
-            pass
+        if str(narrow_topic_id).isdigit():
+            try:
+                narrow_topic = Topic.objects.get(id=int(narrow_topic_id), topic_type=Topic.NARROW)
+            except Topic.DoesNotExist:
+                pass
+        else:
+            narrow_topic, _ = Topic.objects.get_or_create(name=str(narrow_topic_id), defaults={'topic_type': Topic.NARROW})
 
     post = Post.objects.create(
         author_persona=persona,
@@ -102,7 +108,7 @@ def post_detail(request, post_id):
     user_vote = 0
     if request.user.is_authenticated:
         # Check interactions
-        interaction = Interaction.objects.filter(user=request.user, post=post, interaction_type='like').first()
+        interaction = Interaction.objects.filter(persona=request.user.default_persona, post=post, interaction_type='like').first()
         if interaction:
             user_vote = 1 # Assuming likes only for now (or upvotes)
 

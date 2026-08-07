@@ -1,7 +1,6 @@
 # --- Core framework ---
 Django                    # LTS release
-channels                  # WebSockets support
-daphne                    # ASGI server for channels
+
 djangorestframework
 djangorestframework-simplejwt   # token auth for /api/auth/login
 django-cors-headers             # allow the React frontend to call the API

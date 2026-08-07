@@ -3,7 +3,7 @@ import './InterestSelector.css';
 
 import client from '../../../services/client';
 
-export function InterestSelector({ interests, onChange }) {
+export function InterestSelector({ interests, onChange, limit = 10 }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [suggestedInterests, setSuggestedInterests] = useState([]);
 
@@ -19,7 +19,7 @@ export function InterestSelector({ interests, onChange }) {
   }, []);
 
   const handleAdd = (interest) => {
-    if (interests.length < 10 && !interests.includes(interest)) {
+    if (interests.length < limit && !interests.includes(interest)) {
       onChange([...interests, interest]);
     }
   };
@@ -43,7 +43,7 @@ export function InterestSelector({ interests, onChange }) {
   return (
     <div className="interest-selector">
       <div className="interest-selector-header">
-        <span className="interest-count">{interests.length}/10 selected</span>
+        <span className="interest-count">{interests.length}/{limit} selected</span>
       </div>
 
       {/* Selected Interests Area */}
@@ -65,7 +65,6 @@ export function InterestSelector({ interests, onChange }) {
         )}
       </div>
 
-      {/* Search Input */}
       <div className="interest-search-container">
         <input 
           type="text"
@@ -74,7 +73,7 @@ export function InterestSelector({ interests, onChange }) {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyDown={handleKeyDown}
-          disabled={interests.length >= 10}
+          disabled={interests.length >= limit}
         />
       </div>
 
@@ -87,7 +86,7 @@ export function InterestSelector({ interests, onChange }) {
               key={interest} 
               className="interest-chip"
               onClick={() => handleAdd(interest)}
-              disabled={interests.length >= 10}
+              disabled={interests.length >= limit}
             >
               + {interest}
             </button>
@@ -99,7 +98,7 @@ export function InterestSelector({ interests, onChange }) {
                 handleAdd(searchTerm.trim());
                 setSearchTerm('');
               }}
-              disabled={interests.length >= 10}
+              disabled={interests.length >= limit}
             >
               + Add "{searchTerm}"
             </button>

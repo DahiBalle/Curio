@@ -256,11 +256,11 @@ def user_profile_posts(request, username):
 
     data = []
     for post in page_obj:
-        first_topic = post.topics.first()
-        topic_name = first_topic.name if first_topic else None
+        topic = post.narrow_topic if post.narrow_topic else post.broad_topic
+        topic_name = topic.name if topic else None
         
         media = post.media.first()
-        media_url = request.build_absolute_uri(media.media_url) if (media and hasattr(media, 'media_url')) else None
+        media_url = request.build_absolute_uri(media.file.url) if (media and media.file) else None
         
         data.append({
             "id": f"post-{post.id}",
@@ -272,7 +272,7 @@ def user_profile_posts(request, username):
             "description": post.description,
             "imageUrl": media_url,
             "upvotes": str(post.likes_count),
-            "commentsCount": str(post.comment_set.count()) if hasattr(post, 'comment_set') else "0",
+            "commentsCount": str(post.comments.count()),
             "label": None,
             "type": media.media_type if media else "text"
         })

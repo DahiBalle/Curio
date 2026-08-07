@@ -2,11 +2,9 @@ import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import './Sidebar.css';
 import { Avatar } from '../ui/Avatar';
-import { useMessages } from '../../features/messages/hooks/useMessages';
 import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar = ({ onSearchClick }) => {
-  const { unreadCount } = useMessages();
   const { logout, user } = useAuth();
   return (
     <aside className="sidebar">
@@ -31,15 +29,16 @@ export const Sidebar = ({ onSearchClick }) => {
           <span className="sidebar__label">Search</span>
         </button>
 
-        <NavLink to="/messages" className={({ isActive }) => `sidebar__nav-item ${isActive ? 'active' : ''}`}>
+        <div className="sidebar__nav-item" style={{ cursor: 'not-allowed', opacity: 0.5 }} title="Coming soon">
           <div className="sidebar__icon-wrapper">
             <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
-            {unreadCount > 0 && <span className="sidebar__badge">{unreadCount}</span>}
           </div>
-          <span className="sidebar__label">Messages</span>
-        </NavLink>
+          <span className="sidebar__label">
+            Messages <span style={{ fontSize: '10px', backgroundColor: '#1d9bf0', padding: '2px 6px', borderRadius: '10px', marginLeft: '6px', color: 'white', fontWeight: 'bold' }}>Beta</span>
+          </span>
+        </div>
 
         <a href="#" className="sidebar__nav-item">
           <svg className="sidebar__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

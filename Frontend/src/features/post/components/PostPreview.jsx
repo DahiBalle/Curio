@@ -18,10 +18,11 @@ export const PostPreview = ({ post, isDetailView = false }) => {
   const description = post.content || post.description;
   const hasImage = !!imageUrl;
 
-  const [isLiked, setIsLiked] = useState(post.is_liked || false);
-  const [likeCount, setLikeCount] = useState(post.stats?.likes || post.upvotes || 0);
+  const [isLiked, setIsLiked] = useState(post.is_liked || post.userVote === 1 || false);
+  const initialLikes = parseInt(post.stats?.likes || post.upvotes || 0, 10);
+  const [likeCount, setLikeCount] = useState(initialLikes);
 
-  const commentsCount = post.stats?.comments || post.commentsCount || 0;
+  const commentsCount = parseInt(post.stats?.comments || post.commentsCount || 0, 10);
   const label = post.tags || post.label;
 
   const handleLike = async (e) => {

@@ -43,14 +43,14 @@ export const ProfilePage = () => {
     bio: activeDisplayPersona?.bio,
     avatarUrl: activeDisplayPersona?.avatarUrl || activeDisplayPersona?.avatar,
     bannerUrl: activeDisplayPersona?.bannerUrl || activeDisplayPersona?.banner,
-    postsCount: posts.filter(p => p.author?.id === activeDisplayPersona?.id).length,
+    postsCount: posts.length,
     isPersona: true,
     id: activeDisplayPersona?.id,
     isActive: activePersona && activePersona.id === activeDisplayPersona?.id,
     username: profile?.username // pass the base profile's username
   };
 
-  const displayedPosts = posts.filter(p => p.author?.id === activeDisplayPersona?.id);
+  const displayedPosts = posts;
 
   return (
     <div className="layout-two-column">

@@ -33,47 +33,7 @@ class Interaction(models.Model):
             models.Index(fields=['persona']),
         ]
 
-class Conversation(models.Model):
-    created_at = models.DateTimeField(default=timezone.now)
 
-class ConversationParticipant(models.Model):
-    conversation = models.ForeignKey(
-        Conversation, 
-        on_delete=models.CASCADE, 
-        related_name="participants"
-    )
-    user = models.ForeignKey(
-        User, 
-        on_delete=models.CASCADE, 
-        related_name="conversations"
-    )
-    
-    class Meta:
-        unique_together = ('conversation', 'user')
-        indexes = [
-            models.Index(fields=['user']),
-        ]
-
-class Message(models.Model):
-    conversation = models.ForeignKey(
-        Conversation,
-        on_delete=models.CASCADE,
-        related_name="messages"
-    )
-    sender = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="sent_messages"
-    )
-    content = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
-    is_read = models.BooleanField(default=False)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['conversation']),
-            models.Index(fields=['sender']),
-        ]
 
 class SavedPost(models.Model):
     user = models.ForeignKey(
