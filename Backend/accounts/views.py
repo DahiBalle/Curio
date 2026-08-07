@@ -98,6 +98,14 @@ def check_username(request):
     exists = User.objects.filter(username__iexact=username).exists()
     return Response({"available": not exists})
 
+@api_view(["GET"])
+def check_email(request):
+    email = request.query_params.get("email")
+    if not email:
+        return Response({"error": "Email required"}, status=400)
+    exists = User.objects.filter(email__iexact=email).exists()
+    return Response({"exists": exists})
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 @parser_classes([MultiPartParser, FormParser, JSONParser])
@@ -267,7 +275,7 @@ def user_profile_posts(request, username):
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic_name,
-            "author": f"u/{user.username}",
+            "author": f"@{user.username}",
             "authorAvatar": request.build_absolute_uri(persona.avatar.url) if persona.avatar else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,
@@ -318,7 +326,7 @@ def saved_posts_list(request):
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic_name,
-            "author": f"u/{author.user.username}" if author else None,
+            "author": f"@{author.user.username}" if author else None,
             "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and getattr(author, 'avatar', None)) else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,

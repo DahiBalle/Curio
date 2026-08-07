@@ -7,8 +7,9 @@ urlpatterns = [
     path("auth/login/", views.login, name="login"),
     path("auth/me/", views.user_profile, name="user-profile"),
     
-    # Onboarding
+    # Onboarding & Checks
     path("accounts/check-username/", views.check_username, name="check-username"),
+    path("accounts/check-email/", views.check_email, name="check-email"),
     path("accounts/onboarding/", views.onboarding, name="onboarding"),
     
     # Profile API

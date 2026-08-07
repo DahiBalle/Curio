@@ -9,6 +9,13 @@ export const authApi = {
     return data; // expected shape: { available: boolean }
   },
 
+  checkEmailExists: async (email) => {
+    const { data } = await client.get('/accounts/check-email/', {
+      params: { email },
+    });
+    return data; // expected shape: { exists: boolean }
+  },
+
   signup: async (payload) => {
     const { data } = await client.post('/auth/signup/', payload);
     return {

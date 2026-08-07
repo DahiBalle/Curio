@@ -62,7 +62,7 @@ def serialize_posts(posts, request):
         data.append({
             "id": f"post-{post.id}",
             "subreddit": topic.name if topic else None,
-            "author": f"u/{author.user.username}" if author else None,
+            "author": f"@{author.user.username}" if author else None,
             "authorAvatar": request.build_absolute_uri(author.avatar.url) if (author and getattr(author, 'avatar', None)) else None,
             "timeAgo": post.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
             "title": post.title,
