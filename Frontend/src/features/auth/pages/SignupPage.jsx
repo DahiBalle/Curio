@@ -10,9 +10,6 @@ export function SignupPage({ onSignupComplete }) {
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -55,8 +52,6 @@ export function SignupPage({ onSignupComplete }) {
     }
   };
 
-  const toggleTheme = () => setIsDarkMode(prev => !prev);
-
   return (
     <div style={{
       display: 'flex',
@@ -64,14 +59,12 @@ export function SignupPage({ onSignupComplete }) {
       alignItems: 'center',
       minHeight: '100vh',
       width: '100%',
-      backgroundColor: isDarkMode ? '#1a202c' : '#f7fafc',
+      backgroundColor: 'var(--bg)',
       transition: 'background-color 0.3s ease'
     }}>
       {step === 'email' && (
         <EmailForm
           onContinue={handleEmailContinue}
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
           stepLabel="Step 1/3"
         />
       )}
@@ -81,8 +74,6 @@ export function SignupPage({ onSignupComplete }) {
           email={email}
           onContinue={handlePasswordContinue}
           onBack={() => setStep('email')}
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
           stepLabel="Step 2/3"
         />
       )}
@@ -93,8 +84,6 @@ export function SignupPage({ onSignupComplete }) {
           password={password}
           onSubmit={handleConfirmSubmit}
           onBack={() => setStep('password')}
-          isDarkMode={isDarkMode}
-          onToggleTheme={toggleTheme}
           stepLabel="Step 3/3"
         />
       )}

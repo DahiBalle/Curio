@@ -9,6 +9,21 @@ export const CommentItem = ({ comment, postId, onReplyAdded }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localReplies, setLocalReplies] = useState(comment.replies || []);
 
+  const [localUpvotes, setLocalUpvotes] = useState(parseInt(comment.upvotes) || 0);
+
+  const handleLike = async () => {
+    try {
+      const data = await postApi.likeComment(comment.id);
+      if (data && data.upvotes) {
+        setLocalUpvotes(parseInt(data.upvotes));
+      } else {
+        setLocalUpvotes(prev => prev + 1); // fallback
+      }
+    } catch (error) {
+      console.error('Failed to like comment', error);
+    }
+  };
+
   const handleReplySubmit = async (e) => {
     e.preventDefault();
     if (!replyContent.trim()) return;
@@ -44,11 +59,11 @@ export const CommentItem = ({ comment, postId, onReplyAdded }) => {
           </div>
           <div className="comment-item__text">{comment.content}</div>
           <div className="comment-item__actions">
-            <button className="comment-item__action-btn">
+            <button className="comment-item__action-btn" onClick={handleLike}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
               </svg>
-              <span>{comment.upvotes || 0}</span>
+              <span>{localUpvotes}</span>
             </button>
             <button className="comment-item__action-btn" onClick={() => setIsReplying(!isReplying)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

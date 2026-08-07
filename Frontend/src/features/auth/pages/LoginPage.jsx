@@ -6,13 +6,10 @@ import { authApi } from '../api/authApi';
 import { useAuth } from '../../../context/AuthContext';
 
 export function LoginPage({ onLoginComplete }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth();
-
-  const toggleTheme = () => setIsDarkMode(prev => !prev);
 
   const handleLoginComplete = async ({ email, password }) => {
     setIsSubmitting(true);
@@ -42,13 +39,11 @@ export function LoginPage({ onLoginComplete }) {
       alignItems: 'center',
       minHeight: '100vh',
       width: '100%',
-      backgroundColor: isDarkMode ? '#1a202c' : '#f7fafc',
+      backgroundColor: 'var(--bg)',
       transition: 'background-color 0.3s ease'
     }}>
       <LoginForm
         onLoginComplete={onLoginComplete || handleLoginComplete}
-        isDarkMode={isDarkMode}
-        onToggleTheme={toggleTheme}
         isSubmitting={isSubmitting}
       />
     </div>
