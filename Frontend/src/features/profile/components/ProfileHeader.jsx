@@ -5,7 +5,7 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 
-import { EditPersonaModal } from '../../persona/components/EditPersonaModal';
+import { EditPersonaModal } from '../../persona';
 import { EditUsernameModal } from './EditUsernameModal';
 import { useAuth } from '../../../context/AuthContext';
 import { usePersona } from '../../../context/PersonaContext';

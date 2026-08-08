@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { authApi } from '../../auth/api/authApi';
+import { authApi } from '../../auth';
 import client from '../../../services/client';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { isValidUsername } from '../../../utils/validators';

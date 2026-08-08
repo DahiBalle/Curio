@@ -7,7 +7,7 @@ import { SignupPage, LoginPage } from '../features/auth';
 import { OnboardingPage } from '../features/onboarding';
 import { HomePage } from '../features/feed';
 import { CreatePostPage, PostDetailPage } from '../features/post';
-import { SearchPage } from '../features/search/pages/SearchPage';
+import { SearchPage } from '../features/search';
 import { ProtectedRoute } from '../components/layout/ProtectedRoute';
 
 export const AppRouter = () => {

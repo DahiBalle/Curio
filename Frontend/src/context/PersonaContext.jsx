@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { profileApi } from '../features/profile/api/profileApi';
+import { profileApi } from '../features/profile';
 import { useAuth } from './AuthContext';
 import client from '../services/client';
 
-const PersonaContext = createContext();
+const PersonaContext = createContext(null);
 
 export function PersonaProvider({ children }) {
   const { user } = useAuth();
@@ -101,8 +101,13 @@ export function PersonaProvider({ children }) {
 
 export function usePersona() {
   const context = useContext(PersonaContext);
-  if (context === undefined) {
-    throw new Error('usePersona must be used within a PersonaProvider');
-  }
-  return context;
+  return context || {
+    activePersona: null,
+    personas: [],
+    interestFloor: [],
+    loading: false,
+    switchPersona: () => {},
+    setActivePersona: () => {},
+    refreshPersonas: () => {}
+  };
 }

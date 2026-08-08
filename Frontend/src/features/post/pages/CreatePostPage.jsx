@@ -3,7 +3,7 @@ import './CreatePostPage.css';
 import { useCreatePost } from '../hooks/useCreatePost';
 import { ImageUploader } from '../components/ImageUploader';
 import { CancelModal } from '../components/CancelModal';
-import { InterestSelector } from '../../onboarding/components/InterestSelector';
+import { InterestSelector } from '../../onboarding';
 
 export const CreatePostPage = () => {
   const {

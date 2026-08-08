@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import '../../persona/components/EditPersonaModal.css'; // Reusing edit persona styles for step 1
 import '../../onboarding/components/OnboardingSteps.css'; // Reusing onboarding styles for step 2
-import { InterestSelector } from '../../onboarding/components/InterestSelector';
+import { InterestSelector } from '../../onboarding';
+import { personaApi } from '../../persona';
 import client from '../../../services/client';
 import { Avatar } from '../../../components/ui/Avatar';
 import defaultAvatar from '../../../assets/default-avatar.png';

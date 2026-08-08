@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { authApi } from '../features/auth/api/authApi';
+import { authApi } from '../features/auth';
 
 export const AuthContext = createContext(null);
 

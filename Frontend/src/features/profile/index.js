@@ -1,2 +1,9 @@
+export { profileApi } from './api/profileApi';
+export { useProfile } from './hooks/useProfile';
 export { ProfilePage } from './pages/ProfilePage';
 export { SavedPage } from './pages/SavedPage';
+export { ProfileHeader } from './components/ProfileHeader';
+export { PersonaList } from './components/PersonaList';
+export { CreatePersonaModal } from './components/CreatePersonaModal';
+export { EditUsernameModal } from './components/EditUsernameModal';
+export { UserListModal } from './components/UserListModal';

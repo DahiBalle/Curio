@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { PostFeed } from '../../post';
 import { usePersona } from '../../../context/PersonaContext';
 import { PersonaCard, InterestFloor } from '../../persona';
-import { postApi } from '../../post/api/postApi';
+import { postApi } from '../../post';
 import '../../../app/layouts/TwoColumnLayout.css';
 
 export const SearchPage = () => {

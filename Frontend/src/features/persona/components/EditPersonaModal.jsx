@@ -1,97 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import './EditPersonaModal.css';
-import client from '../../../services/client';
-import { Avatar } from '../../../components/ui/Avatar';
+import { useEditPersona } from '../hooks/useEditPersona';
 import defaultAvatar from '../../../assets/default-avatar.png';
 import defaultBanner from '../../../assets/default-banner.jpg';
 
 export const EditPersonaModal = ({ isOpen, onClose, persona, onSaveSuccess }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    bio: '',
-    avatarUrl: '',
-    bannerUrl: ''
-  });
-  const [errorMsg, setErrorMsg] = useState('');
-  
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [bannerFile, setBannerFile] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Initialize form with persona data when modal opens
-  useEffect(() => {
-    if (isOpen && persona) {
-      setFormData({
-        name: persona.name || '',
-        bio: persona.bio || '',
-        avatarUrl: persona.avatarUrl || persona.imageUrl || '',
-        bannerUrl: persona.bannerUrl || ''
-      });
-      setAvatarFile(null);
-      setBannerFile(null);
-      setErrorMsg('');
-    }
-  }, [isOpen, persona]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const avatarInputRef = useRef(null);
-  const bannerInputRef = useRef(null);
-
-  const handleAvatarUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setAvatarFile(file);
-    setFormData(prev => ({ ...prev, avatarUrl: URL.createObjectURL(file) }));
-  };
-
-  const handleBannerUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setBannerFile(file);
-    setFormData(prev => ({ ...prev, bannerUrl: URL.createObjectURL(file) }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!persona?.id) return;
-
-    setIsSubmitting(true);
-    try {
-      setErrorMsg('');
-      const data = new FormData();
-      data.append('name', formData.name);
-      data.append('bio', formData.bio);
-      if (avatarFile) data.append('avatar', avatarFile);
-      if (bannerFile) data.append('banner', bannerFile);
-
-
-      const response = await client.put(`/personas/${persona.id}/update/`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      
-      if (response.data?.success && response.data?.persona) {
-        if (onSaveSuccess) onSaveSuccess(response.data.persona);
-        onClose();
-      }
-    } catch (error) {
-      console.error('Failed to update persona:', error);
-      if (error.response?.data?.error) {
-        setErrorMsg(error.response.data.error);
-      } else {
-        setErrorMsg('Failed to update profile.');
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    formData,
+    errorMsg,
+    isSubmitting,
+    avatarInputRef,
+    bannerInputRef,
+    handleChange,
+    handleAvatarUpload,
+    handleBannerUpload,
+    handleSubmit
+  } = useEditPersona({ isOpen, persona, onSaveSuccess, onClose });
 
   if (!isOpen) return null;
 
-  // Handle click on overlay to close
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       onClose();

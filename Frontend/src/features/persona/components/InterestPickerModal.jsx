@@ -1,44 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './EditPersonaModal.css';
 import '../../onboarding/components/OnboardingSteps.css';
-import { InterestSelector } from '../../onboarding/components/InterestSelector';
-import client from '../../../services/client';
+import { InterestSelector } from '../../onboarding';
+import { useInterestPicker } from '../hooks/useInterestPicker';
 
 export const InterestPickerModal = ({ isOpen, onClose, activePersona, onSuccess }) => {
-  const [interests, setInterests] = useState(activePersona?.interests || []);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Sync state when modal opens
-  React.useEffect(() => {
-    if (isOpen && activePersona) {
-      setInterests(activePersona.interests || []);
-    }
-  }, [isOpen, activePersona]);
+  const {
+    interests,
+    setInterests,
+    isSubmitting,
+    error,
+    handleSubmit
+  } = useInterestPicker({ isOpen, activePersona, onSuccess, onClose });
 
   if (!isOpen || !activePersona) return null;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    try {
-      const response = await client.put(`/personas/${activePersona.id}/update/`, {
-        interests: interests
-      });
-      
-      if (response.data.persona) {
-        if (onSuccess) onSuccess(response.data.persona);
-        onClose();
-      }
-    } catch (err) {
-      console.error('Failed to update interests:', err);
-      setError(err.response?.data?.error || 'Failed to update interests');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {

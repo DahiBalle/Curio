@@ -1,57 +1,19 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { EmailForm } from '../components/EmailForm';
 import { PasswordForm } from '../components/PasswordForm';
 import { ConfirmPasswordForm } from '../components/ConfirmPasswordForm';
-import { authApi } from '../api/authApi';
-import { useAuth } from '../../../context/AuthContext';
+import { useSignup } from '../hooks/useSignup';
 
 export function SignupPage({ onSignupComplete }) {
-  const [step, setStep] = useState('email');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const handleEmailContinue = (validEmail) => {
-    setEmail(validEmail);
-    setStep('password');
-  };
-
-  const handlePasswordContinue = (validPassword) => {
-    setPassword(validPassword);
-    setStep('confirmPassword');
-  };
-
-  const handleConfirmSubmit = async (data) => {
-    setIsSubmitting(true);
-    try {
-      const response = await authApi.signup({
-        email: data.email,
-        password: data.password
-      });
-
-      if (response && response.token) {
-        login(response.token, response.user);
-        
-        if (onSignupComplete) {
-          onSignupComplete(data);
-        } else {
-          // Standard flow: proceed to onboarding
-          navigate('/onboarding');
-        }
-
-      }
-    } catch (error) {
-      console.error('Signup failed', error);
-      const message = error?.response?.data?.error || 'Signup failed. Please try again.';
-      alert(message);
-      
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const {
+    step,
+    setStep,
+    email,
+    password,
+    handleEmailContinue,
+    handlePasswordContinue,
+    handleConfirmSubmit
+  } = useSignup(onSignupComplete);
 
   return (
     <div style={{
